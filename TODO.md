@@ -564,22 +564,22 @@
 
 > Verify Phase 2 is complete: models download, persist, load into RAM, and the UI reflects all states correctly.
 
-- [ ] **2.5.1** Full end-to-end test on simulator
+- [x] **2.5.1** Full end-to-end test on simulator
   - Fresh install → Onboarding → Download both models → "Start Using Hermit"
   - Kill app, relaunch → goes to main app (skips onboarding)
   - Settings shows both models as "Downloaded" with correct sizes
   - Settings → "Delete Models" → relaunch → shows onboarding again
 
-- [ ] **2.5.2** Run all unit tests (`Cmd+U`)
+- [x] **2.5.2** Run all unit tests (`Cmd+U`)
   - MemoryMonitor tests pass
   - ModelManager tests pass
   - DataModel tests pass (from Phase 1)
 
-- [ ] **2.5.3** Memory verification
+- [x] **2.5.3** Memory verification
   - In Settings, verify RAM indicator shows a sensible value
   - Load embedding model (if testable from UI) → verify RAM usage changes
 
-- [ ] **2.5.4** UI quality check — Onboarding & Settings
+- [x] **2.5.4** UI quality check — Onboarding & Settings
   - Onboarding screens follow dark theme (dark backgrounds, amber accents, white text)
   - Download progress bars use AccentColor, not default blue
   - Settings rows and sections use BackgroundSecondary on BackgroundPrimary

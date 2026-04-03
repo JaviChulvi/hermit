@@ -47,6 +47,10 @@ final class ModelManager {
         cachedModelURL(for: ModelInfo.llmModel.id) != nil
     }
 
+    var availableMemoryMB: Int {
+        memoryMonitor.availableMemoryMB
+    }
+
     // MARK: - Model Containers
 
     private(set) var embeddingContainer: MLXEmbedders.ModelContainer?

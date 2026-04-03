@@ -37,6 +37,17 @@ struct SettingsView: View {
                         Image(systemName: "internaldrive")
                     }
 
+                    Label {
+                        HStack {
+                            Text("Available RAM")
+                            Spacer()
+                            Text("\(modelManager.availableMemoryMB) MB")
+                                .foregroundStyle(Color("TextSecondary"))
+                        }
+                    } icon: {
+                        Image(systemName: "memorychip")
+                    }
+
                     if modelManager.embeddingModelDownloaded || modelManager.llmModelDownloaded {
                         Button(role: .destructive) {
                             showDeleteConfirmation = true
