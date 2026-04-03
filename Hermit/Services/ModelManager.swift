@@ -2,12 +2,32 @@ import Foundation
 import Observation
 import HFAPI
 import MLXLMHFAPI
+import MLX
+import MLXLLM
+import MLXEmbedders
+import MLXLMCommon
+import MLXLMTokenizers
+import UIKit
 
 enum ModelState: Equatable {
     case idle
     case embeddingLoaded
     case llmLoaded
     case transitioning
+}
+
+enum ModelManagerError: LocalizedError {
+    case insufficientMemory(availableMB: Int, requiredMB: Int)
+    case modelNotDownloaded(String)
+
+    var errorDescription: String? {
+        switch self {
+        case .insufficientMemory(let available, let required):
+            return "Not enough memory: \(available) MB available, \(required) MB required"
+        case .modelNotDownloaded(let name):
+            return "Model '\(name)' is not downloaded"
+        }
+    }
 }
 
 @Observable
@@ -27,12 +47,18 @@ final class ModelManager {
         cachedModelURL(for: ModelInfo.llmModel.id) != nil
     }
 
+    // MARK: - Model Containers
+
+    private(set) var embeddingContainer: MLXEmbedders.ModelContainer?
+    private(set) var llmContainer: MLXLMCommon.ModelContainer?
+
     // MARK: - Private
 
     private let memoryMonitor: MemoryMonitor
     private let hubClient = HubClient()
     private var embeddingDownloadTask: Task<Void, Error>?
     private var llmDownloadTask: Task<Void, Error>?
+    nonisolated(unsafe) private var memoryWarningObserver: Any?
 
     private static let modelFilePatterns = ["*.safetensors", "*.json", "*.txt", "*.jinja", "*.model"]
 
@@ -41,6 +67,13 @@ final class ModelManager {
     init(memoryMonitor: MemoryMonitor = MemoryMonitor()) {
         self.memoryMonitor = memoryMonitor
         checkDownloadedModels()
+        subscribeToMemoryWarnings()
+    }
+
+    deinit {
+        if let observer = memoryWarningObserver {
+            NotificationCenter.default.removeObserver(observer)
+        }
     }
 
     // MARK: - Download Methods
@@ -149,6 +182,102 @@ final class ModelManager {
             }
         }
         return Int(totalSize / (1024 * 1024))
+    }
+
+    // MARK: - Model Loading
+
+    func loadEmbeddingModel() async throws {
+        if modelState == .llmLoaded {
+            unloadLLM()
+        }
+
+        modelState = .transitioning
+
+        guard let directory = cachedModelURL(for: ModelInfo.embeddingModel.id) else {
+            modelState = .idle
+            throw ModelManagerError.modelNotDownloaded(ModelInfo.embeddingModel.name)
+        }
+
+        MLX.Memory.cacheLimit = 0
+
+        let container = try await MLXEmbedders.loadModelContainer(
+            from: directory,
+            using: TokenizersLoader()
+        )
+
+        embeddingContainer = container
+        modelState = .embeddingLoaded
+    }
+
+    func loadLLM() async throws {
+        if modelState == .embeddingLoaded {
+            unloadEmbedding()
+        }
+
+        modelState = .transitioning
+
+        let requiredMB = 4000
+        if !memoryMonitor.hasEnoughMemory(requiredMB: requiredMB) {
+            modelState = .idle
+            throw ModelManagerError.insufficientMemory(
+                availableMB: memoryMonitor.availableMemoryMB,
+                requiredMB: requiredMB
+            )
+        }
+
+        guard let directory = cachedModelURL(for: ModelInfo.llmModel.id) else {
+            modelState = .idle
+            throw ModelManagerError.modelNotDownloaded(ModelInfo.llmModel.name)
+        }
+
+        MLX.Memory.cacheLimit = 0
+
+        let container = try await LLMModelFactory.shared.loadContainer(
+            from: directory,
+            using: TokenizersLoader()
+        )
+
+        llmContainer = container
+        modelState = .llmLoaded
+    }
+
+    // MARK: - Model Unloading
+
+    func unloadEmbedding() {
+        let hadModel = embeddingContainer != nil
+        embeddingContainer = nil
+        if hadModel { MLX.Memory.cacheLimit = 0 }
+        modelState = .idle
+    }
+
+    func unloadLLM() {
+        let hadModel = llmContainer != nil
+        llmContainer = nil
+        if hadModel { MLX.Memory.cacheLimit = 0 }
+        modelState = .idle
+    }
+
+    func unloadAll() {
+        let hadModels = embeddingContainer != nil || llmContainer != nil
+        embeddingContainer = nil
+        llmContainer = nil
+        if hadModels { MLX.Memory.cacheLimit = 0 }
+        modelState = .idle
+    }
+
+    // MARK: - Memory Warning
+
+    private func subscribeToMemoryWarnings() {
+        memoryWarningObserver = NotificationCenter.default.addObserver(
+            forName: UIApplication.didReceiveMemoryWarningNotification,
+            object: nil,
+            queue: .main
+        ) { [weak self] _ in
+            NSLog("[ModelManager] Memory warning received – unloading all models")
+            Task { @MainActor [weak self] in
+                self?.unloadAll()
+            }
+        }
     }
 
     // MARK: - Public Methods

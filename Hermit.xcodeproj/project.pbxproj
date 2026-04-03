@@ -35,6 +35,7 @@
 		DD55EE66FF77AA22BB33CC44 /* MemoryMonitorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC44DD55EE66FF77AA22BB33 /* MemoryMonitorTests.swift */; };
 		AA11223344556677AABB0011 /* ModelManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA11223344556677AABB0022 /* ModelManager.swift */; };
 		AA11223344556677AABB0033 /* ModelManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA11223344556677AABB0044 /* ModelManagerTests.swift */; };
+		BB22334455667788AABB0055 /* ModelManagerLoadTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB22334455667788AABB0066 /* ModelManagerLoadTests.swift */; };
 		8B9C0D1E2F3A4B5C6D7E8F9A /* OnboardingViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A8B9C0D1E2F3A4B5C6D7E8F /* OnboardingViewModel.swift */; };
 /* End PBXBuildFile section */
 
@@ -74,6 +75,7 @@
 		CC44DD55EE66FF77AA22BB33 /* MemoryMonitorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MemoryMonitorTests.swift; sourceTree = "<group>"; };
 		AA11223344556677AABB0022 /* ModelManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModelManager.swift; sourceTree = "<group>"; };
 		AA11223344556677AABB0044 /* ModelManagerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModelManagerTests.swift; sourceTree = "<group>"; };
+		BB22334455667788AABB0066 /* ModelManagerLoadTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModelManagerLoadTests.swift; sourceTree = "<group>"; };
 		7A8B9C0D1E2F3A4B5C6D7E8F /* OnboardingViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingViewModel.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -234,6 +236,7 @@
 			isa = PBXGroup;
 			children = (
 				AA11223344556677AABB0044 /* ModelManagerTests.swift */,
+				BB22334455667788AABB0066 /* ModelManagerLoadTests.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -372,6 +375,7 @@
 				D0E1F2A3B4C5D6E7F8A9B0C1 /* DataModelTests.swift in Sources */,
 				DD55EE66FF77AA22BB33CC44 /* MemoryMonitorTests.swift in Sources */,
 				AA11223344556677AABB0033 /* ModelManagerTests.swift in Sources */,
+				BB22334455667788AABB0055 /* ModelManagerLoadTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -518,7 +518,7 @@
 
 > As a developer, the ModelManager can load and unload models from RAM with mutual exclusion.
 
-- [ ] **2.4.1** Implement `loadEmbeddingModel() async throws` in `ModelManager`
+- [x] **2.4.1** Implement `loadEmbeddingModel() async throws` in `ModelManager`
   - If `modelState == .llmLoaded` → call `unloadLLM()` first
   - Set `modelState = .transitioning`
   - `MLX.GPU.set(cacheLimit: 0)` to flush GPU cache
@@ -526,7 +526,7 @@
   - Store reference in `embeddingContainer`
   - Set `modelState = .embeddingLoaded`
 
-- [ ] **2.4.2** Implement `loadLLM() async throws` in `ModelManager`
+- [x] **2.4.2** Implement `loadLLM() async throws` in `ModelManager`
   - If `modelState == .embeddingLoaded` → call `unloadEmbedding()` first
   - Set `modelState = .transitioning`
   - Check `memoryMonitor.hasEnoughMemory(requiredMB: 4000)` → throw if insufficient
@@ -535,20 +535,20 @@
   - Store reference in `llmContainer`
   - Set `modelState = .llmLoaded`
 
-- [ ] **2.4.3** Implement `unloadEmbedding()` and `unloadLLM()`
+- [x] **2.4.3** Implement `unloadEmbedding()` and `unloadLLM()`
   - Set container reference to `nil`
   - `MLX.GPU.set(cacheLimit: 0)`
   - Set `modelState = .idle`
 
-- [ ] **2.4.4** Implement `unloadAll()`
+- [x] **2.4.4** Implement `unloadAll()`
   - Calls both unload methods
   - Sets `modelState = .idle`
 
-- [ ] **2.4.5** Implement `handleMemoryWarning()`
+- [x] **2.4.5** Implement `handleMemoryWarning()`
   - Subscribe to `UIApplication.didReceiveMemoryWarningNotification` in init
   - On warning: call `unloadAll()`, log the event
 
-- [ ] **2.4.6** Write tests `HermitTests/Services/ModelManagerLoadTests.swift`
+- [x] **2.4.6** Write tests `HermitTests/Services/ModelManagerLoadTests.swift`
   - Test state transitions: idle → embeddingLoaded → idle
   - Test mutual exclusion: loading embedding while LLM is loaded first unloads LLM
   - Test `unloadAll()` resets state to idle
