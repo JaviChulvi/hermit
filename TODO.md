@@ -657,7 +657,7 @@
 
 > As a developer, I can compute cosine similarity between embedding vectors efficiently using Accelerate.
 
-- [ ] **3.3.1** Create `Utilities/CosineSimilarity.swift`
+- [x] **3.3.1** Create `Utilities/CosineSimilarity.swift`
   - `func cosineSimilarity(_ a: [Float], _ b: [Float]) -> Float`
   - Implementation using `Accelerate` / `vDSP`:
     - `vDSP.dot(a, b)` for dot product
@@ -665,12 +665,12 @@
     - Return `dot / (sqrt(normA) * sqrt(normB))`
     - Handle zero-vector edge case (return 0.0)
 
-- [ ] **3.3.2** Add batch search function
+- [x] **3.3.2** Add batch search function
   - `func findTopK(query: [Float], candidates: [[Float]], k: Int) -> [(index: Int, score: Float)]`
   - Compute cosine similarity of query against all candidates
   - Return top-K results sorted by score descending
 
-- [ ] **3.3.3** Write unit tests `HermitTests/Utilities/CosineSimilarityTests.swift`
+- [x] **3.3.3** Write unit tests `HermitTests/Utilities/CosineSimilarityTests.swift`
   - Test identical vectors → similarity = 1.0 (with float tolerance)
   - Test orthogonal vectors (e.g., [1,0,0] vs [0,1,0]) → similarity = 0.0
   - Test opposite vectors ([1,0] vs [-1,0]) → similarity = -1.0
