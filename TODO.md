@@ -295,21 +295,21 @@
 
 > Verify Phase 1 is complete: the app compiles, all views render, navigation works, and the project is ready for Phase 2.
 
-- [ ] **1.9.1** Full build verification
+- [x] **1.9.1** Full build verification
   - Clean build folder (`Cmd+Shift+K`) then build (`Cmd+B`)
   - Zero errors, zero warnings (or only expected SPM warnings)
 
-- [ ] **1.9.2** Run on iPhone 17 Pro simulator
+- [x] **1.9.2** Run on iPhone 17 Pro simulator
   - App launches to OnboardingView (or ContentView depending on flag)
   - All 3 tabs work
   - Chat view shows sample messages with correct styling
   - Document list shows empty state
   - Settings shows placeholder model info
 
-- [ ] **1.9.3** Run unit tests (`Cmd+U`)
+- [x] **1.9.3** Run unit tests (`Cmd+U`)
   - All DataModel tests pass
 
-- [ ] **1.9.4** Delete `DependencyCheck.swift` smoke-test file (no longer needed)
+- [x] **1.9.4** Delete `DependencyCheck.swift` smoke-test file (no longer needed)
 
 **Verify:** Everything above passes.
 

@@ -9,7 +9,6 @@
 /* Begin PBXBuildFile section */
 		0ED8F0E587E55F12CA5A03E6 /* MLXEmbeddersHFAPI in Frameworks */ = {isa = PBXBuildFile; productRef = E5CCB770138DB30705413B1C /* MLXEmbeddersHFAPI */; };
 		1CE37C932A07E729B741955F /* MLXLMTokenizers in Frameworks */ = {isa = PBXBuildFile; productRef = 17DE4547CDA6641702324946 /* MLXLMTokenizers */; };
-		1EEA771C770BF0A80E4943CC /* DependencyCheck.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F87E3B7A9C77A703A122215 /* DependencyCheck.swift */; };
 		2809B82E26E4F8B3AF42D408 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C3C8B370DFA4C0C5E49BC79 /* ContentView.swift */; };
 		3CF094BF661B0328D0867B83 /* MLXLLM in Frameworks */ = {isa = PBXBuildFile; productRef = 53118A446E6A226F79469D5B /* MLXLLM */; };
 		5F538BC45A11D3571425D528 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = AE86124BC8833C2AC2555333 /* Assets.xcassets */; };
@@ -47,7 +46,6 @@
 
 /* Begin PBXFileReference section */
 		05E18749795DF5EEDA49C0E4 /* Hermit.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Hermit.entitlements; sourceTree = "<group>"; };
-		0F87E3B7A9C77A703A122215 /* DependencyCheck.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DependencyCheck.swift; sourceTree = "<group>"; };
 		2C3C8B370DFA4C0C5E49BC79 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		6A047974E25485A438CA176F /* Hermit.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = Hermit.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		AE86124BC8833C2AC2555333 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -160,7 +158,6 @@
 		76C5001A30745C521F608216 /* Services */ = {
 			isa = PBXGroup;
 			children = (
-				0F87E3B7A9C77A703A122215 /* DependencyCheck.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -317,7 +314,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				2809B82E26E4F8B3AF42D408 /* ContentView.swift in Sources */,
-				1EEA771C770BF0A80E4943CC /* DependencyCheck.swift in Sources */,
 				F6A7B8C9D0E1F2A3B4C5D6E7 /* ChatMessage.swift in Sources */,
 				A7B8C9D0E1F2A3B4C5D6E7F8 /* Document.swift in Sources */,
 				C9D0E1F2A3B4C5D6E7F8A9B0 /* ModelInfo.swift in Sources */,
