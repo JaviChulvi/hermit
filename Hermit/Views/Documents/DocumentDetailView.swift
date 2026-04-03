@@ -5,52 +5,97 @@ struct DocumentDetailView: View {
     let chunks: [TextChunk]
 
     var body: some View {
-        List {
-            Section {
-                LabeledContent("File Type", value: document.fileExtension.uppercased())
-                LabeledContent("Date Added") {
-                    Text(document.dateAdded, style: .date)
-                }
-                LabeledContent("Status") {
-                    Label(
-                        document.isProcessed ? "Processed" : "Pending",
-                        systemImage: document.isProcessed ? "checkmark.circle.fill" : "clock"
-                    )
-                    .foregroundStyle(document.isProcessed ? .green : .orange)
-                }
-            } header: {
-                Text("Info")
-                    .foregroundStyle(Color("TextSecondary"))
-            }
-            .listRowBackground(Color("BackgroundSecondary"))
-
-            Section {
-                if chunks.isEmpty {
-                    Text("No chunks yet — document has not been processed.")
+        ScrollView {
+            VStack(spacing: 20) {
+                // Info section
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("INFO")
+                        .font(.caption.bold())
                         .foregroundStyle(Color("TextSecondary"))
-                } else {
-                    ForEach(chunks) { chunk in
-                        VStack(alignment: .leading, spacing: 4) {
-                            Text("Chunk \(chunk.chunkIndex + 1)")
-                                .font(.caption.bold())
-                                .foregroundStyle(Color("TextSecondary"))
-                            Text(String(chunk.text.prefix(100)))
-                                .font(.body)
-                                .lineLimit(3)
+                        .padding(.leading, 4)
+
+                    VStack(spacing: 1) {
+                        infoRow(title: "File Type", value: document.fileExtension.uppercased())
+                        infoRow(title: "Date Added", value: document.dateAdded.formatted(date: .abbreviated, time: .omitted))
+
+                        HStack {
+                            Text("Status")
+                                .foregroundStyle(.white)
+                            Spacer()
+                            Label(
+                                document.isProcessed ? "Processed" : "Pending",
+                                systemImage: document.isProcessed ? "checkmark.circle.fill" : "clock"
+                            )
+                            .foregroundStyle(document.isProcessed ? .green : .orange)
+                            .font(.body)
                         }
-                        .padding(.vertical, 2)
+                        .padding(14)
+                        .background(Color("BackgroundSecondary"))
+                    }
+                    .clipShape(RoundedRectangle(cornerRadius: 12))
+                }
+
+                // Chunks section
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("CHUNKS (\(chunks.count))")
+                        .font(.caption.bold())
+                        .foregroundStyle(Color("TextSecondary"))
+                        .padding(.leading, 4)
+
+                    if chunks.isEmpty {
+                        Text("No chunks yet — document has not been processed.")
+                            .foregroundStyle(Color("TextSecondary"))
+                            .padding(14)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .background(Color("BackgroundSecondary"))
+                            .clipShape(RoundedRectangle(cornerRadius: 12))
+                    } else {
+                        VStack(spacing: 1) {
+                            ForEach(chunks) { chunk in
+                                VStack(alignment: .leading, spacing: 4) {
+                                    HStack {
+                                        Text("Chunk \(chunk.chunkIndex + 1)")
+                                            .font(.caption.bold())
+                                            .foregroundStyle(Color("TextSecondary"))
+
+                                        Spacer()
+
+                                        if chunk.embedding != nil {
+                                            Image(systemName: "checkmark.circle.fill")
+                                                .font(.caption)
+                                                .foregroundStyle(.green)
+                                        }
+                                    }
+                                    Text(String(chunk.text.prefix(100)))
+                                        .font(.body)
+                                        .foregroundStyle(.white)
+                                        .lineLimit(3)
+                                }
+                                .padding(14)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                                .background(Color("BackgroundSecondary"))
+                            }
+                        }
+                        .clipShape(RoundedRectangle(cornerRadius: 12))
                     }
                 }
-            } header: {
-                Text("Chunks (\(chunks.count))")
-                    .foregroundStyle(Color("TextSecondary"))
             }
-            .listRowBackground(Color("BackgroundSecondary"))
+            .padding(.horizontal, 16)
+            .padding(.top, 4)
         }
-        .scrollContentBackground(.hidden)
-        .background(Color("BackgroundPrimary"))
-        .navigationTitle(document.name)
-        .navigationBarTitleDisplayMode(.inline)
+        .background(Color("BackgroundPrimary").ignoresSafeArea())
+    }
+
+    private func infoRow(title: String, value: String) -> some View {
+        HStack {
+            Text(title)
+                .foregroundStyle(.white)
+            Spacer()
+            Text(value)
+                .foregroundStyle(Color("TextSecondary"))
+        }
+        .padding(14)
+        .background(Color("BackgroundSecondary"))
     }
 }
 
@@ -60,11 +105,11 @@ struct DocumentDetailView: View {
         TextChunk(
             documentId: doc.id,
             text: "This is the content of chunk \(i + 1). It contains a preview of the text that was extracted from the document during the chunking process.",
+            embedding: [Float](repeating: 0.1, count: 384),
             chunkIndex: i
         )
     }
 
-    NavigationStack {
-        DocumentDetailView(document: doc, chunks: chunks)
-    }
+    DocumentDetailView(document: doc, chunks: chunks)
+        .preferredColorScheme(.dark)
 }

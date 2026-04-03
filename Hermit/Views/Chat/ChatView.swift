@@ -10,102 +10,124 @@ struct ChatView: View {
     }
 
     var body: some View {
-        NavigationStack {
-            VStack(spacing: 0) {
-                if messages.isEmpty {
-                    Spacer()
-                    VStack(spacing: 16) {
-                        Image(systemName: "doc.text.magnifyingglass")
-                            .font(.system(size: 48))
-                            .foregroundStyle(Color("AccentColor"))
-                        Text("No Documents Yet")
-                            .font(.title3.bold())
-                            .foregroundStyle(.white)
-                        Text("Import a document to start chatting")
-                            .font(.subheadline)
-                            .foregroundStyle(Color("TextSecondary"))
-                    }
-                    Spacer()
-                } else {
-                    ScrollViewReader { proxy in
-                        ScrollView {
-                            LazyVStack(spacing: 0) {
-                                ForEach(messages) { message in
-                                    MessageBubble(message: message)
-                                        .id(message.id)
-                                        .transition(.asymmetric(
-                                            insertion: .move(edge: .bottom).combined(with: .opacity),
-                                            removal: .opacity
-                                        ))
-                                }
+        VStack(spacing: 0) {
+            // Custom navigation header
+            header
 
-                                if isGenerating {
-                                    StreamingIndicator()
-                                        .id("streaming")
-                                }
-                            }
-                            .padding(.vertical, 8)
-                        }
-                        .onChange(of: messages.count) {
-                            withAnimation {
-                                proxy.scrollTo(messages.last?.id, anchor: .bottom)
-                            }
-                        }
-                        .onChange(of: isGenerating) {
-                            if isGenerating {
-                                withAnimation {
-                                    proxy.scrollTo("streaming", anchor: .bottom)
-                                }
-                            }
-                        }
+            // Content
+            if messages.isEmpty {
+                emptyState
+            } else {
+                messageList
+            }
+
+            // Input bar
+            inputBar
+        }
+        .background(Color("BackgroundPrimary").ignoresSafeArea())
+    }
+
+    // MARK: - Header
+
+    private var header: some View {
+        HStack {
+            Text("Chat")
+                .font(.largeTitle.bold())
+                .foregroundStyle(.white)
+            Spacer()
+            PrivacyBadge()
+        }
+        .padding(.horizontal, 20)
+        .padding(.top, 8)
+        .padding(.bottom, 12)
+    }
+
+    // MARK: - Empty State
+
+    private var emptyState: some View {
+        VStack(spacing: 16) {
+            Spacer()
+            Image(systemName: "doc.text.magnifyingglass")
+                .font(.system(size: 52))
+                .foregroundStyle(Color("AccentColor"))
+            Text("No Documents Yet")
+                .font(.title3.bold())
+                .foregroundStyle(.white)
+            Text("Import a document to start chatting")
+                .font(.subheadline)
+                .foregroundStyle(Color("TextSecondary"))
+            Spacer()
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+    }
+
+    // MARK: - Message List
+
+    private var messageList: some View {
+        ScrollViewReader { proxy in
+            ScrollView {
+                LazyVStack(spacing: 0) {
+                    ForEach(messages) { message in
+                        MessageBubble(message: message)
+                            .id(message.id)
+                            .transition(.asymmetric(
+                                insertion: .move(edge: .bottom).combined(with: .opacity),
+                                removal: .opacity
+                            ))
+                    }
+
+                    if isGenerating {
+                        StreamingIndicator()
+                            .id("streaming")
                     }
                 }
+                .padding(.vertical, 8)
             }
-            .background(Color("BackgroundPrimary"))
-            .safeAreaInset(edge: .bottom) {
-                inputBar
+            .onChange(of: messages.count) {
+                withAnimation {
+                    proxy.scrollTo(messages.last?.id, anchor: .bottom)
+                }
             }
-            .navigationTitle("Chat")
-            .toolbarBackground(.visible, for: .navigationBar)
-            .toolbarBackground(Color("BackgroundPrimary"), for: .navigationBar)
-            .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    PrivacyBadge()
+            .onChange(of: isGenerating) {
+                if isGenerating {
+                    withAnimation {
+                        proxy.scrollTo("streaming", anchor: .bottom)
+                    }
                 }
             }
         }
     }
 
-    private var inputBar: some View {
-        VStack(spacing: 0) {
-            Divider()
-                .overlay(Color("BackgroundSecondary"))
-            HStack(spacing: 12) {
-                TextField("Ask about your documents...", text: $messageText)
-                    .textFieldStyle(.plain)
-                    .padding(.horizontal, 12)
-                    .padding(.vertical, 8)
-                    .background(Color("BackgroundSecondary"), in: RoundedRectangle(cornerRadius: 20))
-                    .disabled(true)
+    // MARK: - Input Bar
 
-                Button {
-                    // No action yet
-                } label: {
-                    Image(systemName: "paperplane.fill")
-                        .font(.system(size: 17))
-                        .foregroundStyle(Color("AccentColor"))
-                }
-                .disabled(messageText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+    private var inputBar: some View {
+        HStack(spacing: 12) {
+            TextField("Ask about your documents...", text: $messageText)
+                .textFieldStyle(.plain)
+                .foregroundStyle(.white)
+                .padding(.horizontal, 14)
+                .padding(.vertical, 10)
+                .background(Color("BackgroundSecondary"), in: RoundedRectangle(cornerRadius: 22))
+                .disabled(true)
+
+            Button {
+                // No action yet
+            } label: {
+                Image(systemName: "paperplane.fill")
+                    .font(.system(size: 18))
+                    .foregroundStyle(Color("AccentColor"))
+                    .frame(width: 36, height: 36)
             }
-            .padding(.horizontal)
-            .padding(.vertical, 8)
+            .disabled(messageText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
         }
-        .background(Color("BackgroundPrimary"))
+        .padding(.horizontal, 16)
+        .padding(.vertical, 10)
     }
 }
 
 #Preview("Empty State") {
     ChatView()
+        .preferredColorScheme(.dark)
 }
 
 #Preview("With Messages") {
@@ -117,4 +139,5 @@ struct ChatView: View {
     ]
 
     ChatView(messages: sampleMessages)
+        .preferredColorScheme(.dark)
 }

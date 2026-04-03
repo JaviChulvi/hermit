@@ -55,16 +55,26 @@ xcodebuild -scheme Hermit -destination 'platform=iOS Simulator,name=iPhone 17 Pr
 - Always call `MLX.GPU.set(cacheLimit: 0)` when unloading a model
 - Always check `os_proc_available_memory()` before loading Gemma 4
 
+## iOS 26 Liquid Glass — CRITICAL (READ THIS)
+iOS 26 introduced "Liquid Glass" which makes `TabView`, `NavigationStack`, `List`, toolbars, and tab bars render with a floating translucent card style. This BREAKS our dark-first design. Rules:
+- **DO NOT use `TabView`** for the main tab bar. We use a custom `ZStack`-based tab bar in `ContentView.swift`.
+- **DO NOT use `NavigationStack`** for top-level views. Use a manual `VStack` header with the title and toolbar buttons instead.
+- **DO NOT use `List`** for settings/documents. Use `ScrollView` + `VStack` + custom row backgrounds instead.
+- **DO NOT use `.toolbarBackground()`** — it conflicts with Liquid Glass. Instead, build headers manually.
+- All backgrounds must use `.ignoresSafeArea()` to fill edge-to-edge.
+- If you must use `NavigationStack` (e.g., for deep navigation), wrap it carefully and test that no floating card appears.
+
 ## UI/UX requirements (IMPORTANT)
 The app uses a **dark-first** design. This is non-negotiable — every view must follow it:
-- **Background**: `BackgroundPrimary` (#0F0F0F) everywhere. No white or system backgrounds.
-- **Cards/rows**: `BackgroundSecondary` (#1A1A1A)
+- **Background**: `BackgroundPrimary` (#0F0F0F) everywhere with `.ignoresSafeArea()`. No white or system backgrounds.
+- **Cards/rows**: `BackgroundSecondary` (#1A1A1A) with `RoundedRectangle(cornerRadius: 12)`.
 - **Accent**: Amber/gold (#F5A623). Never use default iOS blue.
-- **Tab bar**: dark background, amber active icon, gray inactive. No pill highlights.
+- **Tab bar**: Custom (not system TabView). Dark background, amber active icon, gray inactive. No pill highlights.
 - **User bubbles**: #2C5F2D (dark green). **Assistant bubbles**: BackgroundSecondary.
 - **Text**: white primary, #8E8E93 secondary. All text must be legible on dark backgrounds.
-- **Input fields**: dark background, not light gray.
-- Force dark appearance with `.preferredColorScheme(.dark)` on the root view.
+- **Input fields**: dark `BackgroundSecondary` background, not light gray.
+- **Section headers**: use `Text("TITLE").font(.caption.bold()).foregroundStyle(Color("TextSecondary"))` manually.
+- Force dark appearance with `.preferredColorScheme(.dark)` on the root view in `HermitApp.swift`.
 
 When implementing ANY view, apply these colors. Do not leave default iOS styling. Before marking a UI task as complete, verify colors are applied.
 

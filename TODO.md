@@ -759,7 +759,7 @@
 
 > As a user, I can import a document and the app processes it end-to-end: extract text → chunk → embed → store.
 
-- [ ] **3.6.1** Create `Services/RAGEngine.swift`
+- [x] **3.6.1** Create `Services/RAGEngine.swift`
   - `@Observable class RAGEngine`
   - Dependencies: `DocumentProcessor`, `ChunkingStrategy`, `EmbeddingService`, `VectorStore`, `ModelManager`
   - `func ingestDocument(url: URL, progress: @escaping (String) -> Void) async throws -> Document`
@@ -775,7 +775,7 @@
     10. Return `Document` metadata
     11. Unload embedding model
 
-- [ ] **3.6.2** Implement `retrieveContext()` in RAGEngine
+- [x] **3.6.2** Implement `retrieveContext()` in RAGEngine
   - `func retrieveContext(for query: String, topK: Int = 3) async throws -> [TextChunk]`
     1. Load embedding model
     2. Embed the query string
@@ -783,7 +783,7 @@
     4. Search `VectorStore` with query embedding
     5. Return top-K chunks
 
-- [ ] **3.6.3** Create `ViewModels/DocumentViewModel.swift`
+- [x] **3.6.3** Create `ViewModels/DocumentViewModel.swift`
   - `@Observable class DocumentViewModel`
   - Properties: `documents: [Document]`, `isProcessing: Bool`, `processingStatus: String`, `errorMessage: String?`
   - `func importDocument(url: URL) async`
@@ -799,28 +799,28 @@
     - Update persisted metadata
   - `func loadDocuments()` — load metadata.json on init
 
-- [ ] **3.6.4** Wire document import UI
+- [x] **3.6.4** Wire document import UI
   - In `DocumentListView`, attach `.fileImporter(isPresented:allowedContentTypes:)` modifier
     - Allowed types: `.plainText`, `.pdf`
   - On file selection, call `documentViewModel.importDocument(url:)`
   - Show processing overlay with status text from `processingStatus`
   - After completion, document appears in the list
 
-- [ ] **3.6.5** Wire document deletion
+- [x] **3.6.5** Wire document deletion
   - Swipe-to-delete on document rows calls `documentViewModel.deleteDocument(id:)`
   - Confirm with an alert before deleting
 
-- [ ] **3.6.6** Update `DocumentDetailView.swift`
+- [x] **3.6.6** Update `DocumentDetailView.swift`
   - Show real chunk data from `VectorStore.chunksForDocument(documentId:)`
   - Show chunk count, first 100 chars of each chunk
   - Show embedding status (checkmark if embedding exists)
 
-- [ ] **3.6.7** Write unit tests `HermitTests/Services/RAGEngineTests.swift`
+- [x] **3.6.7** Write unit tests `HermitTests/Services/RAGEngineTests.swift`
   - Test `retrieveContext` returns chunks (using pre-populated VectorStore with known embeddings)
   - Test `retrieveContext` with topK=2 returns exactly 2 results
   - Test `retrieveContext` returns most relevant chunk first (using known vectors)
 
-- [ ] **3.6.8** Integration test (requires downloaded embedding model)
+- [x] **3.6.8** Integration test (requires downloaded embedding model)
   - Import a sample .txt file → verify document appears in list
   - Verify chunks are created (count > 0)
   - Verify embeddings are populated (non-nil, length 384)
@@ -836,23 +836,23 @@
 
 > Verify Phase 3 is complete: documents can be imported, chunked, embedded, stored, and retrieved.
 
-- [ ] **3.7.1** End-to-end on simulator
+- [x] **3.7.1** End-to-end on simulator
   - Import a TXT file (~500 words) → see it in document list with chunk count
   - Import a PDF file (2-3 pages) → see it in document list
   - Tap a document → detail view shows chunks with first 100 chars
   - Delete a document → it disappears from list
   - Kill app, relaunch → documents and chunks persist
 
-- [ ] **3.7.2** Run all unit tests (`Cmd+U`)
+- [x] **3.7.2** Run all unit tests (`Cmd+U`)
   - All Phase 1 tests pass (DataModel)
   - All Phase 2 tests pass (MemoryMonitor, ModelManager)
   - All Phase 3 tests pass (DocumentProcessor, ChunkingStrategy, CosineSimilarity, VectorStore, RAGEngine)
 
-- [ ] **3.7.3** Memory check
+- [x] **3.7.3** Memory check
   - After importing a document, verify embedding model was unloaded
   - Check `modelManager.modelState == .idle` after ingest completes
 
-- [ ] **3.7.4** UI quality check — Document import flow
+- [x] **3.7.4** UI quality check — Document import flow
   - Document list uses dark theme (BackgroundPrimary, BackgroundSecondary rows)
   - File importer sheet appears correctly
   - Processing overlay is styled (dark background, amber spinner/progress, white status text)
