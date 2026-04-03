@@ -33,6 +33,8 @@
 		6B7C8D9E0F1A2B3C4D5E6F7A /* PrivacyBadge.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A6B7C8D9E0F1A2B3C4D5E6F /* PrivacyBadge.swift */; };
 		BB33CC44DD55EE66FF77AA22 /* MemoryMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA22BB33CC44DD55EE66FF77 /* MemoryMonitor.swift */; };
 		DD55EE66FF77AA22BB33CC44 /* MemoryMonitorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC44DD55EE66FF77AA22BB33 /* MemoryMonitorTests.swift */; };
+		AA11223344556677AABB0011 /* ModelManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA11223344556677AABB0022 /* ModelManager.swift */; };
+		AA11223344556677AABB0033 /* ModelManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA11223344556677AABB0044 /* ModelManagerTests.swift */; };
 /* End PBXBuildFile section */
 
 
@@ -69,6 +71,8 @@
 		5A6B7C8D9E0F1A2B3C4D5E6F /* PrivacyBadge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrivacyBadge.swift; sourceTree = "<group>"; };
 		AA22BB33CC44DD55EE66FF77 /* MemoryMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MemoryMonitor.swift; sourceTree = "<group>"; };
 		CC44DD55EE66FF77AA22BB33 /* MemoryMonitorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MemoryMonitorTests.swift; sourceTree = "<group>"; };
+		AA11223344556677AABB0022 /* ModelManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModelManager.swift; sourceTree = "<group>"; };
+		AA11223344556677AABB0044 /* ModelManagerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModelManagerTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -163,6 +167,7 @@
 		76C5001A30745C521F608216 /* Services */ = {
 			isa = PBXGroup;
 			children = (
+				AA11223344556677AABB0022 /* ModelManager.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -216,9 +221,18 @@
 			isa = PBXGroup;
 			children = (
 				B0C1D2E3F4A5B6C7D8E9FAB1 /* Models */,
+				AA11223344556677AABB0055 /* Services */,
 				EE66FF77AA22BB33CC44DD55 /* Utilities */,
 			);
 			path = HermitTests;
+			sourceTree = "<group>";
+		};
+		AA11223344556677AABB0055 /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				AA11223344556677AABB0044 /* ModelManagerTests.swift */,
+			);
+			path = Services;
 			sourceTree = "<group>";
 		};
 		EE66FF77AA22BB33CC44DD55 /* Utilities */ = {
@@ -343,6 +357,7 @@
 				4D5E6F7A8B9C0D1E2F3A4B5C /* DownloadProgressView.swift in Sources */,
 				6B7C8D9E0F1A2B3C4D5E6F7A /* PrivacyBadge.swift in Sources */,
 				BB33CC44DD55EE66FF77AA22 /* MemoryMonitor.swift in Sources */,
+				AA11223344556677AABB0011 /* ModelManager.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -352,6 +367,7 @@
 			files = (
 				D0E1F2A3B4C5D6E7F8A9B0C1 /* DataModelTests.swift in Sources */,
 				DD55EE66FF77AA22BB33CC44 /* MemoryMonitorTests.swift in Sources */,
+				AA11223344556677AABB0033 /* ModelManagerTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

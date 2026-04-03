@@ -55,6 +55,19 @@ xcodebuild -scheme Hermit -destination 'platform=iOS Simulator,name=iPhone 17 Pr
 - Always call `MLX.GPU.set(cacheLimit: 0)` when unloading a model
 - Always check `os_proc_available_memory()` before loading Gemma 4
 
+## UI/UX requirements (IMPORTANT)
+The app uses a **dark-first** design. This is non-negotiable — every view must follow it:
+- **Background**: `BackgroundPrimary` (#0F0F0F) everywhere. No white or system backgrounds.
+- **Cards/rows**: `BackgroundSecondary` (#1A1A1A)
+- **Accent**: Amber/gold (#F5A623). Never use default iOS blue.
+- **Tab bar**: dark background, amber active icon, gray inactive. No pill highlights.
+- **User bubbles**: #2C5F2D (dark green). **Assistant bubbles**: BackgroundSecondary.
+- **Text**: white primary, #8E8E93 secondary. All text must be legible on dark backgrounds.
+- **Input fields**: dark background, not light gray.
+- Force dark appearance with `.preferredColorScheme(.dark)` on the root view.
+
+When implementing ANY view, apply these colors. Do not leave default iOS styling. Before marking a UI task as complete, verify colors are applied.
+
 ## Git workflow
 - Commit after completing each TODO story (group of related subtasks)
 - Commit message format: `type: description` (e.g., `feat: implement VectorStore with JSON persistence`)

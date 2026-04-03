@@ -416,7 +416,7 @@
 
 > As a developer, I need a central manager that tracks which models are downloaded and loaded in RAM.
 
-- [ ] **2.2.1** Create `Services/ModelManager.swift`
+- [x] **2.2.1** Create `Services/ModelManager.swift`
   - `@Observable @MainActor class ModelManager`
   - Enums:
     ```
@@ -435,18 +435,18 @@
     - `checkDownloadedModels()` — scans Documents/ for model directories
     - `modelDirectory(for modelId: String) -> URL` — returns path in Documents/models/
 
-- [ ] **2.2.2** Implement `checkDownloadedModels()`
+- [x] **2.2.2** Implement `checkDownloadedModels()`
   - Check if `Documents/models/embeddings/{modelName}/config.json` exists
   - Check if `Documents/models/llm/{modelName}/config.json` exists
   - Update `embeddingDownloadState` and `llmDownloadState` accordingly
 
-- [ ] **2.2.3** Inject `ModelManager` into SwiftUI environment
+- [x] **2.2.3** Inject `ModelManager` into SwiftUI environment
   - In `HermitApp.swift`: create `@State private var modelManager = ModelManager()`
   - Pass via `.environment(modelManager)`
   - Update `OnboardingView` to read `@Environment(ModelManager.self)` and show real download states
   - Update `SettingsView` to show real download states
 
-- [ ] **2.2.4** Write unit tests `HermitTests/Services/ModelManagerTests.swift`
+- [x] **2.2.4** Write unit tests `HermitTests/Services/ModelManagerTests.swift`
   - Test initial `modelState` is `.idle`
   - Test initial download states are `.notStarted`
   - Test `modelDirectory()` returns a URL inside Documents/models/

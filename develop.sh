@@ -9,8 +9,8 @@ set -euo pipefail
 LOG_DIR="./logs"
 mkdir -p "$LOG_DIR"
 
-MAX_TURNS="${MAX_TURNS:-50}"            # Max Claude turns per iteration
-MAX_ITERATIONS="${MAX_ITERATIONS:-30}"  # Safety cap on total iterations
+MAX_TURNS="${MAX_TURNS:-60}"            # Max Claude turns per iteration
+MAX_ITERATIONS="${MAX_ITERATIONS:-50}"  # Safety cap on total iterations
 PAUSE_BETWEEN="${PAUSE_BETWEEN:-5}"     # Seconds between iterations
 SIMULATOR="${SIMULATOR:-iPhone 17 Pro}" # iOS Simulator device name
 
