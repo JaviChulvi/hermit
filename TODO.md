@@ -11,18 +11,18 @@
 
 > As a developer, I need a properly configured Xcode project so I can start building.
 
-- [ ] **1.1.1** Create new Xcode project
+- [x] **1.1.1** Create new Xcode project
   - Template: App → SwiftUI → Swift
   - Product Name: `Hermit`
   - Organization Identifier: `com.hermit`
   - Minimum Deployment Target: iOS 18.0
   - Uncheck "Include Tests" (we'll add test targets manually for better control)
 
-- [ ] **1.1.2** Create the entitlements file `Hermit/Hermit.entitlements`
+- [x] **1.1.2** Create the entitlements file `Hermit/Hermit.entitlements`
   - Add key `com.apple.developer.kernel.increased-memory-limit` = `true`
   - Assign entitlements file to the Hermit target in Signing & Capabilities
 
-- [ ] **1.1.3** Create folder structure inside `Hermit/Hermit/`:
+- [x] **1.1.3** Create folder structure inside `Hermit/Hermit/`:
   - `Models/`
   - `Services/`
   - `ViewModels/`
@@ -32,7 +32,7 @@
   - `Views/Settings/`
   - `Utilities/`
 
-- [ ] **1.1.4** Initialize git repository and create `.gitignore` for Xcode/Swift
+- [x] **1.1.4** Initialize git repository and create `.gitignore` for Xcode/Swift
   - Ignore: `*.xcuserdata`, `DerivedData/`, `.build/`, `*.xcworkspace` (if using SPM), `.DS_Store`
   - Keep: `*.xcodeproj`, `*.entitlements`, `Package.resolved`
 
