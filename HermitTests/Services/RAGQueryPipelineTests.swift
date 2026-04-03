@@ -4,6 +4,7 @@ import Foundation
 
 /// Unit tests for the RAG query pipeline: system prompt construction,
 /// empty store handling, low-relevance detection, and context length limiting.
+@MainActor
 struct RAGQueryPipelineTests {
 
     // MARK: - Helpers

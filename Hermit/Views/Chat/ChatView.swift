@@ -1,13 +1,9 @@
 import SwiftUI
 
 struct ChatView: View {
+    @Environment(ChatViewModel.self) private var viewModel
     @State private var messageText = ""
-    @State private var messages: [ChatMessage]
-    @State private var isGenerating = false
-
-    init(messages: [ChatMessage] = []) {
-        _messages = State(initialValue: messages)
-    }
+    @FocusState private var isTextFieldFocused: Bool
 
     var body: some View {
         VStack(spacing: 0) {
@@ -15,7 +11,7 @@ struct ChatView: View {
             header
 
             // Content
-            if messages.isEmpty {
+            if viewModel.messages.isEmpty && !viewModel.isGenerating {
                 emptyState
             } else {
                 messageList
@@ -67,7 +63,7 @@ struct ChatView: View {
         ScrollViewReader { proxy in
             ScrollView {
                 LazyVStack(spacing: 0) {
-                    ForEach(messages) { message in
+                    ForEach(viewModel.messages) { message in
                         MessageBubble(message: message)
                             .id(message.id)
                             .transition(.asymmetric(
@@ -76,25 +72,59 @@ struct ChatView: View {
                             ))
                     }
 
-                    if isGenerating {
-                        StreamingIndicator()
-                            .id("streaming")
+                    // Live streaming bubble
+                    if viewModel.isGenerating && !viewModel.currentStreamedText.isEmpty {
+                        MessageBubble(message: ChatMessage(
+                            role: .assistant,
+                            content: viewModel.currentStreamedText
+                        ))
+                        .id("streaming-bubble")
+                    }
+
+                    // Status / streaming indicator
+                    if viewModel.isGenerating && viewModel.currentStreamedText.isEmpty {
+                        VStack(spacing: 6) {
+                            if !viewModel.statusMessage.isEmpty {
+                                Text(viewModel.statusMessage)
+                                    .font(.caption)
+                                    .foregroundStyle(Color("TextSecondary"))
+                            }
+                            StreamingIndicator()
+                        }
+                        .id("streaming")
                     }
                 }
                 .padding(.vertical, 8)
             }
-            .onChange(of: messages.count) {
+            .onChange(of: viewModel.messages.count) {
                 withAnimation {
-                    proxy.scrollTo(messages.last?.id, anchor: .bottom)
+                    scrollToBottom(proxy: proxy)
                 }
             }
-            .onChange(of: isGenerating) {
-                if isGenerating {
+            .onChange(of: viewModel.currentStreamedText) {
+                withAnimation {
+                    scrollToBottom(proxy: proxy)
+                }
+            }
+            .onChange(of: viewModel.isGenerating) {
+                if viewModel.isGenerating {
                     withAnimation {
-                        proxy.scrollTo("streaming", anchor: .bottom)
+                        scrollToBottom(proxy: proxy)
                     }
                 }
             }
+        }
+    }
+
+    private func scrollToBottom(proxy: ScrollViewProxy) {
+        if viewModel.isGenerating {
+            if !viewModel.currentStreamedText.isEmpty {
+                proxy.scrollTo("streaming-bubble", anchor: .bottom)
+            } else {
+                proxy.scrollTo("streaming", anchor: .bottom)
+            }
+        } else if let lastId = viewModel.messages.last?.id {
+            proxy.scrollTo(lastId, anchor: .bottom)
         }
     }
 
@@ -108,36 +138,52 @@ struct ChatView: View {
                 .padding(.horizontal, 14)
                 .padding(.vertical, 10)
                 .background(Color("BackgroundSecondary"), in: RoundedRectangle(cornerRadius: 22))
-                .disabled(true)
+                .focused($isTextFieldFocused)
+                .onSubmit { send() }
+                .disabled(viewModel.isGenerating)
 
-            Button {
-                // No action yet
-            } label: {
-                Image(systemName: "paperplane.fill")
-                    .font(.system(size: 18))
-                    .foregroundStyle(Color("AccentColor"))
-                    .frame(width: 36, height: 36)
+            if viewModel.isGenerating {
+                Button {
+                    viewModel.stopGenerating()
+                } label: {
+                    Image(systemName: "stop.fill")
+                        .font(.system(size: 16))
+                        .foregroundStyle(.white)
+                        .frame(width: 36, height: 36)
+                        .background(Color.red.opacity(0.8), in: Circle())
+                }
+            } else {
+                Button {
+                    send()
+                } label: {
+                    Image(systemName: "paperplane.fill")
+                        .font(.system(size: 18))
+                        .foregroundStyle(Color("AccentColor"))
+                        .frame(width: 36, height: 36)
+                }
+                .disabled(messageText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
             }
-            .disabled(messageText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 10)
+    }
+
+    // MARK: - Actions
+
+    private func send() {
+        let text = messageText
+        messageText = ""
+        viewModel.sendMessage(text: text)
     }
 }
 
 #Preview("Empty State") {
     ChatView()
-        .preferredColorScheme(.dark)
-}
-
-#Preview("With Messages") {
-    let sampleMessages: [ChatMessage] = [
-        ChatMessage(role: .user, content: "What are the main points of the document?"),
-        ChatMessage(role: .assistant, content: "The document covers three main topics:\n\n1. Climate change impacts on coastal cities\n2. Proposed mitigation strategies\n3. Economic projections for the next decade"),
-        ChatMessage(role: .user, content: "Tell me more about the mitigation strategies."),
-        ChatMessage(role: .assistant, content: "The document outlines several key mitigation strategies including renewable energy adoption, carbon capture technology, and urban planning reforms designed to reduce emissions by 40% before 2040.")
-    ]
-
-    ChatView(messages: sampleMessages)
+        .environment(ChatViewModel(ragEngine: RAGEngine(
+            embeddingService: EmbeddingService(modelManager: ModelManager()),
+            vectorStore: VectorStore(),
+            modelManager: ModelManager(),
+            llmService: LLMService(modelManager: ModelManager())
+        )))
         .preferredColorScheme(.dark)
 }

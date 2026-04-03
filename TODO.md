@@ -969,7 +969,7 @@
 
 > As a user, I can type a question and receive a streaming AI response grounded in my documents.
 
-- [ ] **4.3.1** Create `ViewModels/ChatViewModel.swift`
+- [x] **4.3.1** Create `ViewModels/ChatViewModel.swift`
   - `@Observable class ChatViewModel`
   - Properties:
     - `messages: [ChatMessage] = []`
@@ -979,7 +979,7 @@
     - `errorMessage: String?`
   - Dependencies: `RAGEngine`
 
-- [ ] **4.3.2** Implement `sendMessage(text:) async`
+- [x] **4.3.2** Implement `sendMessage(text:) async`
   - Append user message to `messages`
   - Set `isGenerating = true`
   - Call `ragEngine.query(prompt:onStatus:)`
@@ -988,17 +988,17 @@
   - Set `isGenerating = false`
   - On error: set `errorMessage`
 
-- [ ] **4.3.3** Implement cancellation
+- [x] **4.3.3** Implement cancellation
   - Store the generation `Task` reference
   - `func stopGenerating()` — cancels the Task
   - On cancellation: save whatever was streamed so far as the assistant message
 
-- [ ] **4.3.4** Implement `clearConversation()`
+- [x] **4.3.4** Implement `clearConversation()`
   - Clear `messages` array
   - Call `llmService.resetConversation()` to clear KV cache
   - Keep model loaded
 
-- [ ] **4.3.5** Wire `ChatView.swift` to `ChatViewModel`
+- [x] **4.3.5** Wire `ChatView.swift` to `ChatViewModel`
   - `@Environment(ChatViewModel.self)` or `@State`
   - `ForEach(viewModel.messages)` → `MessageBubble`
   - Show `currentStreamedText` in a live-updating assistant bubble while generating
@@ -1009,16 +1009,16 @@
   - Show stop button while generating (replaces send button)
   - Auto-scroll to bottom on new messages
 
-- [ ] **4.3.6** Add keyboard handling
+- [x] **4.3.6** Add keyboard handling
   - Text field focuses correctly
   - Keyboard avoidance works (messages scroll up)
   - Send on Return key
 
-- [ ] **4.3.7** Inject ChatViewModel into environment
+- [x] **4.3.7** Inject ChatViewModel into environment
   - Create in `HermitApp.swift`, pass via `.environment()`
   - ChatViewModel depends on RAGEngine → initialize with correct dependencies
 
-- [ ] **4.3.8** Write unit tests `HermitTests/ViewModels/ChatViewModelTests.swift`
+- [x] **4.3.8** Write unit tests `HermitTests/ViewModels/ChatViewModelTests.swift`
   - Test `sendMessage` appends a user message to `messages` array
   - Test `isGenerating` is true while generation is in progress
   - Test `stopGenerating` saves partial streamed text as assistant message

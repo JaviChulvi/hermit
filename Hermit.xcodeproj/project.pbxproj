@@ -54,6 +54,9 @@
 		B4A3F2E1D0C9B8A7F6E5D4C3 /* RAGEngineTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3D4E5F6A7B8C9D0E1F2A3B4 /* RAGEngineTests.swift */; };
 		E5F6A7B8C9D0E1F2A3B4C5D6 /* LLMService.swift in Sources */ = {isa = PBXBuildFile; fileRef = D4E5F6A7B8C9D0E1F2A3B4C5 /* LLMService.swift */; };
 		A7B8C9D0E1F2A3B4C5D6E7F8 /* LLMServiceIntegrationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6A7B8C9D0E1F2A3B4C5D6E7 /* LLMServiceIntegrationTests.swift */; };
+		C1A2B3C4D5E6F7A8B9C0D1E2 /* ChatViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = D1E2F3A4B5C6D7E8F9A0B1C2 /* ChatViewModel.swift */; };
+		E2F3A4B5C6D7E8F9A0B1C2D3 /* ChatViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3A4B5C6D7E8F9A0B1C2D3E4 /* ChatViewModelTests.swift */; };
+		A4B5C6D7E8F9A0B1C2D3E4F5 /* RAGQueryPipelineTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5C6D7E8F9A0B1C2D3E4F5A6 /* RAGQueryPipelineTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -110,6 +113,9 @@
 		C3D4E5F6A7B8C9D0E1F2A3B4 /* RAGEngineTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RAGEngineTests.swift; sourceTree = "<group>"; };
 		D4E5F6A7B8C9D0E1F2A3B4C5 /* LLMService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LLMService.swift; sourceTree = "<group>"; };
 		F6A7B8C9D0E1F2A3B4C5D6E7 /* LLMServiceIntegrationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LLMServiceIntegrationTests.swift; sourceTree = "<group>"; };
+		D1E2F3A4B5C6D7E8F9A0B1C2 /* ChatViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatViewModel.swift; sourceTree = "<group>"; };
+		F3A4B5C6D7E8F9A0B1C2D3E4 /* ChatViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatViewModelTests.swift; sourceTree = "<group>"; };
+		B5C6D7E8F9A0B1C2D3E4F5A6 /* RAGQueryPipelineTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RAGQueryPipelineTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -256,6 +262,7 @@
 				C76CC5973CBCC57D8BA7CA5D /* ModelManagerLoadTests.swift */,
 				68B2AFF328C8E35E2AEB99B1 /* ModelManagerTests.swift */,
 				C3D4E5F6A7B8C9D0E1F2A3B4 /* RAGEngineTests.swift */,
+				B5C6D7E8F9A0B1C2D3E4F5A6 /* RAGQueryPipelineTests.swift */,
 				0109DBC7E6BDDDC8F1C6BF24 /* VectorStoreTests.swift */,
 			);
 			path = Services;
@@ -272,6 +279,7 @@
 		BB87371CD8472B3C92426A45 /* ViewModels */ = {
 			isa = PBXGroup;
 			children = (
+				D1E2F3A4B5C6D7E8F9A0B1C2 /* ChatViewModel.swift */,
 				B2C3D4E5F6A7B8C9D0E1F2A3 /* DocumentViewModel.swift */,
 				5B0F72FD463B3A6CAF5CEE96 /* OnboardingViewModel.swift */,
 			);
@@ -290,6 +298,7 @@
 		E52B1A2D3DC8D7DC99637474 /* ViewModels */ = {
 			isa = PBXGroup;
 			children = (
+				F3A4B5C6D7E8F9A0B1C2D3E4 /* ChatViewModelTests.swift */,
 			);
 			path = ViewModels;
 			sourceTree = "<group>";
@@ -436,6 +445,8 @@
 				6BC965B9D844CFB45003CA27 /* ModelManagerTests.swift in Sources */,
 				B4A3F2E1D0C9B8A7F6E5D4C3 /* RAGEngineTests.swift in Sources */,
 				3E68E4350484EE4FD225D5AE /* VectorStoreTests.swift in Sources */,
+				E2F3A4B5C6D7E8F9A0B1C2D3 /* ChatViewModelTests.swift in Sources */,
+				A4B5C6D7E8F9A0B1C2D3E4F5 /* RAGQueryPipelineTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -445,6 +456,7 @@
 			files = (
 				23727B9D203109A826DA3B94 /* ChatMessage.swift in Sources */,
 				8DCB1EFD3E789464843509F5 /* ChatView.swift in Sources */,
+				C1A2B3C4D5E6F7A8B9C0D1E2 /* ChatViewModel.swift in Sources */,
 				4FEDD1C85DCA41156F94B343 /* ChunkingStrategy.swift in Sources */,
 				2809B82E26E4F8B3AF42D408 /* ContentView.swift in Sources */,
 				062E29E76A97D3D5CA2BEF38 /* CosineSimilarity.swift in Sources */,

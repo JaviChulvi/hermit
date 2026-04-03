@@ -7,6 +7,7 @@ struct HermitApp: App {
     @State private var vectorStore: VectorStore
     @State private var ragEngine: RAGEngine
     @State private var documentViewModel: DocumentViewModel
+    @State private var chatViewModel: ChatViewModel
 
     init() {
         let mm = ModelManager()
@@ -15,11 +16,13 @@ struct HermitApp: App {
         let ls = LLMService(modelManager: mm)
         let re = RAGEngine(embeddingService: es, vectorStore: vs, modelManager: mm, llmService: ls)
         let dvm = DocumentViewModel(ragEngine: re, vectorStore: vs)
+        let cvm = ChatViewModel(ragEngine: re)
 
         _modelManager = State(initialValue: mm)
         _vectorStore = State(initialValue: vs)
         _ragEngine = State(initialValue: re)
         _documentViewModel = State(initialValue: dvm)
+        _chatViewModel = State(initialValue: cvm)
     }
 
     var body: some Scene {
@@ -36,6 +39,7 @@ struct HermitApp: App {
             .environment(vectorStore)
             .environment(ragEngine)
             .environment(documentViewModel)
+            .environment(chatViewModel)
         }
     }
 }
