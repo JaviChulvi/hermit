@@ -2,18 +2,36 @@ import SwiftUI
 
 struct MessageBubble: View {
     let message: ChatMessage
+    var onRetry: (() -> Void)?
 
     var body: some View {
+        if message.role == .system {
+            errorBubble
+        } else {
+            standardBubble
+        }
+    }
+
+    private var standardBubble: some View {
         HStack {
             if message.role == .user { Spacer() }
 
             VStack(alignment: message.role == .user ? .trailing : .leading, spacing: 4) {
-                Text(message.content)
-                    .padding(.horizontal, 14)
-                    .padding(.vertical, 10)
-                    .background(bubbleBackground)
-                    .foregroundStyle(bubbleForeground)
-                    .clipShape(RoundedRectangle(cornerRadius: 20))
+                if message.role == .assistant {
+                    Text(LocalizedStringKey(message.content))
+                        .padding(.horizontal, 14)
+                        .padding(.vertical, 10)
+                        .background(bubbleBackground)
+                        .foregroundStyle(bubbleForeground)
+                        .clipShape(RoundedRectangle(cornerRadius: 20))
+                } else {
+                    Text(message.content)
+                        .padding(.horizontal, 14)
+                        .padding(.vertical, 10)
+                        .background(bubbleBackground)
+                        .foregroundStyle(bubbleForeground)
+                        .clipShape(RoundedRectangle(cornerRadius: 20))
+                }
 
                 Text(message.timestamp, style: .time)
                     .font(.caption2)
@@ -23,6 +41,39 @@ struct MessageBubble: View {
             .frame(maxWidth: UIScreen.main.bounds.width * 0.8, alignment: message.role == .user ? .trailing : .leading)
 
             if message.role != .user { Spacer() }
+        }
+        .padding(.horizontal)
+        .padding(.vertical, 2)
+    }
+
+    private var errorBubble: some View {
+        HStack {
+            VStack(alignment: .leading, spacing: 8) {
+                HStack(spacing: 6) {
+                    Image(systemName: "exclamationmark.triangle.fill")
+                        .foregroundStyle(.red)
+                        .font(.subheadline)
+                    Text(message.content)
+                        .font(.subheadline)
+                        .foregroundStyle(.white)
+                }
+
+                if let onRetry {
+                    Button {
+                        onRetry()
+                    } label: {
+                        Text("Retry")
+                            .font(.caption.bold())
+                            .foregroundStyle(Color("AccentColor"))
+                    }
+                }
+            }
+            .padding(.horizontal, 14)
+            .padding(.vertical, 10)
+            .background(Color.red.opacity(0.15), in: RoundedRectangle(cornerRadius: 12))
+            .frame(maxWidth: UIScreen.main.bounds.width * 0.85, alignment: .leading)
+
+            Spacer()
         }
         .padding(.horizontal)
         .padding(.vertical, 2)

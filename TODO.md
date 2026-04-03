@@ -1036,29 +1036,29 @@
 
 > As a user, the chat feels responsive and polished with proper state handling.
 
-- [ ] **4.4.1** Add empty state to ChatView
+- [x] **4.4.1** Add empty state to ChatView
   - When no messages and documents exist: "Import a document to start chatting" with document icon
   - When no messages but documents exist: "Ask a question about your documents" with prompt suggestions
 
-- [ ] **4.4.2** Add error handling UI
+- [x] **4.4.2** Add error handling UI
   - If generation fails (OOM, model not loaded, etc.): show error inline as a system message bubble
   - Add "Retry" button on error messages
   - If model fails to load: show alert with "Not enough memory" message
 
-- [ ] **4.4.3** Add model loading indicator
+- [x] **4.4.3** Add model loading indicator
   - When transitioning from idle/embedding to LLM: show "Loading AI model..." with spinner
   - This can take 5-15 seconds, user needs feedback
 
-- [ ] **4.4.4** Add haptic feedback
+- [x] **4.4.4** Add haptic feedback
   - Light haptic on message send
   - Success haptic when generation completes
   - Error haptic on failure
 
-- [ ] **4.4.5** Add basic markdown rendering in assistant messages
+- [x] **4.4.5** Add basic markdown rendering in assistant messages
   - Bold (`**text**`), italic (`*text*`), code blocks (`` `code` ``)
   - Use `AttributedString` with markdown parsing or SwiftUI `Text` with markdown support
 
-- [ ] **4.4.6** Add "Clear Conversation" button
+- [x] **4.4.6** Add "Clear Conversation" button
   - In navigation toolbar or as a menu option
   - Confirm with alert before clearing
   - Calls `chatViewModel.clearConversation()`

@@ -2,8 +2,15 @@ import SwiftUI
 
 struct ChatView: View {
     @Environment(ChatViewModel.self) private var viewModel
+    @Environment(DocumentViewModel.self) private var documentViewModel
+    @Environment(ModelManager.self) private var modelManager
     @State private var messageText = ""
+    @State private var showClearAlert = false
     @FocusState private var isTextFieldFocused: Bool
+
+    private var hasDocuments: Bool {
+        !documentViewModel.documents.isEmpty
+    }
 
     var body: some View {
         VStack(spacing: 0) {
@@ -21,6 +28,14 @@ struct ChatView: View {
             inputBar
         }
         .background(Color("BackgroundPrimary").ignoresSafeArea())
+        .alert("Clear Conversation", isPresented: $showClearAlert) {
+            Button("Cancel", role: .cancel) { }
+            Button("Clear", role: .destructive) {
+                viewModel.clearConversation()
+            }
+        } message: {
+            Text("This will remove all messages. Your documents will not be affected.")
+        }
     }
 
     // MARK: - Header
@@ -31,6 +46,15 @@ struct ChatView: View {
                 .font(.largeTitle.bold())
                 .foregroundStyle(.white)
             Spacer()
+            if !viewModel.messages.isEmpty {
+                Button {
+                    showClearAlert = true
+                } label: {
+                    Image(systemName: "trash")
+                        .font(.system(size: 16))
+                        .foregroundStyle(Color("TextSecondary"))
+                }
+            }
             PrivacyBadge()
         }
         .padding(.horizontal, 20)
@@ -43,18 +67,51 @@ struct ChatView: View {
     private var emptyState: some View {
         VStack(spacing: 16) {
             Spacer()
-            Image(systemName: "doc.text.magnifyingglass")
-                .font(.system(size: 52))
-                .foregroundStyle(Color("AccentColor"))
-            Text("No Documents Yet")
-                .font(.title3.bold())
-                .foregroundStyle(.white)
-            Text("Import a document to start chatting")
-                .font(.subheadline)
-                .foregroundStyle(Color("TextSecondary"))
+            if hasDocuments {
+                Image(systemName: "bubble.left.and.text.bubble.right")
+                    .font(.system(size: 52))
+                    .foregroundStyle(Color("AccentColor"))
+                Text("Ask a Question")
+                    .font(.title3.bold())
+                    .foregroundStyle(.white)
+                Text("Ask a question about your documents")
+                    .font(.subheadline)
+                    .foregroundStyle(Color("TextSecondary"))
+
+                VStack(spacing: 8) {
+                    suggestionButton("Summarize the main points")
+                    suggestionButton("What are the key takeaways?")
+                    suggestionButton("Explain the main topic")
+                }
+                .padding(.top, 12)
+            } else {
+                Image(systemName: "doc.text.magnifyingglass")
+                    .font(.system(size: 52))
+                    .foregroundStyle(Color("AccentColor"))
+                Text("No Documents Yet")
+                    .font(.title3.bold())
+                    .foregroundStyle(.white)
+                Text("Import a document to start chatting")
+                    .font(.subheadline)
+                    .foregroundStyle(Color("TextSecondary"))
+            }
             Spacer()
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
+    }
+
+    private func suggestionButton(_ text: String) -> some View {
+        Button {
+            messageText = text
+            send()
+        } label: {
+            Text(text)
+                .font(.subheadline)
+                .foregroundStyle(.white)
+                .padding(.horizontal, 16)
+                .padding(.vertical, 10)
+                .background(Color("BackgroundSecondary"), in: RoundedRectangle(cornerRadius: 20))
+        }
     }
 
     // MARK: - Message List
@@ -64,7 +121,9 @@ struct ChatView: View {
             ScrollView {
                 LazyVStack(spacing: 0) {
                     ForEach(viewModel.messages) { message in
-                        MessageBubble(message: message)
+                        MessageBubble(message: message, onRetry: message.role == .system ? {
+                            viewModel.retryLastMessage()
+                        } : nil)
                             .id(message.id)
                             .transition(.asymmetric(
                                 insertion: .move(edge: .bottom).combined(with: .opacity),
@@ -81,13 +140,25 @@ struct ChatView: View {
                         .id("streaming-bubble")
                     }
 
-                    // Status / streaming indicator
+                    // Model loading / status indicator
                     if viewModel.isGenerating && viewModel.currentStreamedText.isEmpty {
                         VStack(spacing: 6) {
-                            if !viewModel.statusMessage.isEmpty {
-                                Text(viewModel.statusMessage)
-                                    .font(.caption)
-                                    .foregroundStyle(Color("TextSecondary"))
+                            if modelManager.modelState == .transitioning {
+                                HStack(spacing: 8) {
+                                    ProgressView()
+                                        .tint(Color("AccentColor"))
+                                    Text("Loading AI model...")
+                                        .font(.caption)
+                                        .foregroundStyle(Color("TextSecondary"))
+                                }
+                            } else if !viewModel.statusMessage.isEmpty {
+                                HStack(spacing: 8) {
+                                    ProgressView()
+                                        .tint(Color("AccentColor"))
+                                    Text(viewModel.statusMessage)
+                                        .font(.caption)
+                                        .foregroundStyle(Color("TextSecondary"))
+                                }
                             }
                             StreamingIndicator()
                         }
@@ -178,12 +249,15 @@ struct ChatView: View {
 }
 
 #Preview("Empty State") {
+    let mm = ModelManager()
+    let vs = VectorStore()
+    let es = EmbeddingService(modelManager: mm)
+    let ls = LLMService(modelManager: mm)
+    let re = RAGEngine(embeddingService: es, vectorStore: vs, modelManager: mm, llmService: ls)
+
     ChatView()
-        .environment(ChatViewModel(ragEngine: RAGEngine(
-            embeddingService: EmbeddingService(modelManager: ModelManager()),
-            vectorStore: VectorStore(),
-            modelManager: ModelManager(),
-            llmService: LLMService(modelManager: ModelManager())
-        )))
+        .environment(ChatViewModel(ragEngine: re))
+        .environment(DocumentViewModel(ragEngine: re, vectorStore: vs))
+        .environment(mm)
         .preferredColorScheme(.dark)
 }

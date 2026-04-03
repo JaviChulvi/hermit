@@ -1,4 +1,5 @@
 import Foundation
+import UIKit
 
 @Observable
 @MainActor
@@ -8,6 +9,7 @@ class ChatViewModel {
     private(set) var isGenerating: Bool = false
     var statusMessage: String = ""
     var errorMessage: String?
+    private(set) var lastFailedQuery: String?
 
     private let ragEngine: RAGEngine
     private var generationTask: Task<Void, Never>?
@@ -22,9 +24,13 @@ class ChatViewModel {
         let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty else { return }
 
+        // Haptic on send
+        UIImpactFeedbackGenerator(style: .light).impactOccurred()
+
         // Append user message
         let userMessage = ChatMessage(role: .user, content: trimmed)
         messages.append(userMessage)
+        lastFailedQuery = nil
 
         // Start generation
         isGenerating = true
@@ -47,6 +53,7 @@ class ChatViewModel {
                 messages.append(assistantMessage)
                 currentStreamedText = ""
                 statusMessage = ""
+                UINotificationFeedbackGenerator().notificationOccurred(.success)
             } catch is CancellationError {
                 // Save partial text if any was streamed
                 savePartialResponse()
@@ -54,10 +61,32 @@ class ChatViewModel {
                 // Save partial text on error too
                 savePartialResponse()
                 errorMessage = error.localizedDescription
+                lastFailedQuery = trimmed
+
+                // Add inline error message
+                UINotificationFeedbackGenerator().notificationOccurred(.error)
+                let errorMsg = ChatMessage(role: .system, content: error.localizedDescription)
+                messages.append(errorMsg)
             }
 
             isGenerating = false
         }
+    }
+
+    func retryLastMessage() {
+        guard let query = lastFailedQuery else { return }
+
+        // Remove the last error message if present
+        if let last = messages.last, last.role == .system {
+            messages.removeLast()
+        }
+        // Remove the user message that failed
+        if let last = messages.last, last.role == .user {
+            messages.removeLast()
+        }
+
+        lastFailedQuery = nil
+        sendMessage(text: query)
     }
 
     // MARK: - Cancellation

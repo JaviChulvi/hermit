@@ -86,11 +86,13 @@ struct ContentView: View {
     let ls = LLMService(modelManager: mm)
     let re = RAGEngine(embeddingService: es, vectorStore: vs, modelManager: mm, llmService: ls)
     let dvm = DocumentViewModel(ragEngine: re, vectorStore: vs)
+    let cvm = ChatViewModel(ragEngine: re)
 
     ContentView()
         .environment(mm)
         .environment(vs)
         .environment(re)
         .environment(dvm)
+        .environment(cvm)
         .preferredColorScheme(.dark)
 }
