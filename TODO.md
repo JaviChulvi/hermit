@@ -726,7 +726,7 @@
 
 > As a developer, I can generate embeddings for text chunks using MLXEmbedders and the all-MiniLM-L6-v2 model.
 
-- [ ] **3.5.1** Create `Services/EmbeddingService.swift`
+- [x] **3.5.1** Create `Services/EmbeddingService.swift`
   - `class EmbeddingService`
   - Dependencies: `ModelManager`
   - `func embed(text: String) async throws -> [Float]`
@@ -737,11 +737,11 @@
     - Batch process: embed each chunk, call progress callback after each
     - Return array of embeddings
 
-- [ ] **3.5.2** Implement unload after batch
+- [x] **3.5.2** Implement unload after batch
   - After `embed(chunks:)` completes, call `modelManager.unloadEmbedding()` to free RAM
   - This is critical for the memory management strategy
 
-- [ ] **3.5.3** Integration test (requires downloaded embedding model)
+- [x] **3.5.3** Integration test (requires downloaded embedding model)
   - `HermitTests/Services/EmbeddingServiceIntegrationTests.swift`
   - Mark as integration test (skip in CI if model not available)
   - Test: embed a short string → returns array of exactly 384 floats

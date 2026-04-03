@@ -33,6 +33,9 @@ targets:
     settings:
       base:
         GENERATE_INFOPLIST_FILE: true
+        INFOPLIST_KEY_UILaunchScreen_Generation: true
+        INFOPLIST_KEY_UISupportedInterfaceOrientations: "UIInterfaceOrientationPortrait"
+        INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad: "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight"
         CURRENT_PROJECT_VERSION: 1
         MARKETING_VERSION: "1.0"
         CODE_SIGN_ENTITLEMENTS: Hermit/Hermit.entitlements
@@ -53,3 +56,14 @@ targets:
         product: MLXLMHFAPI
       - package: swift-hf-api-mlx
         product: MLXEmbeddersHFAPI
+
+  HermitTests:
+    type: bundle.unit-test
+    platform: iOS
+    sources:
+      - path: HermitTests
+    dependencies:
+      - target: Hermit
+    settings:
+      base:
+        GENERATE_INFOPLIST_FILE: true
