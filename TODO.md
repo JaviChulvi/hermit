@@ -323,7 +323,7 @@
 
 > As a developer, I need a utility to check available RAM so the app can make safe decisions about loading models.
 
-- [ ] **2.1.1** Create `Utilities/MemoryMonitor.swift`
+- [x] **2.1.1** Create `Utilities/MemoryMonitor.swift`
   - `@Observable class MemoryMonitor`
   - Property: `availableMemoryMB: Int` (updated periodically)
   - Method: `update()` — reads `os_proc_available_memory()` and converts to MB
@@ -331,7 +331,7 @@
   - Start a timer (every 5 seconds) that calls `update()`
   - Subscribe to `UIApplication.didReceiveMemoryWarningNotification` → log warning + call `update()`
 
-- [ ] **2.1.2** Write unit tests `HermitTests/Utilities/MemoryMonitorTests.swift`
+- [x] **2.1.2** Write unit tests `HermitTests/Utilities/MemoryMonitorTests.swift`
   - Test `update()` returns a value > 0
   - Test `hasEnoughMemory(requiredMB: 100)` returns true (any dev machine has 100MB free)
   - Test `hasEnoughMemory(requiredMB: 999_999)` returns false
