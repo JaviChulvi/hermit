@@ -689,7 +689,7 @@
 
 > As a developer, I can store and retrieve chunks with embeddings, persisted to JSON on disk.
 
-- [ ] **3.4.1** Create `Services/VectorStore.swift`
+- [x] **3.4.1** Create `Services/VectorStore.swift`
   - `@Observable class VectorStore`
   - In-memory storage: `private(set) var chunks: [TextChunk] = []`
   - `func addChunks(_ newChunks: [TextChunk], forDocument documentId: UUID)` — appends and saves
@@ -697,17 +697,17 @@
   - `func deleteChunks(forDocument documentId: UUID)` — removes chunks and deletes file
   - `func allEmbeddings() -> [(index: Int, embedding: [Float])]` — returns non-nil embeddings with indices
 
-- [ ] **3.4.2** Implement JSON persistence
+- [x] **3.4.2** Implement JSON persistence
   - `private func save(documentId: UUID)` — encode chunks for that document to `Documents/vector_store/{documentId}.json`
   - `func loadAll()` — scan `Documents/vector_store/` directory, decode all JSON files, populate `chunks`
   - Call `loadAll()` on initialization
 
-- [ ] **3.4.3** Implement search method
+- [x] **3.4.3** Implement search method
   - `func search(queryEmbedding: [Float], topK: Int = 3) -> [TextChunk]`
   - Uses `findTopK()` from CosineSimilarity utility
   - Returns the `TextChunk` objects corresponding to top-K matches
 
-- [ ] **3.4.4** Write unit tests `HermitTests/Services/VectorStoreTests.swift`
+- [x] **3.4.4** Write unit tests `HermitTests/Services/VectorStoreTests.swift`
   - Test `addChunks` increases chunk count
   - Test `chunksForDocument` returns only chunks for that document
   - Test `deleteChunks` removes chunks for that document

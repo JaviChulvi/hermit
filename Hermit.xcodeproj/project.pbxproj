@@ -45,6 +45,8 @@
 		DD11EE22FF33AA44BB55CC03 /* CosineSimilarityTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD11EE22FF33AA44BB55CC04 /* CosineSimilarityTests.swift */; };
 		CC11DD22EE33FF44AA55BB05 /* sample.txt in Resources */ = {isa = PBXBuildFile; fileRef = CC11DD22EE33FF44AA55BB06 /* sample.txt */; };
 		CC11DD22EE33FF44AA55BB07 /* sample.pdf in Resources */ = {isa = PBXBuildFile; fileRef = CC11DD22EE33FF44AA55BB08 /* sample.pdf */; };
+		EE11FF22AA33BB44CC55DD01 /* VectorStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE11FF22AA33BB44CC55DD02 /* VectorStore.swift */; };
+		EE11FF22AA33BB44CC55DD03 /* VectorStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE11FF22AA33BB44CC55DD04 /* VectorStoreTests.swift */; };
 /* End PBXBuildFile section */
 
 
@@ -93,6 +95,8 @@
 		DD11EE22FF33AA44BB55CC04 /* CosineSimilarityTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CosineSimilarityTests.swift; sourceTree = "<group>"; };
 		CC11DD22EE33FF44AA55BB06 /* sample.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = sample.txt; sourceTree = "<group>"; };
 		CC11DD22EE33FF44AA55BB08 /* sample.pdf */ = {isa = PBXFileReference; lastKnownFileType = file; path = sample.pdf; sourceTree = "<group>"; };
+		EE11FF22AA33BB44CC55DD02 /* VectorStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VectorStore.swift; sourceTree = "<group>"; };
+		EE11FF22AA33BB44CC55DD04 /* VectorStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VectorStoreTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -191,6 +195,7 @@
 				CC11DD22EE33FF44AA55BB11 /* ChunkingStrategy.swift */,
 				CC11DD22EE33FF44AA55BB02 /* DocumentProcessor.swift */,
 				AA11223344556677AABB0022 /* ModelManager.swift */,
+				EE11FF22AA33BB44CC55DD02 /* VectorStore.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -268,6 +273,7 @@
 				CC11DD22EE33FF44AA55BB04 /* DocumentProcessorTests.swift */,
 				AA11223344556677AABB0044 /* ModelManagerTests.swift */,
 				BB22334455667788AABB0066 /* ModelManagerLoadTests.swift */,
+				EE11FF22AA33BB44CC55DD04 /* VectorStoreTests.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -410,6 +416,7 @@
 				8B9C0D1E2F3A4B5C6D7E8F9A /* OnboardingViewModel.swift in Sources */,
 				CC11DD22EE33FF44AA55BB01 /* DocumentProcessor.swift in Sources */,
 				CC11DD22EE33FF44AA55BB10 /* ChunkingStrategy.swift in Sources */,
+				EE11FF22AA33BB44CC55DD01 /* VectorStore.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -424,6 +431,7 @@
 				BB22334455667788AABB0055 /* ModelManagerLoadTests.swift in Sources */,
 				CC11DD22EE33FF44AA55BB03 /* DocumentProcessorTests.swift in Sources */,
 				CC11DD22EE33FF44AA55BB12 /* ChunkingStrategyTests.swift in Sources */,
+				EE11FF22AA33BB44CC55DD03 /* VectorStoreTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
