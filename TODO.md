@@ -598,19 +598,19 @@
 
 > As a user, I can import a TXT or PDF file and the app extracts its text content.
 
-- [ ] **3.1.1** Create `Services/DocumentProcessor.swift`
+- [x] **3.1.1** Create `Services/DocumentProcessor.swift`
   - `static func extractText(from url: URL) throws -> String`
   - For `.txt` files: `String(contentsOf: url, encoding: .utf8)`
   - For `.pdf` files: `PDFDocument(url:)` → iterate `page(at:).string` for all pages → concatenate
   - Throw descriptive error if PDF has no extractable text (scanned/image PDF)
   - Throw error for unsupported file types
 
-- [ ] **3.1.2** Add test fixtures
+- [x] **3.1.2** Add test fixtures
   - Create `HermitTests/Fixtures/` directory
   - Add a small sample `.txt` file (~500 words)
   - Add a small sample `.pdf` file (text-based, 2-3 pages)
 
-- [ ] **3.1.3** Write unit tests `HermitTests/Services/DocumentProcessorTests.swift`
+- [x] **3.1.3** Write unit tests `HermitTests/Services/DocumentProcessorTests.swift`
   - Test extracting text from a `.txt` file → returns non-empty string
   - Test extracting text from a `.pdf` file → returns non-empty string
   - Test error thrown for unsupported file extension (e.g., `.png`)

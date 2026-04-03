@@ -37,6 +37,10 @@
 		AA11223344556677AABB0033 /* ModelManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA11223344556677AABB0044 /* ModelManagerTests.swift */; };
 		BB22334455667788AABB0055 /* ModelManagerLoadTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB22334455667788AABB0066 /* ModelManagerLoadTests.swift */; };
 		8B9C0D1E2F3A4B5C6D7E8F9A /* OnboardingViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A8B9C0D1E2F3A4B5C6D7E8F /* OnboardingViewModel.swift */; };
+		CC11DD22EE33FF44AA55BB01 /* DocumentProcessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC11DD22EE33FF44AA55BB02 /* DocumentProcessor.swift */; };
+		CC11DD22EE33FF44AA55BB03 /* DocumentProcessorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC11DD22EE33FF44AA55BB04 /* DocumentProcessorTests.swift */; };
+		CC11DD22EE33FF44AA55BB05 /* sample.txt in Resources */ = {isa = PBXBuildFile; fileRef = CC11DD22EE33FF44AA55BB06 /* sample.txt */; };
+		CC11DD22EE33FF44AA55BB07 /* sample.pdf in Resources */ = {isa = PBXBuildFile; fileRef = CC11DD22EE33FF44AA55BB08 /* sample.pdf */; };
 /* End PBXBuildFile section */
 
 
@@ -77,6 +81,10 @@
 		AA11223344556677AABB0044 /* ModelManagerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModelManagerTests.swift; sourceTree = "<group>"; };
 		BB22334455667788AABB0066 /* ModelManagerLoadTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModelManagerLoadTests.swift; sourceTree = "<group>"; };
 		7A8B9C0D1E2F3A4B5C6D7E8F /* OnboardingViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingViewModel.swift; sourceTree = "<group>"; };
+		CC11DD22EE33FF44AA55BB02 /* DocumentProcessor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DocumentProcessor.swift; sourceTree = "<group>"; };
+		CC11DD22EE33FF44AA55BB04 /* DocumentProcessorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DocumentProcessorTests.swift; sourceTree = "<group>"; };
+		CC11DD22EE33FF44AA55BB06 /* sample.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = sample.txt; sourceTree = "<group>"; };
+		CC11DD22EE33FF44AA55BB08 /* sample.pdf */ = {isa = PBXFileReference; lastKnownFileType = file; path = sample.pdf; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -171,6 +179,7 @@
 		76C5001A30745C521F608216 /* Services */ = {
 			isa = PBXGroup;
 			children = (
+				CC11DD22EE33FF44AA55BB02 /* DocumentProcessor.swift */,
 				AA11223344556677AABB0022 /* ModelManager.swift */,
 			);
 			path = Services;
@@ -225,6 +234,7 @@
 		A9B0C1D2E3F4A5B6C7D8E9FA /* HermitTests */ = {
 			isa = PBXGroup;
 			children = (
+				CC11DD22EE33FF44AA55BB09 /* Fixtures */,
 				B0C1D2E3F4A5B6C7D8E9FAB1 /* Models */,
 				AA11223344556677AABB0055 /* Services */,
 				EE66FF77AA22BB33CC44DD55 /* Utilities */,
@@ -232,9 +242,19 @@
 			path = HermitTests;
 			sourceTree = "<group>";
 		};
+		CC11DD22EE33FF44AA55BB09 /* Fixtures */ = {
+			isa = PBXGroup;
+			children = (
+				CC11DD22EE33FF44AA55BB08 /* sample.pdf */,
+				CC11DD22EE33FF44AA55BB06 /* sample.txt */,
+			);
+			path = Fixtures;
+			sourceTree = "<group>";
+		};
 		AA11223344556677AABB0055 /* Services */ = {
 			isa = PBXGroup;
 			children = (
+				CC11DD22EE33FF44AA55BB04 /* DocumentProcessorTests.swift */,
 				AA11223344556677AABB0044 /* ModelManagerTests.swift */,
 				BB22334455667788AABB0066 /* ModelManagerLoadTests.swift */,
 			);
@@ -283,6 +303,7 @@
 			buildConfigurationList = D6E7F8A9B0C1D2E3F4A5B6C7 /* Build configuration list for PBXNativeTarget "HermitTests" */;
 			buildPhases = (
 				F2A3B4C5D6E7F8A9B0C1D2E3 /* Sources */,
+				CC11DD22EE33FF44AA55BB0A /* Resources */,
 			);
 			buildRules = (
 			);
@@ -340,6 +361,15 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		CC11DD22EE33FF44AA55BB0A /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				CC11DD22EE33FF44AA55BB05 /* sample.txt in Resources */,
+				CC11DD22EE33FF44AA55BB07 /* sample.pdf in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
@@ -365,6 +395,7 @@
 				BB33CC44DD55EE66FF77AA22 /* MemoryMonitor.swift in Sources */,
 				AA11223344556677AABB0011 /* ModelManager.swift in Sources */,
 				8B9C0D1E2F3A4B5C6D7E8F9A /* OnboardingViewModel.swift in Sources */,
+				CC11DD22EE33FF44AA55BB01 /* DocumentProcessor.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -376,6 +407,7 @@
 				DD55EE66FF77AA22BB33CC44 /* MemoryMonitorTests.swift in Sources */,
 				AA11223344556677AABB0033 /* ModelManagerTests.swift in Sources */,
 				BB22334455667788AABB0055 /* ModelManagerLoadTests.swift in Sources */,
+				CC11DD22EE33FF44AA55BB03 /* DocumentProcessorTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
