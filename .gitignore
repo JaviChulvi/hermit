@@ -1,12 +1,54 @@
-# Xcode
-*.xcuserdata
+# ── Xcode ──
+build/
 DerivedData/
-.build/
+*.xcuserdata/
+*.xcscmblueprint
+*.xccheckout
+*.moved-aside
+*.hmap
+*.ipa
+*.dSYM.zip
+*.dSYM
+
+# Xcode workspace (SPM generates its own)
 *.xcworkspace
-.DS_Store
 
-# Swift Package Manager
+# ── Swift Package Manager ──
 .swiftpm/
+.build/
+Package.resolved
 
-# Logs
+# ── macOS ──
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+.Spotlight-V100
+.Trashes
+
+# ── IDE / Editors ──
+*.swp
+*.swo
+*~
+.idea/
+.vscode/
+
+# ── Development loop logs ──
 logs/
+
+# ── ML Models (downloaded at runtime, too large for git) ──
+# Only ignore the top-level models/ directory (not Hermit/Models/ source code)
+/models/
+*.safetensors
+*.gguf
+
+# ── Secrets / Environment ──
+.env
+.env.*
+*.pem
+*.p12
+*.key
+
+# ── Misc ──
+Thumbs.db
+*.orig

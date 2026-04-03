@@ -87,24 +87,24 @@
 
 > As a developer, I need well-typed data structures so all layers share a common vocabulary.
 
-- [ ] **1.3.1** Create `Models/ChatMessage.swift`
+- [x] **1.3.1** Create `Models/ChatMessage.swift`
   - `struct ChatMessage: Identifiable, Codable`
   - Properties: `id: UUID`, `role: Role` (enum: `.user`, `.assistant`, `.system`), `content: String`, `timestamp: Date`
 
-- [ ] **1.3.2** Create `Models/Document.swift`
+- [x] **1.3.2** Create `Models/Document.swift`
   - `struct Document: Identifiable, Codable`
   - Properties: `id: UUID`, `name: String`, `fileExtension: String`, `dateAdded: Date`, `chunkCount: Int`, `isProcessed: Bool`
 
-- [ ] **1.3.3** Create `Models/TextChunk.swift`
+- [x] **1.3.3** Create `Models/TextChunk.swift`
   - `struct TextChunk: Identifiable, Codable`
   - Properties: `id: UUID`, `documentId: UUID`, `text: String`, `embedding: [Float]?`, `chunkIndex: Int`
 
-- [ ] **1.3.4** Create `Models/ModelInfo.swift`
+- [x] **1.3.4** Create `Models/ModelInfo.swift`
   - `struct ModelInfo: Identifiable`
   - Properties: `id: String` (HuggingFace repo ID), `name: String`, `sizeDescription: String`, `isDownloaded: Bool`
   - Static constants: `ModelInfo.embeddingModel` and `ModelInfo.llmModel` with HuggingFace IDs
 
-- [ ] **1.3.5** Write unit tests `HermitTests/Models/DataModelTests.swift`
+- [x] **1.3.5** Write unit tests `HermitTests/Models/DataModelTests.swift`
   - Test `ChatMessage` encoding/decoding round-trip (JSON)
   - Test `Document` encoding/decoding round-trip
   - Test `TextChunk` encoding/decoding with nil embedding

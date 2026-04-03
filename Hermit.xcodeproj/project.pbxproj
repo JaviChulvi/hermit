@@ -18,7 +18,23 @@
 		D1F66464188C4FB19382D2B3 /* MLXLMCommon in Frameworks */ = {isa = PBXBuildFile; productRef = 71EB3107E61C302B96996A71 /* MLXLMCommon */; };
 		D62F99212E2FA02DA8AE75BA /* MLXLMHFAPI in Frameworks */ = {isa = PBXBuildFile; productRef = 80D0FB5150457BEAC5CE580C /* MLXLMHFAPI */; };
 		D8E3304BC5A96F78362DF0BA /* MLXEmbedders in Frameworks */ = {isa = PBXBuildFile; productRef = 687D05517582B55AFA650074 /* MLXEmbedders */; };
+		F6A7B8C9D0E1F2A3B4C5D6E7 /* ChatMessage.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F6A7B8C9D0E1F2 /* ChatMessage.swift */; };
+		A7B8C9D0E1F2A3B4C5D6E7F8 /* Document.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2C3D4E5F6A7B8C9D0E1F2A3 /* Document.swift */; };
+		B8C9D0E1F2A3B4C5D6E7F8A9 /* TextChunk.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3D4E5F6A7B8C9D0E1F2A3B4 /* TextChunk.swift */; };
+		C9D0E1F2A3B4C5D6E7F8A9B0 /* ModelInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = D4E5F6A7B8C9D0E1F2A3B4C5 /* ModelInfo.swift */; };
+		D0E1F2A3B4C5D6E7F8A9B0C1 /* DataModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5F6A7B8C9D0E1F2A3B4C5D6 /* DataModelTests.swift */; };
 /* End PBXBuildFile section */
+
+
+/* Begin PBXContainerItemProxy section */
+		E7F8A9B0C1D2E3F4A5B6C7D8 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 33CC8C8311042E49570FB75D /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 04794B6463FB4AB3D5D4ED57;
+			remoteInfo = Hermit;
+		};
+/* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
 		05E18749795DF5EEDA49C0E4 /* Hermit.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Hermit.entitlements; sourceTree = "<group>"; };
@@ -27,6 +43,12 @@
 		6A047974E25485A438CA176F /* Hermit.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = Hermit.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		AE86124BC8833C2AC2555333 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		EF539B1D728ADBC791738BD7 /* HermitApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HermitApp.swift; sourceTree = "<group>"; };
+		A1B2C3D4E5F6A7B8C9D0E1F2 /* ChatMessage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatMessage.swift; sourceTree = "<group>"; };
+		B2C3D4E5F6A7B8C9D0E1F2A3 /* Document.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Document.swift; sourceTree = "<group>"; };
+		C3D4E5F6A7B8C9D0E1F2A3B4 /* TextChunk.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextChunk.swift; sourceTree = "<group>"; };
+		D4E5F6A7B8C9D0E1F2A3B4C5 /* ModelInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModelInfo.swift; sourceTree = "<group>"; };
+		E5F6A7B8C9D0E1F2A3B4C5D6 /* DataModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataModelTests.swift; sourceTree = "<group>"; };
+		A3B4C5D6E7F8A9B0C1D2E3F4 /* HermitTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = HermitTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -57,6 +79,10 @@
 		1180C73B7C9E5EC8E295A94D /* Models */ = {
 			isa = PBXGroup;
 			children = (
+				A1B2C3D4E5F6A7B8C9D0E1F2 /* ChatMessage.swift */,
+				B2C3D4E5F6A7B8C9D0E1F2A3 /* Document.swift */,
+				D4E5F6A7B8C9D0E1F2A3B4C5 /* ModelInfo.swift */,
+				C3D4E5F6A7B8C9D0E1F2A3B4 /* TextChunk.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -95,6 +121,7 @@
 			isa = PBXGroup;
 			children = (
 				6A047974E25485A438CA176F /* Hermit.app */,
+				A3B4C5D6E7F8A9B0C1D2E3F4 /* HermitTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -132,6 +159,7 @@
 			isa = PBXGroup;
 			children = (
 				167E22E0063E979DBB588D98 /* Hermit */,
+				A9B0C1D2E3F4A5B6C7D8E9FA /* HermitTests */,
 				3FBE92D99D81DBFC5D4A260E /* Products */,
 			);
 			sourceTree = "<group>";
@@ -145,6 +173,22 @@
 				1EC2F91CE53733379322C750 /* Settings */,
 			);
 			path = Views;
+			sourceTree = "<group>";
+		};
+		B0C1D2E3F4A5B6C7D8E9FAB1 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				E5F6A7B8C9D0E1F2A3B4C5D6 /* DataModelTests.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		A9B0C1D2E3F4A5B6C7D8E9FA /* HermitTests */ = {
+			isa = PBXGroup;
+			children = (
+				B0C1D2E3F4A5B6C7D8E9FAB1 /* Models */,
+			);
+			path = HermitTests;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -175,6 +219,22 @@
 			productName = Hermit;
 			productReference = 6A047974E25485A438CA176F /* Hermit.app */;
 			productType = "com.apple.product-type.application";
+		};
+		E1F2A3B4C5D6E7F8A9B0C1D2 /* HermitTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = D6E7F8A9B0C1D2E3F4A5B6C7 /* Build configuration list for PBXNativeTarget "HermitTests" */;
+			buildPhases = (
+				F2A3B4C5D6E7F8A9B0C1D2E3 /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				F8A9B0C1D2E3F4A5B6C7D8E9 /* PBXTargetDependency */,
+			);
+			name = HermitTests;
+			productName = HermitTests;
+			productReference = A3B4C5D6E7F8A9B0C1D2E3F4 /* HermitTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
 		};
 /* End PBXNativeTarget section */
 
@@ -208,6 +268,7 @@
 			projectRoot = "";
 			targets = (
 				04794B6463FB4AB3D5D4ED57 /* Hermit */,
+				E1F2A3B4C5D6E7F8A9B0C1D2 /* HermitTests */,
 			);
 		};
 /* End PBXProject section */
@@ -230,11 +291,32 @@
 			files = (
 				2809B82E26E4F8B3AF42D408 /* ContentView.swift in Sources */,
 				1EEA771C770BF0A80E4943CC /* DependencyCheck.swift in Sources */,
+				F6A7B8C9D0E1F2A3B4C5D6E7 /* ChatMessage.swift in Sources */,
+				A7B8C9D0E1F2A3B4C5D6E7F8 /* Document.swift in Sources */,
+				C9D0E1F2A3B4C5D6E7F8A9B0 /* ModelInfo.swift in Sources */,
+				B8C9D0E1F2A3B4C5D6E7F8A9 /* TextChunk.swift in Sources */,
 				7FAE910BD41B46658811AE72 /* HermitApp.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		F2A3B4C5D6E7F8A9B0C1D2E3 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D0E1F2A3B4C5D6E7F8A9B0C1 /* DataModelTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
+
+
+/* Begin PBXTargetDependency section */
+		F8A9B0C1D2E3F4A5B6C7D8E9 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 04794B6463FB4AB3D5D4ED57 /* Hermit */;
+			targetProxy = E7F8A9B0C1D2E3F4A5B6C7D8 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		5EC21B74B82F1A5985F2B3CD /* Release */ = {
@@ -396,6 +478,38 @@
 			};
 			name = Debug;
 		};
+		B4C5D6E7F8A9B0C1D2E3F4A5 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.hermit.HermitTests;
+				SDKROOT = iphoneos;
+				SWIFT_STRICT_CONCURRENCY = complete;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Hermit.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Hermit";
+			};
+			name = Debug;
+		};
+		C5D6E7F8A9B0C1D2E3F4A5B6 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.hermit.HermitTests;
+				SDKROOT = iphoneos;
+				SWIFT_STRICT_CONCURRENCY = complete;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Hermit.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Hermit";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -413,6 +527,15 @@
 			buildConfigurations = (
 				AD333A996436D0A61FFE4178 /* Debug */,
 				5EC21B74B82F1A5985F2B3CD /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		D6E7F8A9B0C1D2E3F4A5B6C7 /* Build configuration list for PBXNativeTarget "HermitTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				B4C5D6E7F8A9B0C1D2E3F4A5 /* Debug */,
+				C5D6E7F8A9B0C1D2E3F4A5B6 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Debug;
