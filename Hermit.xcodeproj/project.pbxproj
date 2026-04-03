@@ -52,6 +52,8 @@
 		F2E1D0C9B8A7F6E5D4C3B2A1 /* RAGEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F6A7B8C9D0E1F2 /* RAGEngine.swift */; };
 		A3F2E1D0C9B8A7F6E5D4C3B2 /* DocumentViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2C3D4E5F6A7B8C9D0E1F2A3 /* DocumentViewModel.swift */; };
 		B4A3F2E1D0C9B8A7F6E5D4C3 /* RAGEngineTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3D4E5F6A7B8C9D0E1F2A3B4 /* RAGEngineTests.swift */; };
+		E5F6A7B8C9D0E1F2A3B4C5D6 /* LLMService.swift in Sources */ = {isa = PBXBuildFile; fileRef = D4E5F6A7B8C9D0E1F2A3B4C5 /* LLMService.swift */; };
+		A7B8C9D0E1F2A3B4C5D6E7F8 /* LLMServiceIntegrationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6A7B8C9D0E1F2A3B4C5D6E7 /* LLMServiceIntegrationTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -106,6 +108,8 @@
 		A1B2C3D4E5F6A7B8C9D0E1F2 /* RAGEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RAGEngine.swift; sourceTree = "<group>"; };
 		B2C3D4E5F6A7B8C9D0E1F2A3 /* DocumentViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DocumentViewModel.swift; sourceTree = "<group>"; };
 		C3D4E5F6A7B8C9D0E1F2A3B4 /* RAGEngineTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RAGEngineTests.swift; sourceTree = "<group>"; };
+		D4E5F6A7B8C9D0E1F2A3B4C5 /* LLMService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LLMService.swift; sourceTree = "<group>"; };
+		F6A7B8C9D0E1F2A3B4C5D6E7 /* LLMServiceIntegrationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LLMServiceIntegrationTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -225,6 +229,7 @@
 				398F1B97288A19FE2503B584 /* ChunkingStrategy.swift */,
 				3CC0AA2A8B1E4AF64066ED01 /* DocumentProcessor.swift */,
 				2C9F80BB7E9596D45FB44299 /* EmbeddingService.swift */,
+				D4E5F6A7B8C9D0E1F2A3B4C5 /* LLMService.swift */,
 				A4B116364D854C2E71B8E380 /* ModelManager.swift */,
 				A1B2C3D4E5F6A7B8C9D0E1F2 /* RAGEngine.swift */,
 				6EE1909469C5993885D2E6A2 /* VectorStore.swift */,
@@ -247,6 +252,7 @@
 				5286689D1DF8EE13639695F7 /* ChunkingStrategyTests.swift */,
 				6B248F97A65F4F19F4DBDA95 /* DocumentProcessorTests.swift */,
 				8FAD1FCAC996073ADEA55872 /* EmbeddingServiceIntegrationTests.swift */,
+				F6A7B8C9D0E1F2A3B4C5D6E7 /* LLMServiceIntegrationTests.swift */,
 				C76CC5973CBCC57D8BA7CA5D /* ModelManagerLoadTests.swift */,
 				68B2AFF328C8E35E2AEB99B1 /* ModelManagerTests.swift */,
 				C3D4E5F6A7B8C9D0E1F2A3B4 /* RAGEngineTests.swift */,
@@ -424,6 +430,7 @@
 				4441DC394F11157B4294EA76 /* DataModelTests.swift in Sources */,
 				0FF8213FD3CC193FB267F499 /* DocumentProcessorTests.swift in Sources */,
 				375C7DE256A5ED305D600105 /* EmbeddingServiceIntegrationTests.swift in Sources */,
+				A7B8C9D0E1F2A3B4C5D6E7F8 /* LLMServiceIntegrationTests.swift in Sources */,
 				71B33E7771BC05040B811A74 /* MemoryMonitorTests.swift in Sources */,
 				A64FC7F4991D0C1A3FF82E35 /* ModelManagerLoadTests.swift in Sources */,
 				6BC965B9D844CFB45003CA27 /* ModelManagerTests.swift in Sources */,
@@ -448,6 +455,7 @@
 				ACA2FB48D1523A4E43C6F52B /* DownloadProgressView.swift in Sources */,
 				8867A36E35C53C8A5640EAB2 /* EmbeddingService.swift in Sources */,
 				7FAE910BD41B46658811AE72 /* HermitApp.swift in Sources */,
+				E5F6A7B8C9D0E1F2A3B4C5D6 /* LLMService.swift in Sources */,
 				3B068FCD4B87CB878DFF3573 /* MemoryMonitor.swift in Sources */,
 				35257490CC41F24EA550A5E7 /* MessageBubble.swift in Sources */,
 				1DF358174798B6631B0FC48B /* ModelInfo.swift in Sources */,

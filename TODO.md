@@ -872,7 +872,7 @@
 
 > As a developer, I can load Gemma 4 E2B and generate streaming text responses.
 
-- [ ] **4.1.1** Create `Services/LLMService.swift`
+- [x] **4.1.1** Create `Services/LLMService.swift`
   - `class LLMService`
   - Dependencies: `ModelManager`
   - Private: `chatSession: ChatSession?`
@@ -880,7 +880,7 @@
     - Call `modelManager.loadLLM()` (handles mutual exclusion)
     - Create `ChatSession` from the loaded model container
 
-- [ ] **4.1.2** Implement streaming generation
+- [x] **4.1.2** Implement streaming generation
   - `func generate(systemPrompt: String, userMessage: String) -> AsyncThrowingStream<String, Error>`
     - Ensure model is loaded
     - Set system prompt on the ChatSession
@@ -888,7 +888,7 @@
     - Forward each token from the stream
     - Handle max token limit (~1024 tokens for responses)
 
-- [ ] **4.1.3** Implement model lifecycle methods
+- [x] **4.1.3** Implement model lifecycle methods
   - `func unloadModel()`
     - Set `chatSession = nil`
     - Call `modelManager.unloadLLM()`
@@ -896,7 +896,7 @@
     - Create a new `ChatSession` with the same loaded model (clears KV cache / conversation history)
     - Keep the model in RAM
 
-- [ ] **4.1.4** Integration test (requires downloaded LLM)
+- [x] **4.1.4** Integration test (requires downloaded LLM)
   - `HermitTests/Services/LLMServiceIntegrationTests.swift`
   - Test: load model → model state becomes `.llmLoaded`
   - Test: generate with simple prompt → stream yields at least 1 token
