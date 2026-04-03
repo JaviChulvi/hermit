@@ -2,9 +2,15 @@ import SwiftUI
 
 @main
 struct HermitApp: App {
+    @AppStorage("onboardingComplete") private var onboardingComplete = false
+
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            if onboardingComplete {
+                ContentView()
+            } else {
+                OnboardingView()
+            }
         }
     }
 }

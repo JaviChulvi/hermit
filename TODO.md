@@ -228,22 +228,22 @@
 
 > As a first-time user, I see a welcome screen explaining what Hermit does and that I need to download models.
 
-- [ ] **1.7.1** Create `Views/Onboarding/OnboardingView.swift`
+- [x] **1.7.1** Create `Views/Onboarding/OnboardingView.swift`
   - Step 1 (Welcome): App name, tagline "Private AI on your iPhone", privacy explanation, "Get Started" button
   - Step 2 (Download): Two model cards showing download progress (placeholder 0%), "Download Models" button
   - Step 3 (Ready): Success message, "Start Using Hermit" button
   - Page-style navigation between steps (or vertical scroll)
 
-- [ ] **1.7.2** Create `Views/Onboarding/DownloadProgressView.swift`
+- [x] **1.7.2** Create `Views/Onboarding/DownloadProgressView.swift`
   - Reusable component: model name, size label, `ProgressView` bar, percentage text
   - States: not started, downloading (with progress), completed (checkmark), error (retry button)
 
-- [ ] **1.7.3** Add conditional navigation in `HermitApp.swift`
+- [x] **1.7.3** Add conditional navigation in `HermitApp.swift`
   - Check if models are downloaded (use `@AppStorage("onboardingComplete")` for now)
   - If not: show `OnboardingView`
   - If yes: show `ContentView`
 
-- [ ] **1.7.4** Verify in Preview and simulator
+- [x] **1.7.4** Verify in Preview and simulator
   - OnboardingView step 1 renders with welcome text
   - DownloadProgressView shows all 4 states correctly
   - Toggling `@AppStorage` flag switches between Onboarding and main app

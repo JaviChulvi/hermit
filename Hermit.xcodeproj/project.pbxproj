@@ -29,6 +29,8 @@
 		CC33DD44EE55FF66AA11BB22 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC33DD44EE55FF66AA11BB23 /* SettingsView.swift */; };
 		DD44EE55FF66AA11BB22CC34 /* MessageBubble.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD44EE55FF66AA11BB22CC33 /* MessageBubble.swift */; };
 		EE55FF66AA11BB22CC33DD45 /* StreamingIndicator.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE55FF66AA11BB22CC33DD44 /* StreamingIndicator.swift */; };
+		3C4D5E6F7A8B9C0D1E2F3A4B /* OnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A2B3C4D5E6F7A8B9C0D1E2F /* OnboardingView.swift */; };
+		4D5E6F7A8B9C0D1E2F3A4B5C /* DownloadProgressView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B3C4D5E6F7A8B9C0D1E2F3A /* DownloadProgressView.swift */; };
 /* End PBXBuildFile section */
 
 
@@ -61,6 +63,8 @@
 		CC33DD44EE55FF66AA11BB23 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		DD44EE55FF66AA11BB22CC33 /* MessageBubble.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageBubble.swift; sourceTree = "<group>"; };
 		EE55FF66AA11BB22CC33DD44 /* StreamingIndicator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StreamingIndicator.swift; sourceTree = "<group>"; };
+		1A2B3C4D5E6F7A8B9C0D1E2F /* OnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingView.swift; sourceTree = "<group>"; };
+		2B3C4D5E6F7A8B9C0D1E2F3A /* DownloadProgressView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DownloadProgressView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -84,6 +88,8 @@
 		09A52693FC300E25957EA687 /* Onboarding */ = {
 			isa = PBXGroup;
 			children = (
+				2B3C4D5E6F7A8B9C0D1E2F3A /* DownloadProgressView.swift */,
+				1A2B3C4D5E6F7A8B9C0D1E2F /* OnboardingView.swift */,
 			);
 			path = Onboarding;
 			sourceTree = "<group>";
@@ -320,6 +326,8 @@
 				CC33DD44EE55FF66AA11BB22 /* SettingsView.swift in Sources */,
 				DD44EE55FF66AA11BB22CC34 /* MessageBubble.swift in Sources */,
 				EE55FF66AA11BB22CC33DD45 /* StreamingIndicator.swift in Sources */,
+				3C4D5E6F7A8B9C0D1E2F3A4B /* OnboardingView.swift in Sources */,
+				4D5E6F7A8B9C0D1E2F3A4B5C /* DownloadProgressView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
