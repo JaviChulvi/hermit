@@ -121,29 +121,29 @@
 
 > As a user, I can see a tab bar with Chat, Documents, and Settings tabs, each showing a placeholder screen.
 
-- [ ] **1.4.1** Update `ContentView.swift` with a `TabView`
+- [x] **1.4.1** Update `ContentView.swift` with a `TabView`
   - Tab 1: Chat (icon: `bubble.left.and.bubble.right.fill`)
   - Tab 2: Documents (icon: `doc.text.fill`)
   - Tab 3: Settings (icon: `gearshape.fill`)
   - Use `.tint()` with the accent color
 
-- [ ] **1.4.2** Create `Views/Chat/ChatView.swift`
+- [x] **1.4.2** Create `Views/Chat/ChatView.swift`
   - Empty state: centered message "Import a document to start chatting"
   - Text input bar at the bottom (disabled, placeholder text "Ask about your documents...")
   - Send button (disabled)
 
-- [ ] **1.4.3** Create `Views/Documents/DocumentListView.swift`
+- [x] **1.4.3** Create `Views/Documents/DocumentListView.swift`
   - Empty state: centered message "No documents yet"
   - Toolbar button "+" in navigation bar (does nothing yet)
   - `NavigationStack` wrapping the list
 
-- [ ] **1.4.4** Create `Views/Settings/SettingsView.swift`
+- [x] **1.4.4** Create `Views/Settings/SettingsView.swift`
   - Sections with placeholder rows:
     - "Models" section: rows for Embedding Model and LLM (showing name, "Not downloaded")
     - "Storage" section: row showing "0 MB used"
     - "About" section: app version, "100% On-Device" badge
 
-- [ ] **1.4.5** Build and run on simulator
+- [x] **1.4.5** Build and run on simulator
   - Verify all 3 tabs are tappable and display correct views
   - Verify tab icons and titles render correctly
   - Verify navigation titles appear in each tab

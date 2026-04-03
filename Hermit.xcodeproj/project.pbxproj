@@ -23,6 +23,9 @@
 		B8C9D0E1F2A3B4C5D6E7F8A9 /* TextChunk.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3D4E5F6A7B8C9D0E1F2A3B4 /* TextChunk.swift */; };
 		C9D0E1F2A3B4C5D6E7F8A9B0 /* ModelInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = D4E5F6A7B8C9D0E1F2A3B4C5 /* ModelInfo.swift */; };
 		D0E1F2A3B4C5D6E7F8A9B0C1 /* DataModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5F6A7B8C9D0E1F2A3B4C5D6 /* DataModelTests.swift */; };
+		AA11BB22CC33DD44EE55FF66 /* ChatView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA11BB22CC33DD44EE55FF67 /* ChatView.swift */; };
+		BB22CC33DD44EE55FF66AA11 /* DocumentListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB22CC33DD44EE55FF66AA12 /* DocumentListView.swift */; };
+		CC33DD44EE55FF66AA11BB22 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC33DD44EE55FF66AA11BB23 /* SettingsView.swift */; };
 /* End PBXBuildFile section */
 
 
@@ -49,6 +52,9 @@
 		D4E5F6A7B8C9D0E1F2A3B4C5 /* ModelInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModelInfo.swift; sourceTree = "<group>"; };
 		E5F6A7B8C9D0E1F2A3B4C5D6 /* DataModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataModelTests.swift; sourceTree = "<group>"; };
 		A3B4C5D6E7F8A9B0C1D2E3F4 /* HermitTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = HermitTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		AA11BB22CC33DD44EE55FF67 /* ChatView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatView.swift; sourceTree = "<group>"; };
+		BB22CC33DD44EE55FF66AA12 /* DocumentListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DocumentListView.swift; sourceTree = "<group>"; };
+		CC33DD44EE55FF66AA11BB23 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -90,6 +96,7 @@
 		16041560DFD65685175A3AD8 /* Chat */ = {
 			isa = PBXGroup;
 			children = (
+				AA11BB22CC33DD44EE55FF67 /* ChatView.swift */,
 			);
 			path = Chat;
 			sourceTree = "<group>";
@@ -113,6 +120,7 @@
 		1EC2F91CE53733379322C750 /* Settings */ = {
 			isa = PBXGroup;
 			children = (
+				CC33DD44EE55FF66AA11BB23 /* SettingsView.swift */,
 			);
 			path = Settings;
 			sourceTree = "<group>";
@@ -151,6 +159,7 @@
 		D93D66FE9FCBD1780638EFFC /* Documents */ = {
 			isa = PBXGroup;
 			children = (
+				BB22CC33DD44EE55FF66AA12 /* DocumentListView.swift */,
 			);
 			path = Documents;
 			sourceTree = "<group>";
@@ -296,6 +305,9 @@
 				C9D0E1F2A3B4C5D6E7F8A9B0 /* ModelInfo.swift in Sources */,
 				B8C9D0E1F2A3B4C5D6E7F8A9 /* TextChunk.swift in Sources */,
 				7FAE910BD41B46658811AE72 /* HermitApp.swift in Sources */,
+				AA11BB22CC33DD44EE55FF66 /* ChatView.swift in Sources */,
+				BB22CC33DD44EE55FF66AA11 /* DocumentListView.swift in Sources */,
+				CC33DD44EE55FF66AA11BB22 /* SettingsView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
