@@ -626,7 +626,7 @@
 
 > As a developer, I can split extracted text into overlapping chunks of ~300 words.
 
-- [ ] **3.2.1** Create `Services/ChunkingStrategy.swift`
+- [x] **3.2.1** Create `Services/ChunkingStrategy.swift`
   - `static func chunk(text: String, targetWords: Int = 300, overlapWords: Int = 50) -> [String]`
   - Algorithm:
     1. Split text into words
@@ -634,11 +634,11 @@
     3. Ensure no empty chunks
     4. Return array of chunk strings
 
-- [ ] **3.2.2** Refine chunking to respect sentence boundaries
+- [x] **3.2.2** Refine chunking to respect sentence boundaries
   - After splitting by word count, adjust boundaries to the nearest sentence end (`.`, `!`, `?`)
   - If no sentence boundary found within 20% of target, fall back to word boundary
 
-- [ ] **3.2.3** Write unit tests `HermitTests/Services/ChunkingStrategyTests.swift`
+- [x] **3.2.3** Write unit tests `HermitTests/Services/ChunkingStrategyTests.swift`
   - Test empty string → returns empty array
   - Test short text (< 300 words) → returns single chunk with the full text
   - Test exact 300-word text → returns single chunk
