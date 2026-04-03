@@ -1170,17 +1170,17 @@
 
 > Prepare the app for demo / testing on a real device.
 
-- [ ] **4.7.1** Remove all hardcoded preview/sample data from production code
+- [x] **4.7.1** Remove all hardcoded preview/sample data from production code
   - Sample messages in ChatView → only in `#Preview` blocks
   - Sample documents → only in `#Preview` blocks
 
-- [ ] **4.7.2** Add app icon to `Assets.xcassets/AppIcon.appiconset/`
+- [x] **4.7.2** Add app icon to `Assets.xcassets/AppIcon.appiconset/`
   - A simple icon (can be a placeholder for MVP)
 
-- [ ] **4.7.3** Review all TODO/FIXME comments in code
+- [x] **4.7.3** Review all TODO/FIXME comments in code
   - Resolve or document each one
 
-- [ ] **4.7.4** Test on real iPhone 16 Pro
+- [x] **4.7.4** Test on real iPhone 16 Pro
   - Connect device, configure Developer Mode (see PLANNING.md section 0.2)
   - Build and run on device
   - Verify model download works over Wi-Fi
@@ -1188,7 +1188,7 @@
   - Verify app survives backgrounding and foregrounding
   - Check thermal behavior during sustained inference
 
-- [ ] **4.7.5** Final clean build
+- [x] **4.7.5** Final clean build
   - Clean build folder (`Cmd+Shift+K`)
   - Build (`Cmd+B`) → zero errors
   - Run all tests (`Cmd+U`) → all pass

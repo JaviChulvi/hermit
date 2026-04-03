@@ -247,6 +247,7 @@ struct DocumentRow: View {
 
 // MARK: - Previews
 
+#if DEBUG
 extension Document {
     static let previewSamples: [Document] = [
         Document(
@@ -272,6 +273,7 @@ extension Document {
         ),
     ]
 }
+#endif
 
 @MainActor
 private func makePreviewEnvironment() -> (ModelManager, VectorStore, RAGEngine, DocumentViewModel) {
