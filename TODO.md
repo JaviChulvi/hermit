@@ -196,24 +196,24 @@
 
 > As a user, I can see a list of imported documents with their metadata and an import button.
 
-- [ ] **1.6.1** Update `DocumentListView.swift`
+- [x] **1.6.1** Update `DocumentListView.swift`
   - `NavigationStack` with title "Documents"
   - `List` of documents showing: name, file extension badge, date added, chunk count
   - Swipe-to-delete gesture (non-functional yet, just the UI)
   - Empty state with SF Symbol `doc.text.magnifyingglass` and instructional text
   - Toolbar "+" button that sets `showImporter = true`
 
-- [ ] **1.6.2** Create `Views/Documents/DocumentDetailView.swift`
+- [x] **1.6.2** Create `Views/Documents/DocumentDetailView.swift`
   - Shows document name, date added, file type
   - Section "Chunks" with a list of chunk previews (first 100 chars of each)
   - Section "Status" showing processing state
   - Placeholder data for now
 
-- [ ] **1.6.3** Wire navigation from list to detail
+- [x] **1.6.3** Wire navigation from list to detail
   - `NavigationLink` from each document row to `DocumentDetailView`
   - Pass `Document` to the detail view
 
-- [ ] **1.6.4** Add preview data and verify
+- [x] **1.6.4** Add preview data and verify
   - Create 2-3 sample `Document` instances for previews
   - Verify list renders correctly with sample data
   - Verify navigation to detail view works in Preview

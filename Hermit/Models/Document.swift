@@ -1,6 +1,6 @@
 import Foundation
 
-struct Document: Identifiable, Codable, Sendable {
+struct Document: Identifiable, Codable, Hashable, Sendable {
     let id: UUID
     var name: String
     var fileExtension: String

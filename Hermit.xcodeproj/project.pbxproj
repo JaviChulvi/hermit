@@ -25,6 +25,7 @@
 		D0E1F2A3B4C5D6E7F8A9B0C1 /* DataModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5F6A7B8C9D0E1F2A3B4C5D6 /* DataModelTests.swift */; };
 		AA11BB22CC33DD44EE55FF66 /* ChatView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA11BB22CC33DD44EE55FF67 /* ChatView.swift */; };
 		BB22CC33DD44EE55FF66AA11 /* DocumentListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB22CC33DD44EE55FF66AA12 /* DocumentListView.swift */; };
+		F1A2B3C4D5E6F7A8B9C0D1E2 /* DocumentDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1A2B3C4D5E6F7A8B9C0D1E3 /* DocumentDetailView.swift */; };
 		CC33DD44EE55FF66AA11BB22 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC33DD44EE55FF66AA11BB23 /* SettingsView.swift */; };
 		DD44EE55FF66AA11BB22CC34 /* MessageBubble.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD44EE55FF66AA11BB22CC33 /* MessageBubble.swift */; };
 		EE55FF66AA11BB22CC33DD45 /* StreamingIndicator.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE55FF66AA11BB22CC33DD44 /* StreamingIndicator.swift */; };
@@ -56,6 +57,7 @@
 		A3B4C5D6E7F8A9B0C1D2E3F4 /* HermitTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = HermitTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		AA11BB22CC33DD44EE55FF67 /* ChatView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatView.swift; sourceTree = "<group>"; };
 		BB22CC33DD44EE55FF66AA12 /* DocumentListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DocumentListView.swift; sourceTree = "<group>"; };
+		F1A2B3C4D5E6F7A8B9C0D1E3 /* DocumentDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DocumentDetailView.swift; sourceTree = "<group>"; };
 		CC33DD44EE55FF66AA11BB23 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		DD44EE55FF66AA11BB22CC33 /* MessageBubble.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageBubble.swift; sourceTree = "<group>"; };
 		EE55FF66AA11BB22CC33DD44 /* StreamingIndicator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StreamingIndicator.swift; sourceTree = "<group>"; };
@@ -165,6 +167,7 @@
 		D93D66FE9FCBD1780638EFFC /* Documents */ = {
 			isa = PBXGroup;
 			children = (
+				F1A2B3C4D5E6F7A8B9C0D1E3 /* DocumentDetailView.swift */,
 				BB22CC33DD44EE55FF66AA12 /* DocumentListView.swift */,
 			);
 			path = Documents;
@@ -313,6 +316,7 @@
 				7FAE910BD41B46658811AE72 /* HermitApp.swift in Sources */,
 				AA11BB22CC33DD44EE55FF66 /* ChatView.swift in Sources */,
 				BB22CC33DD44EE55FF66AA11 /* DocumentListView.swift in Sources */,
+				F1A2B3C4D5E6F7A8B9C0D1E2 /* DocumentDetailView.swift in Sources */,
 				CC33DD44EE55FF66AA11BB22 /* SettingsView.swift in Sources */,
 				DD44EE55FF66AA11BB22CC34 /* MessageBubble.swift in Sources */,
 				EE55FF66AA11BB22CC33DD45 /* StreamingIndicator.swift in Sources */,
