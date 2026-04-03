@@ -14,11 +14,17 @@ struct ChatView: View {
             VStack(spacing: 0) {
                 if messages.isEmpty {
                     Spacer()
-                    ContentUnavailableView(
-                        "No Documents Yet",
-                        systemImage: "doc.text.magnifyingglass",
-                        description: Text("Import a document to start chatting")
-                    )
+                    VStack(spacing: 16) {
+                        Image(systemName: "doc.text.magnifyingglass")
+                            .font(.system(size: 48))
+                            .foregroundStyle(Color("AccentColor"))
+                        Text("No Documents Yet")
+                            .font(.title3.bold())
+                            .foregroundStyle(.white)
+                        Text("Import a document to start chatting")
+                            .font(.subheadline)
+                            .foregroundStyle(Color("TextSecondary"))
+                    }
                     Spacer()
                 } else {
                     ScrollViewReader { proxy in
@@ -60,6 +66,8 @@ struct ChatView: View {
                 inputBar
             }
             .navigationTitle("Chat")
+            .toolbarBackground(.visible, for: .navigationBar)
+            .toolbarBackground(Color("BackgroundPrimary"), for: .navigationBar)
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     PrivacyBadge()
@@ -69,25 +77,30 @@ struct ChatView: View {
     }
 
     private var inputBar: some View {
-        HStack(spacing: 12) {
-            TextField("Ask about your documents...", text: $messageText)
-                .textFieldStyle(.plain)
-                .padding(.horizontal, 12)
-                .padding(.vertical, 8)
-                .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 20))
-                .disabled(true)
+        VStack(spacing: 0) {
+            Divider()
+                .overlay(Color("BackgroundSecondary"))
+            HStack(spacing: 12) {
+                TextField("Ask about your documents...", text: $messageText)
+                    .textFieldStyle(.plain)
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 8)
+                    .background(Color("BackgroundSecondary"), in: RoundedRectangle(cornerRadius: 20))
+                    .disabled(true)
 
-            Button {
-                // No action yet
-            } label: {
-                Image(systemName: "paperplane.fill")
-                    .font(.system(size: 17))
+                Button {
+                    // No action yet
+                } label: {
+                    Image(systemName: "paperplane.fill")
+                        .font(.system(size: 17))
+                        .foregroundStyle(Color("AccentColor"))
+                }
+                .disabled(messageText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
             }
-            .disabled(messageText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+            .padding(.horizontal)
+            .padding(.vertical, 8)
         }
-        .padding(.horizontal)
-        .padding(.vertical, 8)
-        .background(.bar)
+        .background(Color("BackgroundPrimary"))
     }
 }
 

@@ -15,10 +15,13 @@ struct ContentView: View {
                 SettingsView()
             }
         }
-        .tint(.accentColor)
+        .tint(Color("AccentColor"))
+        .toolbarBackground(.visible, for: .tabBar)
+        .toolbarBackground(Color("BackgroundPrimary"), for: .tabBar)
     }
 }
 
 #Preview {
     ContentView()
+        .environment(ModelManager())
 }

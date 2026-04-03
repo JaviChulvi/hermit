@@ -2,11 +2,8 @@ import SwiftUI
 
 struct OnboardingView: View {
     @AppStorage("onboardingComplete") private var onboardingComplete = false
+    @Environment(ModelManager.self) private var modelManager
     @State private var currentStep = 0
-
-    // Placeholder download states
-    @State private var embeddingState: DownloadState = .notStarted
-    @State private var llmState: DownloadState = .notStarted
 
     var body: some View {
         TabView(selection: $currentStep) {
@@ -37,10 +34,11 @@ struct OnboardingView: View {
 
             Text("Hermit")
                 .font(.largeTitle.bold())
+                .foregroundStyle(.white)
 
             Text("Private AI on your iPhone")
                 .font(.title3)
-                .foregroundStyle(.secondary)
+                .foregroundStyle(Color("TextSecondary"))
 
             VStack(alignment: .leading, spacing: 12) {
                 privacyRow(icon: "iphone", text: "100% on-device processing")
@@ -59,10 +57,12 @@ struct OnboardingView: View {
             } label: {
                 Text("Get Started")
                     .font(.headline)
+                    .foregroundStyle(.black)
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 14)
             }
             .buttonStyle(.borderedProminent)
+            .tint(Color("AccentColor"))
             .padding(.horizontal, 32)
             .padding(.bottom, 48)
         }
@@ -76,27 +76,28 @@ struct OnboardingView: View {
 
             Image(systemName: "arrow.down.circle.fill")
                 .font(.system(size: 56))
-                .foregroundStyle(Color.accentColor)
+                .foregroundStyle(Color("AccentColor"))
 
             Text("Download Models")
                 .font(.title2.bold())
+                .foregroundStyle(.white)
 
             Text("Hermit needs two AI models to work.\nThis is a one-time download.")
                 .font(.subheadline)
-                .foregroundStyle(.secondary)
+                .foregroundStyle(Color("TextSecondary"))
                 .multilineTextAlignment(.center)
 
             VStack(spacing: 12) {
                 DownloadProgressView(
                     modelName: ModelInfo.embeddingModel.name,
                     sizeLabel: ModelInfo.embeddingModel.sizeDescription,
-                    state: embeddingState
+                    state: modelManager.embeddingDownloadState
                 )
 
                 DownloadProgressView(
                     modelName: ModelInfo.llmModel.name,
                     sizeLabel: ModelInfo.llmModel.sizeDescription,
-                    state: llmState
+                    state: modelManager.llmDownloadState
                 )
             }
             .padding(.horizontal, 24)
@@ -104,19 +105,19 @@ struct OnboardingView: View {
             Spacer()
 
             Button {
-                // Placeholder: simulate download starting
-                embeddingState = .downloading(progress: 0)
-                llmState = .downloading(progress: 0)
+                // TODO: trigger real model downloads via modelManager
                 withAnimation {
                     currentStep = 2
                 }
             } label: {
                 Text("Download Models")
                     .font(.headline)
+                    .foregroundStyle(.black)
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 14)
             }
             .buttonStyle(.borderedProminent)
+            .tint(Color("AccentColor"))
             .padding(.horizontal, 32)
             .padding(.bottom, 48)
         }
@@ -134,10 +135,11 @@ struct OnboardingView: View {
 
             Text("You're All Set!")
                 .font(.largeTitle.bold())
+                .foregroundStyle(.white)
 
             Text("Hermit is ready to use.\nImport a document and start chatting.")
                 .font(.subheadline)
-                .foregroundStyle(.secondary)
+                .foregroundStyle(Color("TextSecondary"))
                 .multilineTextAlignment(.center)
 
             Spacer()
@@ -147,10 +149,12 @@ struct OnboardingView: View {
             } label: {
                 Text("Start Using Hermit")
                     .font(.headline)
+                    .foregroundStyle(.black)
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 14)
             }
             .buttonStyle(.borderedProminent)
+            .tint(Color("AccentColor"))
             .padding(.horizontal, 32)
             .padding(.bottom, 48)
         }
@@ -162,14 +166,16 @@ struct OnboardingView: View {
         HStack(spacing: 12) {
             Image(systemName: icon)
                 .font(.title3)
-                .foregroundStyle(Color.accentColor)
+                .foregroundStyle(Color("AccentColor"))
                 .frame(width: 28)
             Text(text)
                 .font(.body)
+                .foregroundStyle(.white)
         }
     }
 }
 
 #Preview {
     OnboardingView()
+        .environment(ModelManager())
 }

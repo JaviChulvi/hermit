@@ -18,26 +18,27 @@ struct DownloadProgressView: View {
             HStack {
                 Text(modelName)
                     .font(.headline)
+                    .foregroundStyle(.white)
                 Spacer()
                 Text(sizeLabel)
                     .font(.subheadline)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(Color("TextSecondary"))
             }
 
             switch state {
             case .notStarted:
                 ProgressView(value: 0, total: 1.0)
-                    .tint(.secondary)
+                    .tint(Color("TextSecondary"))
                 Text("Waiting...")
                     .font(.caption)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(Color("TextSecondary"))
 
             case .downloading(let progress):
                 ProgressView(value: progress, total: 1.0)
-                    .tint(.accentColor)
+                    .tint(Color("AccentColor"))
                 Text("\(Int(progress * 100))%")
                     .font(.caption)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(Color("TextSecondary"))
 
             case .completed:
                 HStack(spacing: 4) {
@@ -65,7 +66,7 @@ struct DownloadProgressView: View {
             }
         }
         .padding()
-        .background(.regularMaterial)
+        .background(Color("BackgroundSecondary"))
         .clipShape(RoundedRectangle(cornerRadius: 12))
     }
 }

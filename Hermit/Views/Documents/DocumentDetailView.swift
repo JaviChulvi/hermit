@@ -6,7 +6,7 @@ struct DocumentDetailView: View {
 
     var body: some View {
         List {
-            Section("Info") {
+            Section {
                 LabeledContent("File Type", value: document.fileExtension.uppercased())
                 LabeledContent("Date Added") {
                     Text(document.dateAdded, style: .date)
@@ -18,18 +18,22 @@ struct DocumentDetailView: View {
                     )
                     .foregroundStyle(document.isProcessed ? .green : .orange)
                 }
+            } header: {
+                Text("Info")
+                    .foregroundStyle(Color("TextSecondary"))
             }
+            .listRowBackground(Color("BackgroundSecondary"))
 
-            Section("Chunks (\(chunks.count))") {
+            Section {
                 if chunks.isEmpty {
                     Text("No chunks yet — document has not been processed.")
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(Color("TextSecondary"))
                 } else {
                     ForEach(chunks) { chunk in
                         VStack(alignment: .leading, spacing: 4) {
                             Text("Chunk \(chunk.chunkIndex + 1)")
                                 .font(.caption.bold())
-                                .foregroundStyle(.secondary)
+                                .foregroundStyle(Color("TextSecondary"))
                             Text(String(chunk.text.prefix(100)))
                                 .font(.body)
                                 .lineLimit(3)
@@ -37,7 +41,11 @@ struct DocumentDetailView: View {
                         .padding(.vertical, 2)
                     }
                 }
+            } header: {
+                Text("Chunks (\(chunks.count))")
+                    .foregroundStyle(Color("TextSecondary"))
             }
+            .listRowBackground(Color("BackgroundSecondary"))
         }
         .scrollContentBackground(.hidden)
         .background(Color("BackgroundPrimary"))

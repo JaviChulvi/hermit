@@ -317,6 +317,76 @@
 
 ---
 
+### Story 1.10: FIX — Apply Dark Theme & UI Quality Pass
+
+> The visual theme from Story 1.8 was not properly applied. The app currently shows default iOS light styling instead of the Hermit dark-first design. This story must be completed before continuing to Phase 2.
+
+- [x] **1.10.1** Fix background colors across ALL views
+  - `ContentView`: set `.preferredColorScheme(.dark)` on the root view
+  - ALL screens must use `BackgroundPrimary` (#0F0F0F) as the base background, not system white
+  - Use `.background(Color("BackgroundPrimary"))` or define a Color extension for convenience
+  - The tab bar must be dark (use `.toolbarBackground(.visible, for: .tabBar)` + `.toolbarBackground(Color("BackgroundPrimary"), for: .tabBar)`)
+
+- [x] **1.10.2** Fix the "On-Device" badge
+  - Must use amber/gold (#F5A623) accent, not default iOS blue
+  - Style: pill shape with `.background(Color("AccentColor").opacity(0.15))` and `.foregroundColor(Color("AccentColor"))`
+  - Lock icon should be SF Symbol `lock.fill` in accent color
+  - Small font size (.caption or .footnote)
+
+- [x] **1.10.3** Fix the tab bar
+  - Active tab tint: AccentColor (amber #F5A623), not default blue
+  - Inactive tabs: TextSecondary (#8E8E93)
+  - Tab bar background: dark, not white
+  - Remove the rounded pill highlight on the active tab (that's not standard iOS and looks odd)
+
+- [x] **1.10.4** Fix the chat input bar
+  - Background: BackgroundSecondary (#1A1A1A) — not light gray
+  - Text field: dark background with light placeholder text
+  - Send button icon: AccentColor
+  - Subtle top border or shadow to separate from content
+
+- [x] **1.10.5** Fix the chat empty state
+  - "No Documents Yet" text: white/light on dark background
+  - Subtitle: TextSecondary color
+  - Add an SF Symbol illustration (e.g., `doc.text.magnifyingglass`) in accent color, larger size
+  - Center vertically in the available space (not pushed to top)
+
+- [x] **1.10.6** Fix the navigation titles
+  - "Chat" large title: white text on dark background
+  - Use `.navigationBarTitleDisplayMode(.large)` with proper dark styling
+  - Navigation bar background must be dark, not white
+
+- [x] **1.10.7** Apply the same dark theme fixes to Documents tab
+  - List background: BackgroundPrimary
+  - Row backgrounds: BackgroundSecondary
+  - Empty state: same pattern as chat (dark background, accent icon, light text)
+  - "+" button in toolbar: AccentColor
+
+- [x] **1.10.8** Apply the same dark theme fixes to Settings tab
+  - Section backgrounds: BackgroundSecondary
+  - List background: BackgroundPrimary
+  - Section headers: TextSecondary
+  - Row text: white/primary
+
+- [x] **1.10.9** Apply the same dark theme fixes to Onboarding screens
+  - Full-screen dark background
+  - Accent color for CTAs and progress bars
+  - White text for headings, TextSecondary for body
+
+- [x] **1.10.10** Verify the complete visual pass
+  - Run on simulator in dark mode → all screens use the Hermit palette, no white/light backgrounds anywhere
+  - Run on simulator in light mode → app still forces dark appearance (or adapts gracefully)
+  - Tab bar: amber active, gray inactive, dark background
+  - All text is legible against dark backgrounds
+  - Badge, buttons, and accents use amber/gold consistently
+  - Take screenshots of each tab for reference
+
+**Verify:** Every screen in the app uses the dark Hermit theme. No default iOS blue or white backgrounds remain. The app looks intentionally designed, not like a default template.
+
+**Commit:** `fix: apply dark-first Hermit theme across all views (backgrounds, tab bar, badge, inputs)`
+
+---
+
 ## Phase 2: Model Download Manager
 
 ### Story 2.1: Implement MemoryMonitor Utility
@@ -508,6 +578,13 @@
 - [ ] **2.5.3** Memory verification
   - In Settings, verify RAM indicator shows a sensible value
   - Load embedding model (if testable from UI) → verify RAM usage changes
+
+- [ ] **2.5.4** UI quality check — Onboarding & Settings
+  - Onboarding screens follow dark theme (dark backgrounds, amber accents, white text)
+  - Download progress bars use AccentColor, not default blue
+  - Settings rows and sections use BackgroundSecondary on BackgroundPrimary
+  - All new UI added in Phase 2 is consistent with the Hermit visual theme
+  - No default iOS blue tints or white backgrounds on any screen
 
 **Verify:** Everything above passes.
 
@@ -774,6 +851,14 @@
 - [ ] **3.7.3** Memory check
   - After importing a document, verify embedding model was unloaded
   - Check `modelManager.modelState == .idle` after ingest completes
+
+- [ ] **3.7.4** UI quality check — Document import flow
+  - Document list uses dark theme (BackgroundPrimary, BackgroundSecondary rows)
+  - File importer sheet appears correctly
+  - Processing overlay is styled (dark background, amber spinner/progress, white status text)
+  - Document detail view uses dark theme with chunk previews legible on dark background
+  - Swipe-to-delete uses red destructive style on dark row
+  - Empty state after deletion returns to styled empty state (not a blank white screen)
 
 **Verify:** Everything above passes.
 
@@ -1064,7 +1149,18 @@
   - First token latency after sending a message: under 15 seconds (includes model load if needed)
   - Streaming speed: visible token-by-token output (not frozen UI)
 
-**Verify:** Complete app works end-to-end. All unit tests pass. Performance is acceptable.
+- [ ] **4.6.5** Final UI quality review — Full app
+  - **Global**: No default iOS blue tints anywhere. No white/light backgrounds. All screens use BackgroundPrimary (#0F0F0F)
+  - **Tab bar**: amber active icon, gray inactive, dark background, no pill highlight
+  - **Chat**: message bubbles (green user, dark gray assistant) are well-padded, rounded, max 80% width. Streaming text is visible against dark background. Input bar is dark with amber send button. Status messages ("Searching...", "Generating...") are visible
+  - **Documents**: list rows are dark with clear text. Import button is amber. Processing overlay doesn't obscure content awkwardly. Detail view chunks are readable
+  - **Settings**: sections visually separated. Model status clear (green dot for loaded). RAM indicator legible. Destructive buttons are red
+  - **Onboarding**: each step feels intentional. Progress bars use amber. CTAs are prominent. Privacy messaging is clear
+  - **Transitions & animations**: no jarring jumps between screens. Message appear animation is smooth. Tab switches don't flash white
+  - **Typography**: headings are bold SF Pro Display. Body is SF Pro Text. Consistent sizes. Dynamic Type doesn't break layouts
+  - **Accessibility**: minimum contrast ratios met (4.5:1 for body text). All interactive elements have adequate tap targets (44pt minimum)
+
+**Verify:** Complete app works end-to-end. All unit tests pass. Performance is acceptable. Every screen follows the Hermit dark theme.
 
 **Commit:** `chore: Phase 4 complete - full RAG pipeline with streaming LLM inference`
 
@@ -1106,10 +1202,10 @@
 
 ## Summary
 
-| Phase | Stories | Tasks | Tests |
-|---|---|---|---|
-| **Phase 1** | 9 stories | 38 tasks | DataModel (5) |
-| **Phase 2** | 5 stories | 23 tasks | MemoryMonitor (3), ModelManager (7) |
-| **Phase 3** | 7 stories | 30 tasks | DocumentProcessor (4), Chunking (7), CosineSimilarity (7), VectorStore (6), RAGEngine (3+), EmbeddingService (4) |
-| **Phase 4** | 7 stories | 35 tasks | LLMService (4), RAGQuery (4+), ChatViewModel (6), E2E |
-| **Total** | **28 stories** | **126 tasks** | **~55 tests** |
+| Phase | Stories | Tasks | Tests | UI Quality Gate |
+|---|---|---|---|---|
+| **Phase 1** | 10 stories | 48 tasks | DataModel (5) | Story 1.10: full dark theme fix |
+| **Phase 2** | 5 stories | 24 tasks | MemoryMonitor (3), ModelManager (7) | Task 2.5.4: onboarding & settings |
+| **Phase 3** | 7 stories | 31 tasks | DocumentProcessor (4), Chunking (7), CosineSimilarity (7), VectorStore (6), RAGEngine (3+), EmbeddingService (4) | Task 3.7.4: document flow |
+| **Phase 4** | 7 stories | 36 tasks | LLMService (4), RAGQuery (4+), ChatViewModel (6), E2E | Task 4.6.5: full app review |
+| **Total** | **29 stories** | **139 tasks** | **~55 tests** | **4 quality gates** |

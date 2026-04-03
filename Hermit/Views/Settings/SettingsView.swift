@@ -1,42 +1,52 @@
 import SwiftUI
 
 struct SettingsView: View {
+    @Environment(ModelManager.self) private var modelManager
+
     var body: some View {
         NavigationStack {
             List {
-                Section("Models") {
+                Section {
                     modelRow(
                         name: ModelInfo.embeddingModel.name,
                         size: ModelInfo.embeddingModel.sizeDescription,
-                        isDownloaded: false
+                        isDownloaded: modelManager.embeddingModelDownloaded
                     )
                     modelRow(
                         name: ModelInfo.llmModel.name,
                         size: ModelInfo.llmModel.sizeDescription,
-                        isDownloaded: false
+                        isDownloaded: modelManager.llmModelDownloaded
                     )
+                } header: {
+                    Text("Models")
+                        .foregroundStyle(Color("TextSecondary"))
                 }
+                .listRowBackground(Color("BackgroundSecondary"))
 
-                Section("Storage") {
+                Section {
                     Label {
                         HStack {
                             Text("Used")
                             Spacer()
                             Text("0 MB")
-                                .foregroundStyle(.secondary)
+                                .foregroundStyle(Color("TextSecondary"))
                         }
                     } icon: {
                         Image(systemName: "internaldrive")
                     }
+                } header: {
+                    Text("Storage")
+                        .foregroundStyle(Color("TextSecondary"))
                 }
+                .listRowBackground(Color("BackgroundSecondary"))
 
-                Section("About") {
+                Section {
                     Label {
                         HStack {
                             Text("Version")
                             Spacer()
                             Text(Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0")
-                                .foregroundStyle(.secondary)
+                                .foregroundStyle(Color("TextSecondary"))
                         }
                     } icon: {
                         Image(systemName: "info.circle")
@@ -47,16 +57,22 @@ struct SettingsView: View {
                             Text("100% On-Device")
                         } icon: {
                             Image(systemName: "lock.shield.fill")
-                                .foregroundStyle(Color.accentColor)
+                                .foregroundStyle(Color("AccentColor"))
                         }
                         Spacer()
                         PrivacyBadge()
                     }
+                } header: {
+                    Text("About")
+                        .foregroundStyle(Color("TextSecondary"))
                 }
+                .listRowBackground(Color("BackgroundSecondary"))
             }
             .scrollContentBackground(.hidden)
             .background(Color("BackgroundPrimary"))
             .navigationTitle("Settings")
+            .toolbarBackground(.visible, for: .navigationBar)
+            .toolbarBackground(Color("BackgroundPrimary"), for: .navigationBar)
         }
     }
 
@@ -81,4 +97,5 @@ struct SettingsView: View {
 
 #Preview {
     SettingsView()
+        .environment(ModelManager())
 }

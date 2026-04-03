@@ -12,11 +12,18 @@ struct DocumentListView: View {
         NavigationStack {
             Group {
                 if documents.isEmpty {
-                    ContentUnavailableView(
-                        "No Documents Yet",
-                        systemImage: "doc.text.magnifyingglass",
-                        description: Text("Tap + to import a document")
-                    )
+                    VStack(spacing: 16) {
+                        Image(systemName: "doc.text.magnifyingglass")
+                            .font(.system(size: 48))
+                            .foregroundStyle(Color("AccentColor"))
+                        Text("No Documents Yet")
+                            .font(.title3.bold())
+                            .foregroundStyle(.white)
+                        Text("Tap + to import a document")
+                            .font(.subheadline)
+                            .foregroundStyle(Color("TextSecondary"))
+                    }
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
                 } else {
                     List {
                         ForEach(documents) { document in
@@ -27,7 +34,9 @@ struct DocumentListView: View {
                         .onDelete { indexSet in
                             documents.remove(atOffsets: indexSet)
                         }
+                        .listRowBackground(Color("BackgroundSecondary"))
                     }
+                    .scrollContentBackground(.hidden)
                     .navigationDestination(for: Document.self) { document in
                         DocumentDetailView(
                             document: document,
@@ -36,15 +45,17 @@ struct DocumentListView: View {
                     }
                 }
             }
-            .scrollContentBackground(.hidden)
             .background(Color("BackgroundPrimary"))
             .navigationTitle("Documents")
+            .toolbarBackground(.visible, for: .navigationBar)
+            .toolbarBackground(Color("BackgroundPrimary"), for: .navigationBar)
             .toolbar {
                 ToolbarItem(placement: .primaryAction) {
                     Button {
                         showImporter = true
                     } label: {
                         Image(systemName: "plus")
+                            .foregroundStyle(Color("AccentColor"))
                     }
                 }
             }
