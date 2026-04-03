@@ -158,30 +158,30 @@
 
 > As a user, I can see a chat interface with styled message bubbles, even though sending is not functional yet.
 
-- [ ] **1.5.1** Create `Views/Chat/MessageBubble.swift`
+- [x] **1.5.1** Create `Views/Chat/MessageBubble.swift`
   - Accepts a `ChatMessage`
   - User messages: right-aligned, accent-colored background, white text
   - Assistant messages: left-aligned, secondary background, primary text
   - Rounded corners (20pt), padding, max width ~80% of screen
   - Timestamp displayed subtly below the bubble
 
-- [ ] **1.5.2** Create `Views/Chat/StreamingIndicator.swift`
+- [x] **1.5.2** Create `Views/Chat/StreamingIndicator.swift`
   - Three animated pulsing dots
   - Left-aligned like an assistant message
   - Uses `.opacity` animation with staggered delay
 
-- [ ] **1.5.3** Update `ChatView.swift` with full layout
+- [x] **1.5.3** Update `ChatView.swift` with full layout
   - `ScrollView` with `ScrollViewReader` for auto-scroll
   - `ForEach` over messages array rendering `MessageBubble`
   - Show `StreamingIndicator` when `isGenerating` is true
   - Bottom input bar: `TextField` + send `Button` with `paperplane.fill` icon
   - Input bar has background blur, sits above keyboard (`.safeAreaInset(edge: .bottom)`)
 
-- [ ] **1.5.4** Add hardcoded preview messages for development
+- [x] **1.5.4** Add hardcoded preview messages for development
   - In `ChatView` preview, inject 3-4 sample messages (user + assistant) to visually verify layout
   - Verify bubbles align correctly, text wraps, timestamps show
 
-- [ ] **1.5.5** Write UI preview test
+- [x] **1.5.5** Write UI preview test
   - Verify `MessageBubble` renders in Xcode Preview for both `.user` and `.assistant` roles
   - Verify `StreamingIndicator` animates in Preview
   - Verify `ChatView` with sample data shows scrollable message list

@@ -26,6 +26,8 @@
 		AA11BB22CC33DD44EE55FF66 /* ChatView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA11BB22CC33DD44EE55FF67 /* ChatView.swift */; };
 		BB22CC33DD44EE55FF66AA11 /* DocumentListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB22CC33DD44EE55FF66AA12 /* DocumentListView.swift */; };
 		CC33DD44EE55FF66AA11BB22 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC33DD44EE55FF66AA11BB23 /* SettingsView.swift */; };
+		DD44EE55FF66AA11BB22CC34 /* MessageBubble.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD44EE55FF66AA11BB22CC33 /* MessageBubble.swift */; };
+		EE55FF66AA11BB22CC33DD45 /* StreamingIndicator.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE55FF66AA11BB22CC33DD44 /* StreamingIndicator.swift */; };
 /* End PBXBuildFile section */
 
 
@@ -55,6 +57,8 @@
 		AA11BB22CC33DD44EE55FF67 /* ChatView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatView.swift; sourceTree = "<group>"; };
 		BB22CC33DD44EE55FF66AA12 /* DocumentListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DocumentListView.swift; sourceTree = "<group>"; };
 		CC33DD44EE55FF66AA11BB23 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		DD44EE55FF66AA11BB22CC33 /* MessageBubble.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageBubble.swift; sourceTree = "<group>"; };
+		EE55FF66AA11BB22CC33DD44 /* StreamingIndicator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StreamingIndicator.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -97,6 +101,8 @@
 			isa = PBXGroup;
 			children = (
 				AA11BB22CC33DD44EE55FF67 /* ChatView.swift */,
+				DD44EE55FF66AA11BB22CC33 /* MessageBubble.swift */,
+				EE55FF66AA11BB22CC33DD44 /* StreamingIndicator.swift */,
 			);
 			path = Chat;
 			sourceTree = "<group>";
@@ -308,6 +314,8 @@
 				AA11BB22CC33DD44EE55FF66 /* ChatView.swift in Sources */,
 				BB22CC33DD44EE55FF66AA11 /* DocumentListView.swift in Sources */,
 				CC33DD44EE55FF66AA11BB22 /* SettingsView.swift in Sources */,
+				DD44EE55FF66AA11BB22CC34 /* MessageBubble.swift in Sources */,
+				EE55FF66AA11BB22CC33DD45 /* StreamingIndicator.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
