@@ -39,6 +39,8 @@ struct DocumentDetailView: View {
                 }
             }
         }
+        .scrollContentBackground(.hidden)
+        .background(Color("BackgroundPrimary"))
         .navigationTitle(document.name)
         .navigationBarTitleDisplayMode(.inline)
     }

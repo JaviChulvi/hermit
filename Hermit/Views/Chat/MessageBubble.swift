@@ -29,7 +29,7 @@ struct MessageBubble: View {
     }
 
     private var bubbleBackground: Color {
-        message.role == .user ? .accentColor : Color(.secondarySystemBackground)
+        message.role == .user ? Color("UserBubble") : Color("BackgroundSecondary")
     }
 
     private var bubbleForeground: Color {

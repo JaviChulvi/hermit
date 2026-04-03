@@ -258,29 +258,29 @@
 
 > As a user, the app has a cohesive dark-mode-first visual identity with the Hermit brand.
 
-- [ ] **1.8.1** Define color palette in `Assets.xcassets/Colors/`
+- [x] **1.8.1** Define color palette in `Assets.xcassets/Colors/`
   - `AccentColor`: amber/gold (#F5A623)
   - `BackgroundPrimary`: #0F0F0F
   - `BackgroundSecondary`: #1A1A1A
   - `UserBubble`: #2C5F2D
   - `TextSecondary`: #8E8E93
 
-- [ ] **1.8.2** Apply colors across all views
+- [x] **1.8.2** Apply colors across all views
   - Tab bar tint: AccentColor
   - Chat bubbles: UserBubble (user), BackgroundSecondary (assistant)
   - Backgrounds: BackgroundPrimary
   - All text: primary or TextSecondary as appropriate
 
-- [ ] **1.8.3** Add subtle animations
+- [x] **1.8.3** Add subtle animations
   - Message bubbles: `.transition(.asymmetric(insertion: .move(edge: .bottom).combined(with: .opacity), removal: .opacity))`
   - Tab switching: default SwiftUI tab animation
   - Onboarding step transitions: `.animation(.easeInOut)`
 
-- [ ] **1.8.4** Add "100% On-Device" privacy badge
+- [x] **1.8.4** Add "100% On-Device" privacy badge
   - Small `HStack` with lock icon + "On-Device" text
   - Display in chat header and settings screen
 
-- [ ] **1.8.5** Verify dark mode and light mode
+- [x] **1.8.5** Verify dark mode and light mode
   - Run on simulator in both appearance modes
   - Verify all text is readable, contrast is sufficient
   - Verify AccentColor stands out in both modes

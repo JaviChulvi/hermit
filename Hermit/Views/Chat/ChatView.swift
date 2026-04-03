@@ -27,6 +27,10 @@ struct ChatView: View {
                                 ForEach(messages) { message in
                                     MessageBubble(message: message)
                                         .id(message.id)
+                                        .transition(.asymmetric(
+                                            insertion: .move(edge: .bottom).combined(with: .opacity),
+                                            removal: .opacity
+                                        ))
                                 }
 
                                 if isGenerating {
@@ -51,10 +55,16 @@ struct ChatView: View {
                     }
                 }
             }
+            .background(Color("BackgroundPrimary"))
             .safeAreaInset(edge: .bottom) {
                 inputBar
             }
             .navigationTitle("Chat")
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    PrivacyBadge()
+                }
+            }
         }
     }
 

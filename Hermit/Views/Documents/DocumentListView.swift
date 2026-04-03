@@ -36,6 +36,8 @@ struct DocumentListView: View {
                     }
                 }
             }
+            .scrollContentBackground(.hidden)
+            .background(Color("BackgroundPrimary"))
             .navigationTitle("Documents")
             .toolbar {
                 ToolbarItem(placement: .primaryAction) {

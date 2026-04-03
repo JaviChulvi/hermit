@@ -21,7 +21,7 @@ struct StreamingIndicator: View {
             }
             .padding(.horizontal, 14)
             .padding(.vertical, 12)
-            .background(Color(.secondarySystemBackground))
+            .background(Color("BackgroundSecondary"))
             .clipShape(RoundedRectangle(cornerRadius: 20))
 
             Spacer()

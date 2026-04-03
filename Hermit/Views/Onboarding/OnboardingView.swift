@@ -21,6 +21,8 @@ struct OnboardingView: View {
         }
         .tabViewStyle(.page(indexDisplayMode: .always))
         .indexViewStyle(.page(backgroundDisplayMode: .always))
+        .background(Color("BackgroundPrimary").ignoresSafeArea())
+        .animation(.easeInOut, value: currentStep)
     }
 
     // MARK: - Step 1: Welcome

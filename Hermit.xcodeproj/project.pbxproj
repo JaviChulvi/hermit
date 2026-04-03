@@ -31,6 +31,7 @@
 		EE55FF66AA11BB22CC33DD45 /* StreamingIndicator.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE55FF66AA11BB22CC33DD44 /* StreamingIndicator.swift */; };
 		3C4D5E6F7A8B9C0D1E2F3A4B /* OnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A2B3C4D5E6F7A8B9C0D1E2F /* OnboardingView.swift */; };
 		4D5E6F7A8B9C0D1E2F3A4B5C /* DownloadProgressView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B3C4D5E6F7A8B9C0D1E2F3A /* DownloadProgressView.swift */; };
+		6B7C8D9E0F1A2B3C4D5E6F7A /* PrivacyBadge.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A6B7C8D9E0F1A2B3C4D5E6F /* PrivacyBadge.swift */; };
 /* End PBXBuildFile section */
 
 
@@ -65,6 +66,7 @@
 		EE55FF66AA11BB22CC33DD44 /* StreamingIndicator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StreamingIndicator.swift; sourceTree = "<group>"; };
 		1A2B3C4D5E6F7A8B9C0D1E2F /* OnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingView.swift; sourceTree = "<group>"; };
 		2B3C4D5E6F7A8B9C0D1E2F3A /* DownloadProgressView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DownloadProgressView.swift; sourceTree = "<group>"; };
+		5A6B7C8D9E0F1A2B3C4D5E6F /* PrivacyBadge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrivacyBadge.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -194,6 +196,7 @@
 				16041560DFD65685175A3AD8 /* Chat */,
 				D93D66FE9FCBD1780638EFFC /* Documents */,
 				09A52693FC300E25957EA687 /* Onboarding */,
+				5A6B7C8D9E0F1A2B3C4D5E6F /* PrivacyBadge.swift */,
 				1EC2F91CE53733379322C750 /* Settings */,
 			);
 			path = Views;
@@ -328,6 +331,7 @@
 				EE55FF66AA11BB22CC33DD45 /* StreamingIndicator.swift in Sources */,
 				3C4D5E6F7A8B9C0D1E2F3A4B /* OnboardingView.swift in Sources */,
 				4D5E6F7A8B9C0D1E2F3A4B5C /* DownloadProgressView.swift in Sources */,
+				6B7C8D9E0F1A2B3C4D5E6F7A /* PrivacyBadge.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

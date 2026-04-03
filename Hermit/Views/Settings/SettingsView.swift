@@ -42,13 +42,20 @@ struct SettingsView: View {
                         Image(systemName: "info.circle")
                     }
 
-                    Label {
-                        Text("100% On-Device")
-                    } icon: {
-                        Image(systemName: "lock.shield.fill")
+                    HStack {
+                        Label {
+                            Text("100% On-Device")
+                        } icon: {
+                            Image(systemName: "lock.shield.fill")
+                                .foregroundStyle(Color.accentColor)
+                        }
+                        Spacer()
+                        PrivacyBadge()
                     }
                 }
             }
+            .scrollContentBackground(.hidden)
+            .background(Color("BackgroundPrimary"))
             .navigationTitle("Settings")
         }
     }
