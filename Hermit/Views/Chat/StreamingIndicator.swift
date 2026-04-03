@@ -8,7 +8,7 @@ struct StreamingIndicator: View {
             HStack(spacing: 6) {
                 ForEach(0..<3) { index in
                     Circle()
-                        .fill(Color.secondary)
+                        .fill(Color("TextSecondary"))
                         .frame(width: 8, height: 8)
                         .opacity(animating ? 1 : 0.3)
                         .animation(

@@ -35,7 +35,7 @@ struct MessageBubble: View {
 
                 Text(message.timestamp, style: .time)
                     .font(.caption2)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(Color("TextSecondary"))
                     .padding(.horizontal, 4)
             }
             .frame(maxWidth: UIScreen.main.bounds.width * 0.8, alignment: message.role == .user ? .trailing : .leading)
@@ -84,7 +84,7 @@ struct MessageBubble: View {
     }
 
     private var bubbleForeground: Color {
-        message.role == .user ? .white : .primary
+        message.role == .user ? .white : .white
     }
 }
 

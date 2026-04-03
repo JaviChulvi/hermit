@@ -10,8 +10,8 @@ struct PrivacyBadge: View {
         }
         .padding(.horizontal, 8)
         .padding(.vertical, 4)
-        .background(Color.accentColor.opacity(0.15))
-        .foregroundStyle(Color.accentColor)
+        .background(Color("AccentColor").opacity(0.15))
+        .foregroundStyle(Color("AccentColor"))
         .clipShape(Capsule())
     }
 }

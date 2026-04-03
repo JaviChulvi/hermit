@@ -67,7 +67,7 @@ struct OnboardingView: View {
 
             Image(systemName: "lock.shield.fill")
                 .font(.system(size: 72))
-                .foregroundStyle(Color.accentColor)
+                .foregroundStyle(Color("AccentColor"))
 
             Text("Hermit")
                 .font(.largeTitle.bold())

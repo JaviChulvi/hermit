@@ -1114,7 +1114,7 @@
 
 > Verify the complete app flow works from first launch to generating a RAG response.
 
-- [ ] **4.6.1** Full flow test on simulator
+- [x] **4.6.1** Full flow test on simulator
   1. Fresh install → Onboarding appears
   2. Download models → progress shows → both complete
   3. "Start Using Hermit" → main app with Chat tab
@@ -1129,7 +1129,7 @@
   12. Response is grounded in the document (not hallucinated)
   13. Send a follow-up question → new response streams in
 
-- [ ] **4.6.2** Edge case tests
+- [x] **4.6.2** Edge case tests
   - Send empty message → nothing happens (send button disabled)
   - Import a very short TXT (10 words) → creates 1 chunk, still works
   - Import a long PDF (20+ pages) → takes time but completes
@@ -1138,18 +1138,18 @@
   - Delete all documents → chat shows empty state again
   - Memory warning simulation (if possible on simulator)
 
-- [ ] **4.6.3** Run all unit tests (`Cmd+U`)
+- [x] **4.6.3** Run all unit tests (`Cmd+U`)
   - All Phase 1 tests pass (DataModel)
   - All Phase 2 tests pass (MemoryMonitor, ModelManager)
   - All Phase 3 tests pass (DocumentProcessor, ChunkingStrategy, CosineSimilarity, VectorStore, RAGEngine)
   - All Phase 4 tests pass (ChatViewModel, system prompt)
 
-- [ ] **4.6.4** Performance check
+- [x] **4.6.4** Performance check
   - Embedding generation for a 10-page document: under 60 seconds
   - First token latency after sending a message: under 15 seconds (includes model load if needed)
   - Streaming speed: visible token-by-token output (not frozen UI)
 
-- [ ] **4.6.5** Final UI quality review — Full app
+- [x] **4.6.5** Final UI quality review — Full app
   - **Global**: No default iOS blue tints anywhere. No white/light backgrounds. All screens use BackgroundPrimary (#0F0F0F)
   - **Tab bar**: amber active icon, gray inactive, dark background, no pill highlight
   - **Chat**: message bubbles (green user, dark gray assistant) are well-padded, rounded, max 80% width. Streaming text is visible against dark background. Input bar is dark with amber send button. Status messages ("Searching...", "Generating...") are visible
