@@ -913,7 +913,7 @@
 
 > As a developer, the RAGEngine can orchestrate the full query flow: embed query → retrieve → generate.
 
-- [ ] **4.2.1** Add `query()` method to `RAGEngine`
+- [x] **4.2.1** Add `query()` method to `RAGEngine`
   - `func query(prompt: String, onStatus: @escaping (String) -> Void) -> AsyncThrowingStream<String, Error>`
     1. `onStatus("Searching documents...")`
     2. Call `retrieveContext(for: prompt, topK: 3)`
@@ -922,7 +922,7 @@
     5. Call `llmService.generate(systemPrompt:userMessage:)`
     6. Forward the token stream
 
-- [ ] **4.2.2** Define the system prompt template
+- [x] **4.2.2** Define the system prompt template
   - Create a constant or method that builds the prompt:
     ```
     You are a helpful assistant that answers questions based EXCLUSIVELY on the provided context.
@@ -940,20 +940,20 @@
     - Answer in the same language as the user.
     ```
 
-- [ ] **4.2.3** Handle the case where no documents are imported
+- [x] **4.2.3** Handle the case where no documents are imported
   - If `vectorStore.chunks` is empty, return an immediate message: "Please import a document first."
   - Do not load any model
 
-- [ ] **4.2.4** Handle the case where retrieval returns no relevant chunks
+- [x] **4.2.4** Handle the case where retrieval returns no relevant chunks
   - If all cosine similarities are below a threshold (e.g., 0.2), include a note in the system prompt that the context may not be relevant
 
-- [ ] **4.2.5** Enforce input context length limit (~2K-4K tokens)
+- [x] **4.2.5** Enforce input context length limit (~2K-4K tokens)
   - Before sending system prompt + user message to the LLM, estimate total token count
   - If the assembled prompt (system prompt with injected chunks + user query) exceeds ~3000 tokens, truncate or reduce the number of injected chunks
   - Strategy: start with topK=3 chunks; if prompt too long, reduce to topK=2 or topK=1
   - Log a warning when truncation occurs
 
-- [ ] **4.2.6** Write unit tests
+- [x] **4.2.6** Write unit tests
   - Test system prompt construction contains the injected chunk text
   - Test empty vector store returns "import document" message without loading models
   - Test prompt template has correct structure (CONTEXT section, RULES section)

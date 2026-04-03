@@ -83,7 +83,8 @@ struct ContentView: View {
     let mm = ModelManager()
     let vs = VectorStore()
     let es = EmbeddingService(modelManager: mm)
-    let re = RAGEngine(embeddingService: es, vectorStore: vs, modelManager: mm)
+    let ls = LLMService(modelManager: mm)
+    let re = RAGEngine(embeddingService: es, vectorStore: vs, modelManager: mm, llmService: ls)
     let dvm = DocumentViewModel(ragEngine: re, vectorStore: vs)
 
     ContentView()

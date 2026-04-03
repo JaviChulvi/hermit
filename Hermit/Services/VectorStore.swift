@@ -42,6 +42,10 @@ class VectorStore {
     // MARK: - Search
 
     func search(queryEmbedding: [Float], topK: Int = 3) -> [TextChunk] {
+        searchWithScores(queryEmbedding: queryEmbedding, topK: topK).map(\.chunk)
+    }
+
+    func searchWithScores(queryEmbedding: [Float], topK: Int = 3) -> [(chunk: TextChunk, score: Float)] {
         let indexed = allEmbeddings()
         guard !indexed.isEmpty else { return [] }
 
@@ -50,7 +54,7 @@ class VectorStore {
 
         return results.map { result in
             let originalIndex = indexed[result.index].index
-            return chunks[originalIndex]
+            return (chunk: chunks[originalIndex], score: result.score)
         }
     }
 
