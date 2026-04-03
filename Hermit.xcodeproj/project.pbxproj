@@ -7,18 +7,44 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		0ED8F0E587E55F12CA5A03E6 /* MLXEmbeddersHFAPI in Frameworks */ = {isa = PBXBuildFile; productRef = E5CCB770138DB30705413B1C /* MLXEmbeddersHFAPI */; };
+		1CE37C932A07E729B741955F /* MLXLMTokenizers in Frameworks */ = {isa = PBXBuildFile; productRef = 17DE4547CDA6641702324946 /* MLXLMTokenizers */; };
+		1EEA771C770BF0A80E4943CC /* DependencyCheck.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F87E3B7A9C77A703A122215 /* DependencyCheck.swift */; };
 		2809B82E26E4F8B3AF42D408 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C3C8B370DFA4C0C5E49BC79 /* ContentView.swift */; };
+		3CF094BF661B0328D0867B83 /* MLXLLM in Frameworks */ = {isa = PBXBuildFile; productRef = 53118A446E6A226F79469D5B /* MLXLLM */; };
 		5F538BC45A11D3571425D528 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = AE86124BC8833C2AC2555333 /* Assets.xcassets */; };
 		7FAE910BD41B46658811AE72 /* HermitApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF539B1D728ADBC791738BD7 /* HermitApp.swift */; };
+		A9578A64F0E40ADD1CEBE7BB /* MLX in Frameworks */ = {isa = PBXBuildFile; productRef = C6B7AE9D7E8B7C7EE587FE43 /* MLX */; };
+		D1F66464188C4FB19382D2B3 /* MLXLMCommon in Frameworks */ = {isa = PBXBuildFile; productRef = 71EB3107E61C302B96996A71 /* MLXLMCommon */; };
+		D62F99212E2FA02DA8AE75BA /* MLXLMHFAPI in Frameworks */ = {isa = PBXBuildFile; productRef = 80D0FB5150457BEAC5CE580C /* MLXLMHFAPI */; };
+		D8E3304BC5A96F78362DF0BA /* MLXEmbedders in Frameworks */ = {isa = PBXBuildFile; productRef = 687D05517582B55AFA650074 /* MLXEmbedders */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		05E18749795DF5EEDA49C0E4 /* Hermit.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Hermit.entitlements; sourceTree = "<group>"; };
+		0F87E3B7A9C77A703A122215 /* DependencyCheck.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DependencyCheck.swift; sourceTree = "<group>"; };
 		2C3C8B370DFA4C0C5E49BC79 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		6A047974E25485A438CA176F /* Hermit.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = Hermit.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		AE86124BC8833C2AC2555333 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		EF539B1D728ADBC791738BD7 /* HermitApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HermitApp.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		A31CAA0CD2F654DBF71DC9D4 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A9578A64F0E40ADD1CEBE7BB /* MLX in Frameworks */,
+				3CF094BF661B0328D0867B83 /* MLXLLM in Frameworks */,
+				D8E3304BC5A96F78362DF0BA /* MLXEmbedders in Frameworks */,
+				D1F66464188C4FB19382D2B3 /* MLXLMCommon in Frameworks */,
+				1CE37C932A07E729B741955F /* MLXLMTokenizers in Frameworks */,
+				D62F99212E2FA02DA8AE75BA /* MLXLMHFAPI in Frameworks */,
+				0ED8F0E587E55F12CA5A03E6 /* MLXEmbeddersHFAPI in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
 		09A52693FC300E25957EA687 /* Onboarding */ = {
@@ -83,6 +109,7 @@
 		76C5001A30745C521F608216 /* Services */ = {
 			isa = PBXGroup;
 			children = (
+				0F87E3B7A9C77A703A122215 /* DependencyCheck.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -129,6 +156,7 @@
 			buildPhases = (
 				DC38B52B1B7AB3A68681C4FC /* Sources */,
 				6E16192AD0A1C224931C0B6E /* Resources */,
+				A31CAA0CD2F654DBF71DC9D4 /* Frameworks */,
 			);
 			buildRules = (
 			);
@@ -136,6 +164,13 @@
 			);
 			name = Hermit;
 			packageProductDependencies = (
+				C6B7AE9D7E8B7C7EE587FE43 /* MLX */,
+				53118A446E6A226F79469D5B /* MLXLLM */,
+				687D05517582B55AFA650074 /* MLXEmbedders */,
+				71EB3107E61C302B96996A71 /* MLXLMCommon */,
+				17DE4547CDA6641702324946 /* MLXLMTokenizers */,
+				80D0FB5150457BEAC5CE580C /* MLXLMHFAPI */,
+				E5CCB770138DB30705413B1C /* MLXEmbeddersHFAPI */,
 			);
 			productName = Hermit;
 			productReference = 6A047974E25485A438CA176F /* Hermit.app */;
@@ -161,6 +196,12 @@
 			);
 			mainGroup = ED7EA2DBB88088883B89BBBC;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				13B1DB36B025B21BFC63FEAB /* XCRemoteSwiftPackageReference "mlx-swift" */,
+				9F068CFC8E11424B54585C2A /* XCRemoteSwiftPackageReference "mlx-swift-lm" */,
+				7D9D3E30E01317B445A36534 /* XCRemoteSwiftPackageReference "swift-hf-api-mlx" */,
+				06A4A0E38D45F35ED613BEFF /* XCRemoteSwiftPackageReference "swift-tokenizers-mlx" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 3FBE92D99D81DBFC5D4A260E /* Products */;
 			projectDirPath = "";
@@ -188,6 +229,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				2809B82E26E4F8B3AF42D408 /* ContentView.swift in Sources */,
+				1EEA771C770BF0A80E4943CC /* DependencyCheck.swift in Sources */,
 				7FAE910BD41B46658811AE72 /* HermitApp.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -376,6 +418,79 @@
 			defaultConfigurationName = Debug;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		06A4A0E38D45F35ED613BEFF /* XCRemoteSwiftPackageReference "swift-tokenizers-mlx" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/DePasqualeOrg/swift-tokenizers-mlx";
+			requirement = {
+				branch = main;
+				kind = branch;
+			};
+		};
+		13B1DB36B025B21BFC63FEAB /* XCRemoteSwiftPackageReference "mlx-swift" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/ml-explore/mlx-swift";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 0.10.0;
+			};
+		};
+		7D9D3E30E01317B445A36534 /* XCRemoteSwiftPackageReference "swift-hf-api-mlx" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/DePasqualeOrg/swift-hf-api-mlx";
+			requirement = {
+				branch = main;
+				kind = branch;
+			};
+		};
+		9F068CFC8E11424B54585C2A /* XCRemoteSwiftPackageReference "mlx-swift-lm" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/DePasqualeOrg/mlx-swift-lm.git";
+			requirement = {
+				branch = "swift-tokenizers";
+				kind = branch;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		17DE4547CDA6641702324946 /* MLXLMTokenizers */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 06A4A0E38D45F35ED613BEFF /* XCRemoteSwiftPackageReference "swift-tokenizers-mlx" */;
+			productName = MLXLMTokenizers;
+		};
+		53118A446E6A226F79469D5B /* MLXLLM */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 9F068CFC8E11424B54585C2A /* XCRemoteSwiftPackageReference "mlx-swift-lm" */;
+			productName = MLXLLM;
+		};
+		687D05517582B55AFA650074 /* MLXEmbedders */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 9F068CFC8E11424B54585C2A /* XCRemoteSwiftPackageReference "mlx-swift-lm" */;
+			productName = MLXEmbedders;
+		};
+		71EB3107E61C302B96996A71 /* MLXLMCommon */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 9F068CFC8E11424B54585C2A /* XCRemoteSwiftPackageReference "mlx-swift-lm" */;
+			productName = MLXLMCommon;
+		};
+		80D0FB5150457BEAC5CE580C /* MLXLMHFAPI */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 7D9D3E30E01317B445A36534 /* XCRemoteSwiftPackageReference "swift-hf-api-mlx" */;
+			productName = MLXLMHFAPI;
+		};
+		C6B7AE9D7E8B7C7EE587FE43 /* MLX */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 13B1DB36B025B21BFC63FEAB /* XCRemoteSwiftPackageReference "mlx-swift" */;
+			productName = MLX;
+		};
+		E5CCB770138DB30705413B1C /* MLXEmbeddersHFAPI */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 7D9D3E30E01317B445A36534 /* XCRemoteSwiftPackageReference "swift-hf-api-mlx" */;
+			productName = MLXEmbeddersHFAPI;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 33CC8C8311042E49570FB75D /* Project object */;
 }

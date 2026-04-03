@@ -74,9 +74,9 @@ xcodebuild -scheme Hermit -destination 'platform=iOS Simulator,name=iPhone 17 Pr
 | Package | URL | Version |
 |---|---|---|
 | mlx-swift | https://github.com/ml-explore/mlx-swift | from: 0.10.0 |
-| mlx-swift-lm | https://github.com/ml-explore/mlx-swift-lm | branch: main |
-| swift-tokenizers-mlx | https://github.com/DePasqualeOrg/swift-tokenizers-mlx | from: 0.1.0 |
-| swift-hf-api-mlx | https://github.com/DePasqualeOrg/swift-hf-api-mlx | from: 0.1.0 |
+| mlx-swift-lm | https://github.com/DePasqualeOrg/mlx-swift-lm.git | branch: swift-tokenizers |
+| swift-tokenizers-mlx | https://github.com/DePasqualeOrg/swift-tokenizers-mlx | branch: main |
+| swift-hf-api-mlx | https://github.com/DePasqualeOrg/swift-hf-api-mlx | branch: main |
 
 ## HuggingFace model IDs
 - Embeddings: `mlx-community/all-MiniLM-L6-v2-bf16` (~90 MB)

@@ -46,27 +46,27 @@
 
 > As a developer, I need all ML and HuggingFace packages resolved so the project compiles with the full dependency tree.
 
-- [ ] **1.2.1** Add `mlx-swift` package
+- [x] **1.2.1** Add `mlx-swift` package
   - URL: `https://github.com/ml-explore/mlx-swift`
   - Version rule: Up to Next Major from `0.10.0`
   - Add product `MLX` to the Hermit target
 
-- [ ] **1.2.2** Add `mlx-swift-lm` package
-  - URL: `https://github.com/ml-explore/mlx-swift-lm`
-  - Version rule: Branch `main`
+- [x] **1.2.2** Add `mlx-swift-lm` package
+  - URL: `https://github.com/DePasqualeOrg/mlx-swift-lm.git` (fork with swift-tokenizers support)
+  - Version rule: Branch `swift-tokenizers`
   - Add products: `MLXLLM`, `MLXEmbedders`, `MLXLMCommon` to the Hermit target
 
-- [ ] **1.2.3** Add `swift-tokenizers-mlx` package
+- [x] **1.2.3** Add `swift-tokenizers-mlx` package
   - URL: `https://github.com/DePasqualeOrg/swift-tokenizers-mlx`
-  - Version rule: Up to Next Major from `0.1.0`
+  - Version rule: Branch `main`
   - Add product `MLXLMTokenizers` to the Hermit target
 
-- [ ] **1.2.4** Add `swift-hf-api-mlx` package
+- [x] **1.2.4** Add `swift-hf-api-mlx` package
   - URL: `https://github.com/DePasqualeOrg/swift-hf-api-mlx`
-  - Version rule: Up to Next Major from `0.1.0`
-  - Add product `HubClientMLX` to the Hermit target
+  - Version rule: Branch `main`
+  - Add products `MLXLMHFAPI`, `MLXEmbeddersHFAPI` to the Hermit target
 
-- [ ] **1.2.5** Create a smoke-test file `Hermit/Services/DependencyCheck.swift` that imports all modules:
+- [x] **1.2.5** Create a smoke-test file `Hermit/Services/DependencyCheck.swift` that imports all modules:
   ```swift
   import MLX
   import MLXLLM
