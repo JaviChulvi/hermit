@@ -39,6 +39,32 @@ class VectorStore {
         }
     }
 
+    func deleteAllChunks() {
+        chunks.removeAll()
+        let fm = FileManager.default
+        if fm.fileExists(atPath: storeDirectory.path),
+           let files = try? fm.contentsOfDirectory(at: storeDirectory, includingPropertiesForKeys: nil) {
+            for file in files where file.pathExtension == "json" {
+                try? fm.removeItem(at: file)
+            }
+        }
+    }
+
+    func storageSizeMB() -> Int {
+        let fm = FileManager.default
+        guard fm.fileExists(atPath: storeDirectory.path),
+              let enumerator = fm.enumerator(at: storeDirectory, includingPropertiesForKeys: [.fileSizeKey])
+        else { return 0 }
+
+        var totalSize: Int64 = 0
+        for case let fileURL as URL in enumerator {
+            if let size = try? fileURL.resourceValues(forKeys: [.fileSizeKey]).fileSize {
+                totalSize += Int64(size)
+            }
+        }
+        return Int(totalSize / (1024 * 1024))
+    }
+
     // MARK: - Search
 
     func search(queryEmbedding: [Float], topK: Int = 3) -> [TextChunk] {

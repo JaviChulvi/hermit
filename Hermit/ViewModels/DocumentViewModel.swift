@@ -60,6 +60,12 @@ class DocumentViewModel {
         saveDocuments()
     }
 
+    func deleteAllDocuments() {
+        documents.removeAll()
+        vectorStore.deleteAllChunks()
+        saveDocuments()
+    }
+
     // MARK: - Persistence
 
     func loadDocuments() {

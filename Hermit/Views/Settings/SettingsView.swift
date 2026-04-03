@@ -3,7 +3,13 @@ import SwiftUI
 struct SettingsView: View {
     @AppStorage("onboardingComplete") private var onboardingComplete = false
     @Environment(ModelManager.self) private var modelManager
-    @State private var showDeleteConfirmation = false
+    @Environment(VectorStore.self) private var vectorStore
+    @Environment(DocumentViewModel.self) private var documentViewModel
+    @Environment(ChatViewModel.self) private var chatViewModel
+
+    @State private var showDeleteModelsConfirmation = false
+    @State private var showDeleteDocumentsConfirmation = false
+    @State private var showResetAppConfirmation = false
 
     var body: some View {
         VStack(spacing: 0) {
@@ -22,26 +28,53 @@ struct SettingsView: View {
             ScrollView {
                 VStack(spacing: 20) {
                     modelsSection
-                    storageSection
+                    memorySection
+                    documentsSection
+                    dataManagementSection
                     aboutSection
                 }
                 .padding(.horizontal, 16)
                 .padding(.top, 4)
+                .padding(.bottom, 24)
             }
         }
         .background(Color("BackgroundPrimary").ignoresSafeArea())
-        .alert("Delete Models?", isPresented: $showDeleteConfirmation) {
+        .alert("Delete Models?", isPresented: $showDeleteModelsConfirmation) {
             Button("Delete", role: .destructive) {
                 do {
                     try modelManager.deleteModels()
                     onboardingComplete = false
                 } catch {
-                    // Deletion failed silently
+                    // Deletion failed
                 }
             }
             Button("Cancel", role: .cancel) {}
         } message: {
             Text("This will remove all downloaded models. You'll need to download them again to use Hermit.")
+        }
+        .alert("Delete All Documents?", isPresented: $showDeleteDocumentsConfirmation) {
+            Button("Delete", role: .destructive) {
+                documentViewModel.deleteAllDocuments()
+                chatViewModel.clearConversation()
+            }
+            Button("Cancel", role: .cancel) {}
+        } message: {
+            Text("This will remove all imported documents and their embeddings. Your chat history will also be cleared.")
+        }
+        .alert("Reset App?", isPresented: $showResetAppConfirmation) {
+            Button("Reset", role: .destructive) {
+                documentViewModel.deleteAllDocuments()
+                chatViewModel.clearConversation()
+                do {
+                    try modelManager.deleteModels()
+                } catch {
+                    // Deletion failed
+                }
+                onboardingComplete = false
+            }
+            Button("Cancel", role: .cancel) {}
+        } message: {
+            Text("This will delete all documents, models, and reset the app to its initial state.")
         }
     }
 
@@ -58,48 +91,81 @@ struct SettingsView: View {
                 modelRow(
                     name: ModelInfo.embeddingModel.name,
                     size: ModelInfo.embeddingModel.sizeDescription,
-                    state: modelManager.embeddingDownloadState
+                    modelId: ModelInfo.embeddingModel.id,
+                    state: modelManager.embeddingDownloadState,
+                    isLoaded: modelManager.modelState == .embeddingLoaded
                 )
                 modelRow(
                     name: ModelInfo.llmModel.name,
                     size: ModelInfo.llmModel.sizeDescription,
-                    state: modelManager.llmDownloadState
+                    modelId: ModelInfo.llmModel.id,
+                    state: modelManager.llmDownloadState,
+                    isLoaded: modelManager.modelState == .llmLoaded
                 )
             }
             .clipShape(RoundedRectangle(cornerRadius: 12))
         }
     }
 
-    // MARK: - Storage Section
+    // MARK: - Memory Section
 
-    private var storageSection: some View {
+    private var memorySection: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Text("STORAGE")
+            Text("MEMORY")
                 .font(.caption.bold())
                 .foregroundStyle(Color("TextSecondary"))
                 .padding(.leading, 4)
 
             VStack(spacing: 1) {
-                settingsRow(icon: "internaldrive", title: "Used", value: "\(modelManager.diskSpaceUsedMB()) MB")
                 settingsRow(icon: "memorychip", title: "Available RAM", value: "\(modelManager.availableMemoryMB) MB")
+                settingsRow(icon: "cpu", title: "Model State", value: modelStateText)
+            }
+            .clipShape(RoundedRectangle(cornerRadius: 12))
+        }
+    }
+
+    // MARK: - Documents Section
+
+    private var documentsSection: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text("DOCUMENTS")
+                .font(.caption.bold())
+                .foregroundStyle(Color("TextSecondary"))
+                .padding(.leading, 4)
+
+            VStack(spacing: 1) {
+                settingsRow(icon: "doc.text", title: "Documents Imported", value: "\(documentViewModel.documents.count)")
+                settingsRow(icon: "square.stack.3d.up", title: "Total Chunks", value: "\(vectorStore.chunks.count)")
+                settingsRow(icon: "internaldrive", title: "Vector Store", value: vectorStoreSizeText)
+            }
+            .clipShape(RoundedRectangle(cornerRadius: 12))
+        }
+    }
+
+    // MARK: - Data Management Section
+
+    private var dataManagementSection: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text("DATA MANAGEMENT")
+                .font(.caption.bold())
+                .foregroundStyle(Color("TextSecondary"))
+                .padding(.leading, 4)
+
+            VStack(spacing: 1) {
+                if !documentViewModel.documents.isEmpty {
+                    destructiveButton(icon: "trash", title: "Delete All Documents") {
+                        showDeleteDocumentsConfirmation = true
+                    }
+                }
 
                 if modelManager.embeddingModelDownloaded || modelManager.llmModelDownloaded {
-                    Button {
-                        showDeleteConfirmation = true
-                    } label: {
-                        HStack(spacing: 10) {
-                            Image(systemName: "trash")
-                                .font(.body)
-                                .frame(width: 24)
-                            Text("Delete All Models")
-                            Spacer()
-                        }
-                        .foregroundStyle(.red)
-                        .padding(14)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .background(Color("BackgroundSecondary"))
+                    destructiveButton(icon: "arrow.down.circle.dotted", title: "Delete Models") {
+                        showDeleteModelsConfirmation = true
                     }
-                    .buttonStyle(.plain)
+                }
+
+                destructiveButton(icon: "arrow.counterclockwise", title: "Reset App") {
+                    showResetAppConfirmation = true
                 }
             }
             .clipShape(RoundedRectangle(cornerRadius: 12))
@@ -121,6 +187,16 @@ struct SettingsView: View {
                     title: "Version",
                     value: Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0"
                 )
+                settingsRow(
+                    icon: "cube.box",
+                    title: "Embedding Model",
+                    value: ModelInfo.embeddingModel.id
+                )
+                settingsRow(
+                    icon: "cube.box.fill",
+                    title: "LLM",
+                    value: ModelInfo.llmModel.id
+                )
 
                 HStack(spacing: 10) {
                     Image(systemName: "lock.shield.fill")
@@ -141,7 +217,7 @@ struct SettingsView: View {
 
     // MARK: - Reusable Components
 
-    private func modelRow(name: String, size: String, state: DownloadState) -> some View {
+    private func modelRow(name: String, size: String, modelId: String, state: DownloadState, isLoaded: Bool) -> some View {
         HStack(spacing: 10) {
             Image(systemName: statusIcon(for: state))
                 .font(.body)
@@ -149,9 +225,16 @@ struct SettingsView: View {
                 .frame(width: 24)
 
             VStack(alignment: .leading, spacing: 2) {
-                Text(name)
-                    .font(.body)
-                    .foregroundStyle(.white)
+                HStack(spacing: 6) {
+                    Text(name)
+                        .font(.body)
+                        .foregroundStyle(.white)
+                    if isLoaded {
+                        Circle()
+                            .fill(.green)
+                            .frame(width: 8, height: 8)
+                    }
+                }
                 HStack(spacing: 4) {
                     Text(size)
                     Text("·")
@@ -162,6 +245,16 @@ struct SettingsView: View {
             }
 
             Spacer()
+
+            if isLoaded {
+                Text("Loaded")
+                    .font(.caption2.bold())
+                    .foregroundStyle(.green)
+                    .padding(.horizontal, 6)
+                    .padding(.vertical, 2)
+                    .background(.green.opacity(0.15))
+                    .clipShape(Capsule())
+            }
         }
         .padding(14)
         .background(Color("BackgroundSecondary"))
@@ -178,9 +271,53 @@ struct SettingsView: View {
             Spacer()
             Text(value)
                 .foregroundStyle(Color("TextSecondary"))
+                .font(.footnote)
+                .lineLimit(1)
         }
         .padding(14)
         .background(Color("BackgroundSecondary"))
+    }
+
+    private func destructiveButton(icon: String, title: String, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            HStack(spacing: 10) {
+                Image(systemName: icon)
+                    .font(.body)
+                    .frame(width: 24)
+                Text(title)
+                Spacer()
+            }
+            .foregroundStyle(.red)
+            .padding(14)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(Color("BackgroundSecondary"))
+        }
+        .buttonStyle(.plain)
+    }
+
+    // MARK: - Computed Properties
+
+    private var modelStateText: String {
+        switch modelManager.modelState {
+        case .idle: "Idle"
+        case .embeddingLoaded: "Embedding Loaded"
+        case .llmLoaded: "LLM Loaded"
+        case .transitioning: "Transitioning..."
+        }
+    }
+
+    private var vectorStoreSizeText: String {
+        let mb = vectorStore.storageSizeMB()
+        if mb > 0 {
+            return "\(mb) MB"
+        }
+        let kb = vectorStoreApproxKB()
+        return kb > 0 ? "<1 MB" : "0 MB"
+    }
+
+    private func vectorStoreApproxKB() -> Int {
+        // Rough estimate: if chunks exist, there's at least some data
+        vectorStore.chunks.isEmpty ? 0 : 1
     }
 
     // MARK: - Status Helpers
@@ -216,5 +353,8 @@ struct SettingsView: View {
 #Preview {
     SettingsView()
         .environment(ModelManager())
+        .environment(VectorStore())
+        .environment(DocumentViewModel(ragEngine: RAGEngine(embeddingService: EmbeddingService(modelManager: ModelManager()), vectorStore: VectorStore(), modelManager: ModelManager(), llmService: LLMService(modelManager: ModelManager())), vectorStore: VectorStore()))
+        .environment(ChatViewModel(ragEngine: RAGEngine(embeddingService: EmbeddingService(modelManager: ModelManager()), vectorStore: VectorStore(), modelManager: ModelManager(), llmService: LLMService(modelManager: ModelManager()))))
         .preferredColorScheme(.dark)
 }

@@ -1073,7 +1073,7 @@
 
 > As a user, I can see which model is loaded, how much RAM is being used, and manage my data.
 
-- [ ] **4.5.1** Update `SettingsView.swift` with live data
+- [x] **4.5.1** Update `SettingsView.swift` with live data
   - "Models" section:
     - Embedding model: name, size on disk, download status
     - LLM: name, size on disk, download status
@@ -1094,12 +1094,12 @@
     - "100% On-Device" badge
     - Model versions / HuggingFace IDs
 
-- [ ] **4.5.2** Wire all data sources
+- [x] **4.5.2** Wire all data sources
   - `@Environment(ModelManager.self)` for model states
   - `@Environment(MemoryMonitor.self)` for RAM
   - `@Environment(VectorStore.self)` for document/chunk counts
 
-- [ ] **4.5.3** Verify all actions work
+- [x] **4.5.3** Verify all actions work
   - "Delete All Documents" removes documents and chunks, chat becomes empty
   - "Delete Models" removes model files, app shows onboarding on next launch
   - RAM indicator updates in real-time
