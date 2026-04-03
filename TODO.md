@@ -461,47 +461,47 @@
 
 > As a user, I can download both AI models from HuggingFace and see real-time progress.
 
-- [ ] **2.3.1** Implement `downloadEmbeddingModel() async throws` in `ModelManager`
+- [x] **2.3.1** Implement `downloadEmbeddingModel() async throws` in `ModelManager`
   - Use `mlx-swift-lm` / `MLXLMCommon` download APIs to fetch from HuggingFace
   - Model ID: `mlx-community/all-MiniLM-L6-v2-bf16` (or the correct ID for MLXEmbedders)
   - Save to `Documents/models/embeddings/`
   - Update `embeddingDownloadState` with progress as files download
   - Handle errors: network failure, disk full, cancelled
 
-- [ ] **2.3.2** Implement `downloadLLMModel() async throws` in `ModelManager`
+- [x] **2.3.2** Implement `downloadLLMModel() async throws` in `ModelManager`
   - Model ID: `mlx-community/gemma-4-e2b-it-4bit`
   - Save to `Documents/models/llm/`
   - Update `llmDownloadState` with progress
   - Check available disk space before starting (~4 GB needed)
   - Handle errors: network failure, disk full, cancelled
 
-- [ ] **2.3.3** Implement download cancellation and resume
+- [x] **2.3.3** Implement download cancellation and resume
   - Store the download `Task` reference
   - `cancelDownload()` method that cancels the Task
   - Update state to `.notStarted` on cancellation
   - Persist download progress state so interrupted downloads can be resumed on next app launch
   - On `startDownloads()`, check if a partial download exists and resume from where it left off (if HF API supports range requests; otherwise restart cleanly)
 
-- [ ] **2.3.4** Wire `OnboardingViewModel.swift`
+- [x] **2.3.4** Wire `OnboardingViewModel.swift`
   - `@Observable class OnboardingViewModel`
   - `currentStep: OnboardingStep` (.welcome, .downloading, .ready)
   - `startDownloads()` — calls `modelManager.downloadEmbeddingModel()` then `downloadLLMModel()`
   - `skipToMain()` — for dev/testing, sets onboarding complete without downloading
   - Observe `modelManager.embeddingDownloadState` and `llmDownloadState` for progress
 
-- [ ] **2.3.5** Update `OnboardingView.swift` to use real ViewModel
+- [x] **2.3.5** Update `OnboardingView.swift` to use real ViewModel
   - Wire "Download Models" button to `viewModel.startDownloads()`
   - Show real progress from `DownloadProgressView` for each model
   - Show error state with retry button
   - When both models downloaded, transition to step 3 (ready)
   - "Start Using Hermit" button sets `@AppStorage("onboardingComplete") = true`
 
-- [ ] **2.3.6** Update `SettingsView.swift`
+- [x] **2.3.6** Update `SettingsView.swift`
   - Show real download status for each model
   - Show disk space used by each model (FileManager file size calculation)
   - "Delete Models" button that removes model directories and resets to onboarding
 
-- [ ] **2.3.7** Test on simulator with network
+- [x] **2.3.7** Test on simulator with network
   - Run app → Onboarding → tap "Download Models"
   - Verify embedding model downloads quickly (~90 MB)
   - Verify LLM model downloads with visible progress (~3.5 GB)

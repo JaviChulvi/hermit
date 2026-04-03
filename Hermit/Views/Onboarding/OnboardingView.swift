@@ -3,14 +3,32 @@ import SwiftUI
 struct OnboardingView: View {
     @AppStorage("onboardingComplete") private var onboardingComplete = false
     @Environment(ModelManager.self) private var modelManager
-    @State private var currentStep = 0
+    @State private var viewModel: OnboardingViewModel?
 
     var body: some View {
-        TabView(selection: $currentStep) {
-            welcomeStep
+        Group {
+            if let viewModel {
+                onboardingContent(viewModel)
+            } else {
+                Color("BackgroundPrimary").ignoresSafeArea()
+            }
+        }
+        .task {
+            if viewModel == nil {
+                viewModel = OnboardingViewModel(modelManager: modelManager)
+            }
+        }
+    }
+
+    // MARK: - Main Content
+
+    @ViewBuilder
+    private func onboardingContent(_ viewModel: OnboardingViewModel) -> some View {
+        TabView(selection: stepBinding(viewModel)) {
+            welcomeStep(viewModel)
                 .tag(0)
 
-            downloadStep
+            downloadStep(viewModel)
                 .tag(1)
 
             readyStep
@@ -19,12 +37,31 @@ struct OnboardingView: View {
         .tabViewStyle(.page(indexDisplayMode: .always))
         .indexViewStyle(.page(backgroundDisplayMode: .always))
         .background(Color("BackgroundPrimary").ignoresSafeArea())
-        .animation(.easeInOut, value: currentStep)
+        .animation(.easeInOut, value: viewModel.currentStep)
+    }
+
+    private func stepBinding(_ viewModel: OnboardingViewModel) -> Binding<Int> {
+        Binding(
+            get: {
+                switch viewModel.currentStep {
+                case .welcome: 0
+                case .downloading: 1
+                case .ready: 2
+                }
+            },
+            set: { newValue in
+                switch newValue {
+                case 0: viewModel.currentStep = .welcome
+                case 2: viewModel.currentStep = .ready
+                default: viewModel.currentStep = .downloading
+                }
+            }
+        )
     }
 
     // MARK: - Step 1: Welcome
 
-    private var welcomeStep: some View {
+    private func welcomeStep(_ viewModel: OnboardingViewModel) -> some View {
         VStack(spacing: 24) {
             Spacer()
 
@@ -51,9 +88,7 @@ struct OnboardingView: View {
             Spacer()
 
             Button {
-                withAnimation {
-                    currentStep = 1
-                }
+                viewModel.startDownloads()
             } label: {
                 Text("Get Started")
                     .font(.headline)
@@ -70,7 +105,7 @@ struct OnboardingView: View {
 
     // MARK: - Step 2: Download
 
-    private var downloadStep: some View {
+    private func downloadStep(_ viewModel: OnboardingViewModel) -> some View {
         VStack(spacing: 24) {
             Spacer()
 
@@ -91,35 +126,49 @@ struct OnboardingView: View {
                 DownloadProgressView(
                     modelName: ModelInfo.embeddingModel.name,
                     sizeLabel: ModelInfo.embeddingModel.sizeDescription,
-                    state: modelManager.embeddingDownloadState
+                    state: viewModel.embeddingDownloadState,
+                    onRetry: { viewModel.retryDownloads() }
                 )
 
                 DownloadProgressView(
                     modelName: ModelInfo.llmModel.name,
                     sizeLabel: ModelInfo.llmModel.sizeDescription,
-                    state: modelManager.llmDownloadState
+                    state: viewModel.llmDownloadState,
+                    onRetry: { viewModel.retryDownloads() }
                 )
             }
             .padding(.horizontal, 24)
 
             Spacer()
 
-            Button {
-                // TODO: trigger real model downloads via modelManager
-                withAnimation {
-                    currentStep = 2
+            if viewModel.hasError {
+                Button {
+                    viewModel.retryDownloads()
+                } label: {
+                    Text("Retry Download")
+                        .font(.headline)
+                        .foregroundStyle(.black)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 14)
                 }
-            } label: {
-                Text("Download Models")
-                    .font(.headline)
-                    .foregroundStyle(.black)
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 14)
+                .buttonStyle(.borderedProminent)
+                .tint(Color("AccentColor"))
+                .padding(.horizontal, 32)
+                .padding(.bottom, 48)
+            } else if viewModel.isDownloading {
+                Button {
+                    viewModel.cancelDownloads()
+                } label: {
+                    Text("Cancel")
+                        .font(.headline)
+                        .foregroundStyle(Color("TextSecondary"))
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 14)
+                }
+                .buttonStyle(.bordered)
+                .padding(.horizontal, 32)
+                .padding(.bottom, 48)
             }
-            .buttonStyle(.borderedProminent)
-            .tint(Color("AccentColor"))
-            .padding(.horizontal, 32)
-            .padding(.bottom, 48)
         }
     }
 
