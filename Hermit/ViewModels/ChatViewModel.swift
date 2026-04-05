@@ -12,10 +12,16 @@ class ChatViewModel {
     private(set) var lastFailedQuery: String?
 
     private let ragEngine: RAGEngine
+    private let llmService: LLMService
     private var generationTask: Task<Void, Never>?
 
-    init(ragEngine: RAGEngine) {
+    var hasDocuments: Bool {
+        ragEngine.hasDocuments
+    }
+
+    init(ragEngine: RAGEngine, llmService: LLMService) {
         self.ragEngine = ragEngine
+        self.llmService = llmService
     }
 
     // MARK: - Send Message
@@ -24,15 +30,12 @@ class ChatViewModel {
         let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty else { return }
 
-        // Haptic on send
         UIImpactFeedbackGenerator(style: .light).impactOccurred()
 
-        // Append user message
         let userMessage = ChatMessage(role: .user, content: trimmed)
         messages.append(userMessage)
         lastFailedQuery = nil
 
-        // Start generation
         isGenerating = true
         currentStreamedText = ""
         statusMessage = ""
@@ -40,30 +43,48 @@ class ChatViewModel {
 
         generationTask = Task {
             do {
-                let stream = ragEngine.query(prompt: trimmed) { [weak self] status in
-                    self?.statusMessage = status
+                let history = Array(messages.dropLast())
+
+                // 1. Retrieve RAG context if documents exist
+                var ragContext: String? = nil
+                if hasDocuments {
+                    // Release chat session so the LLM container can be fully freed
+                    // before embedding model loads (they can't coexist in memory)
+                    llmService.resetSession()
+                    statusMessage = "Searching documents..."
+                    ragContext = try await ragEngine.retrieveContext(for: trimmed)
                 }
+
+                // 2. Load LLM
+                if !llmService.isModelLoaded {
+                    statusMessage = "Loading model..."
+                    try await llmService.loadModel()
+                }
+                statusMessage = ""
+
+                // 3. Generate response with history + optional RAG context
+                let stream = try await llmService.chat(
+                    message: trimmed,
+                    history: history,
+                    ragContext: ragContext
+                )
 
                 for try await token in stream {
                     currentStreamedText += token
                 }
 
-                // Stream completed — create assistant message
                 let assistantMessage = ChatMessage(role: .assistant, content: currentStreamedText)
                 messages.append(assistantMessage)
                 currentStreamedText = ""
                 statusMessage = ""
                 UINotificationFeedbackGenerator().notificationOccurred(.success)
             } catch is CancellationError {
-                // Save partial text if any was streamed
                 savePartialResponse()
             } catch {
-                // Save partial text on error too
                 savePartialResponse()
                 errorMessage = error.localizedDescription
                 lastFailedQuery = trimmed
 
-                // Add inline error message
                 UINotificationFeedbackGenerator().notificationOccurred(.error)
                 let errorMsg = ChatMessage(role: .system, content: error.localizedDescription)
                 messages.append(errorMsg)
@@ -76,11 +97,9 @@ class ChatViewModel {
     func retryLastMessage() {
         guard let query = lastFailedQuery else { return }
 
-        // Remove the last error message if present
         if let last = messages.last, last.role == .system {
             messages.removeLast()
         }
-        // Remove the user message that failed
         if let last = messages.last, last.role == .user {
             messages.removeLast()
         }
@@ -104,6 +123,7 @@ class ChatViewModel {
         statusMessage = ""
         errorMessage = nil
         stopGenerating()
+        llmService.resetSession()
     }
 
     // MARK: - Private
