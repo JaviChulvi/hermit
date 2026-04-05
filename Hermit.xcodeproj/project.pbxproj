@@ -601,7 +601,7 @@
 				CODE_SIGN_ENTITLEMENTS = Hermit/Hermit.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = WVF9VP7KAL;
+				DEVELOPMENT_TEAM = "";
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSCameraUsageDescription = "Hermit uses the camera to take photos for AI visual analysis";
 				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "Hermit uses your photos to provide visual context for AI conversations";
@@ -690,7 +690,7 @@
 				CODE_SIGN_ENTITLEMENTS = Hermit/Hermit.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = WVF9VP7KAL;
+				DEVELOPMENT_TEAM = "";
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSCameraUsageDescription = "Hermit uses the camera to take photos for AI visual analysis";
 				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "Hermit uses your photos to provide visual context for AI conversations";

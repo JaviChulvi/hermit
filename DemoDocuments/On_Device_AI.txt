@@ -1,0 +1,24 @@
+On-Device AI: Privacy-First Machine Learning
+
+On-device AI refers to running machine learning models directly on a user's phone, tablet, or laptop without sending data to cloud servers. This approach has several key advantages:
+
+Privacy: User data never leaves the device. Photos, documents, and conversations stay local. This is especially important for sensitive content like medical records, financial documents, or personal photos. No third party ever sees your data.
+
+Latency: Responses are instant because there's no network round-trip. A cloud API call typically takes 500ms-2s just for the network overhead, while on-device inference starts immediately.
+
+Offline Access: The AI works without internet. You can use it on a plane, in a tunnel, or in areas with poor connectivity. This makes it reliable in any situation.
+
+Cost: No API fees or subscription costs. Once the model is downloaded, inference is free forever. Cloud APIs charge per token, which adds up quickly for heavy users.
+
+Key Technologies:
+- MLX by Apple: A framework for efficient ML on Apple Silicon. It supports both training and inference with a NumPy-like API. MLX uses unified memory, meaning the GPU and CPU share the same memory pool.
+- Quantization: Reduces model size by using 4-bit integers instead of 16-bit floats. A 7B parameter model goes from 14GB to about 3.5GB, making it feasible on mobile devices.
+- RAG (Retrieval-Augmented Generation): Combines a local vector database with an LLM. Documents are split into chunks, embedded into vectors, and stored locally. When the user asks a question, relevant chunks are retrieved and provided as context to the LLM.
+
+Challenges:
+- Memory constraints: iPhone has 8GB RAM shared between the OS, apps, and models
+- Model size: Even quantized, good models need 2-4GB
+- Compute: Mobile GPUs are powerful but still slower than data center GPUs
+- Battery: Continuous inference drains battery faster than normal usage
+
+The future of on-device AI is bright. Each year, mobile chips get faster and more memory-efficient. Apple's Neural Engine, Qualcomm's Hexagon, and Google's Tensor chips are all designed for ML workloads.

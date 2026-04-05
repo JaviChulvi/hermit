@@ -1,0 +1,17 @@
+iOS App Architecture Guide
+
+Model-View-ViewModel (MVVM) is the recommended architecture for modern SwiftUI applications. It separates concerns into three layers:
+
+1. Model: Data structures and business logic. Models should be plain Swift structs that conform to Codable and Sendable. They represent the core data of your application, such as User, Product, or Transaction objects.
+
+2. View: SwiftUI views that declare the user interface. Views should be lightweight and contain minimal logic. They observe ViewModels using the @Observable macro and react to state changes automatically.
+
+3. ViewModel: The bridge between Model and View. ViewModels are marked with @Observable and @MainActor. They hold the application state, handle user actions, and coordinate with services. For example, a ChatViewModel manages messages, handles sending, and coordinates with an LLMService.
+
+Dependency Injection in SwiftUI uses the .environment() modifier to pass shared services down the view hierarchy. This avoids tight coupling and makes testing easier. Services like ModelManager or RAGEngine are created once in the App struct and injected into the environment.
+
+Async/Await and Structured Concurrency should be used throughout. Network calls, file operations, and ML inference are all async. Use AsyncThrowingStream for streaming results like token-by-token LLM output. Always use Task for background work and check for cancellation with Task.checkCancellation().
+
+Memory Management on iOS is critical, especially for ML applications. The iPhone has 8GB RAM but apps typically get 5-6GB. When loading large models (3-4GB), you must monitor available memory using os_proc_available_memory() and unload unused models before loading new ones. Never load two large models simultaneously.
+
+Navigation in iOS 26 introduced "Liquid Glass" which changes how TabView, NavigationStack, and List render. For apps requiring precise UI control, use custom ZStack-based tab bars and manual VStack headers instead of system components.

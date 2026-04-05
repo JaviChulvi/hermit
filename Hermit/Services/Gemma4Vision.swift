@@ -385,6 +385,8 @@ class Gemma4VisionEncoder: Module {
         var h = x
         for layer in layers {
             h = layer(h, positions: positions, mask: mask)
+            // Force evaluation each layer to free intermediate attention memory
+            eval(h)
         }
         return h
     }
@@ -505,13 +507,31 @@ class Gemma4VisionModel: Module {
         let (patchPositions, realCount) = computePatchPositions(
             batch: batch, height: height, width: width)
 
-        // Embed patches with positional encoding (real patches only, no padding)
+        // Embed real patches with positional encoding
         let realPositions = patchPositions[0..., ..<realCount, 0...]
         var hiddenStates = patchEmbedder(pixels, patchPositions: realPositions)
 
-        // Encoder processes only real patches — no padding, no attention mask.
-        // This keeps memory manageable on mobile (900 patches vs 2520 padded).
-        hiddenStates = encoder(hiddenStates, positions: realPositions, mask: nil)
+        // Pad to maxPatches so the pooler works with correct kernel size (3)
+        let paddingCount = maxPatches - realCount
+        if paddingCount > 0 {
+            let pad = MLXArray.zeros(
+                [batch, paddingCount, config.hiddenSize], dtype: hiddenStates.dtype)
+            hiddenStates = concatenated([hiddenStates, pad], axis: 1)
+        }
+
+        // Create attention mask: valid patches attend to each other, padded are masked
+        let validMask = patchPositions[0..., 0..., 0] .>= 0
+        var attentionMask =
+            expandedDimensions(validMask, axis: 1) * expandedDimensions(validMask, axis: 2)
+        attentionMask = MLX.where(
+            attentionMask,
+            MLXArray(Float(0.0), dtype: hiddenStates.dtype),
+            MLXArray(-Float.infinity, dtype: hiddenStates.dtype)
+        )
+        attentionMask = expandedDimensions(attentionMask, axis: 1)
+
+        // Encode with per-layer eval to manage mobile memory
+        hiddenStates = encoder(hiddenStates, positions: patchPositions, mask: attentionMask)
 
         // Pool to fixed output length (280 tokens)
         hiddenStates = pooler(
