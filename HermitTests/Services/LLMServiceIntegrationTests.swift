@@ -20,18 +20,18 @@ struct LLMServiceIntegrationTests {
         try await service.loadModel()
         #expect(manager.modelState == .llmLoaded)
 
-        await service.unloadModel()
+        service.unloadModel()
         #expect(manager.modelState == .idle)
     }
 
-    @Test func generate_yieldsAtLeastOneToken() async throws {
+    @Test func chat_yieldsAtLeastOneToken() async throws {
         guard let (service, manager) = makeServiceIfModelAvailable() else { return }
 
         try await service.loadModel()
 
-        let stream = try await service.generate(
-            systemPrompt: "You are a helpful assistant.",
-            userMessage: "Say hello in one word."
+        let stream = try await service.chat(
+            message: "Say hello in one word.",
+            history: []
         )
 
         var tokens: [String] = []
@@ -42,18 +42,18 @@ struct LLMServiceIntegrationTests {
 
         #expect(!tokens.isEmpty, "Stream should yield at least one token")
 
-        await service.unloadModel()
+        service.unloadModel()
         #expect(manager.modelState == .idle)
     }
 
-    @Test func generate_completesWithNonEmptyResult() async throws {
+    @Test func chat_completesWithNonEmptyResult() async throws {
         guard let (service, manager) = makeServiceIfModelAvailable() else { return }
 
         try await service.loadModel()
 
-        let stream = try await service.generate(
-            systemPrompt: "You are a concise assistant. Reply in one sentence.",
-            userMessage: "What is 2+2?"
+        let stream = try await service.chat(
+            message: "What is 2+2?",
+            history: []
         )
 
         var fullResponse = ""
@@ -63,7 +63,7 @@ struct LLMServiceIntegrationTests {
 
         #expect(!fullResponse.isEmpty, "Response should not be empty")
 
-        await service.unloadModel()
+        service.unloadModel()
         #expect(manager.modelState == .idle)
     }
 
@@ -73,7 +73,7 @@ struct LLMServiceIntegrationTests {
         try await service.loadModel()
         #expect(manager.modelState == .llmLoaded)
 
-        await service.unloadModel()
+        service.unloadModel()
         #expect(manager.modelState == .idle)
         #expect(manager.llmContainer == nil)
     }

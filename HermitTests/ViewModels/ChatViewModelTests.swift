@@ -56,18 +56,18 @@ struct ChatViewModelTests {
         #expect(vm.isGenerating)
     }
 
-    @Test func sendMessageWithEmptyVectorStoreGetsImportPrompt() async throws {
+    @Test func sendMessageWithNoModelShowsError() async throws {
         let vm = makeViewModel()
         vm.sendMessage(text: "What is in my document?")
 
-        // Wait for the RAGEngine to return the "import document" message
+        // Wait for the LLM load attempt to fail (model not downloaded in tests)
         try await Task.sleep(for: .milliseconds(500))
 
-        // Should have user message + assistant response
+        // Should have user message + error message
         #expect(vm.messages.count == 2)
         #expect(vm.messages[0].role == .user)
-        #expect(vm.messages[1].role == .assistant)
-        #expect(vm.messages[1].content.contains("import a document"))
+        #expect(vm.messages[1].role == .system)
+        #expect(vm.errorMessage != nil)
         #expect(!vm.isGenerating)
     }
 
@@ -125,14 +125,12 @@ struct ChatViewModelTests {
     // MARK: - Error Handling
 
     @Test func errorDuringGenerationSetsErrorMessage() async throws {
-        // With an empty VectorStore, the RAGEngine returns a friendly message
-        // rather than an error, so errorMessage should remain nil
+        // Without a downloaded LLM, sending a message should produce an error
         let vm = makeViewModel()
         vm.sendMessage(text: "Hello")
         try await Task.sleep(for: .milliseconds(500))
 
-        // No error expected for the "import document" case
-        #expect(vm.errorMessage == nil)
+        #expect(vm.errorMessage != nil)
         #expect(!vm.isGenerating)
     }
 

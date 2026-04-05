@@ -26,7 +26,6 @@
 		4441DC394F11157B4294EA76 /* DataModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A381BD513FBF750C9F95466 /* DataModelTests.swift */; };
 		48355385830B690C0F0BB1B9 /* OnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0710EF871796EFA2BC0C4DD0 /* OnboardingView.swift */; };
 		4FEDD1C85DCA41156F94B343 /* ChunkingStrategy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 398F1B97288A19FE2503B584 /* ChunkingStrategy.swift */; };
-		5BBD1A15F8C400C499CF0B25 /* RAGQueryPipelineTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF7B6C5F4B5742CDD138A748 /* RAGQueryPipelineTests.swift */; };
 		5DCEB120ABA99A11ECB5EC42 /* Gemma4Text.swift in Sources */ = {isa = PBXBuildFile; fileRef = 321B46E393498AEEC3A51DCF /* Gemma4Text.swift */; };
 		5E046F72FB9B80F921FF957D /* TextChunk.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2990B9093E413AE2F07C63CA /* TextChunk.swift */; };
 		5F538BC45A11D3571425D528 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = AE86124BC8833C2AC2555333 /* Assets.xcassets */; };
@@ -109,7 +108,6 @@
 		A362DE990A1B4A26BE5C33F2 /* HermitTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = HermitTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		A4B116364D854C2E71B8E380 /* ModelManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModelManager.swift; sourceTree = "<group>"; };
 		AE86124BC8833C2AC2555333 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
-		AF7B6C5F4B5742CDD138A748 /* RAGQueryPipelineTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RAGQueryPipelineTests.swift; sourceTree = "<group>"; };
 		AFB5EDF4B9B52EF51EB02383 /* CosineSimilarityTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CosineSimilarityTests.swift; sourceTree = "<group>"; };
 		B27B12DDE0793C382B4CCCF6 /* LLMServiceIntegrationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LLMServiceIntegrationTests.swift; sourceTree = "<group>"; };
 		BAFB7CBD3668A606647680F4 /* RAGEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RAGEngine.swift; sourceTree = "<group>"; };
@@ -267,7 +265,6 @@
 				C76CC5973CBCC57D8BA7CA5D /* ModelManagerLoadTests.swift */,
 				68B2AFF328C8E35E2AEB99B1 /* ModelManagerTests.swift */,
 				C14BFE9BABC5A042A8FE560A /* RAGEngineTests.swift */,
-				AF7B6C5F4B5742CDD138A748 /* RAGQueryPipelineTests.swift */,
 				0109DBC7E6BDDDC8F1C6BF24 /* VectorStoreTests.swift */,
 			);
 			path = Services;
@@ -449,7 +446,6 @@
 				A64FC7F4991D0C1A3FF82E35 /* ModelManagerLoadTests.swift in Sources */,
 				6BC965B9D844CFB45003CA27 /* ModelManagerTests.swift in Sources */,
 				F61EEF8291066AA7D0CEB7F3 /* RAGEngineTests.swift in Sources */,
-				5BBD1A15F8C400C499CF0B25 /* RAGQueryPipelineTests.swift in Sources */,
 				3E68E4350484EE4FD225D5AE /* VectorStoreTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
