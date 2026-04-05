@@ -52,3 +52,5 @@ logs/
 # ── Misc ──
 Thumbs.db
 *.orig
+
+logs/

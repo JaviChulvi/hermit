@@ -7,7 +7,14 @@ import MLXLLM
 import MLXEmbedders
 import MLXLMCommon
 import MLXLMTokenizers
+import Metal
 import UIKit
+import os
+
+private let logger = Logger(subsystem: "com.hermit.app", category: "ModelManager")
+
+/// Whether the Metal GPU is available (false on Simulator)
+private let metalAvailable: Bool = MTLCreateSystemDefaultDevice() != nil
 
 enum ModelState: Equatable {
     case idle
@@ -19,6 +26,7 @@ enum ModelState: Equatable {
 enum ModelManagerError: LocalizedError {
     case insufficientMemory(availableMB: Int, requiredMB: Int)
     case modelNotDownloaded(String)
+    case metalUnavailable
 
     var errorDescription: String? {
         switch self {
@@ -26,6 +34,8 @@ enum ModelManagerError: LocalizedError {
             return "Not enough memory: \(available) MB available, \(required) MB required"
         case .modelNotDownloaded(let name):
             return "Model '\(name)' is not downloaded"
+        case .metalUnavailable:
+            return "MLX requires a physical device with Metal GPU support. The iOS Simulator is not supported."
         }
     }
 }
@@ -70,7 +80,10 @@ final class ModelManager {
 
     init(memoryMonitor: MemoryMonitor = MemoryMonitor()) {
         self.memoryMonitor = memoryMonitor
+        logger.info("ModelManager init — available RAM: \(memoryMonitor.availableMemoryMB) MB")
+        logger.info("HF cache directory: \(self.hubClient.cache.cacheDirectory.path)")
         checkDownloadedModels()
+        logger.info("Embedding downloaded: \(self.embeddingModelDownloaded), LLM downloaded: \(self.llmModelDownloaded)")
         subscribeToMemoryWarnings()
     }
 
@@ -191,37 +204,100 @@ final class ModelManager {
     // MARK: - Model Loading
 
     func loadEmbeddingModel() async throws {
+        guard metalAvailable else {
+            logger.error("Metal GPU not available — cannot load MLX models on Simulator")
+            throw ModelManagerError.metalUnavailable
+        }
+
+        logger.info("loadEmbeddingModel() — current state: \(String(describing: self.modelState))")
+
+        if modelState == .embeddingLoaded, embeddingContainer != nil {
+            logger.info("Embedding model already loaded, skipping")
+            return
+        }
+
         if modelState == .llmLoaded {
+            logger.info("LLM is loaded, unloading first...")
             unloadLLM()
         }
 
         modelState = .transitioning
 
         guard let directory = cachedModelURL(for: ModelInfo.embeddingModel.id) else {
+            logger.error("Embedding model not found on disk. Model ID: \(ModelInfo.embeddingModel.id)")
             modelState = .idle
             throw ModelManagerError.modelNotDownloaded(ModelInfo.embeddingModel.name)
         }
 
-        MLX.Memory.cacheLimit = 0
+        logger.info("Embedding model directory: \(directory.path)")
 
-        let container = try await MLXEmbedders.loadModelContainer(
-            from: directory,
-            using: TokenizersLoader()
-        )
+        // List files in the directory for debugging
+        if let files = try? FileManager.default.contentsOfDirectory(atPath: directory.path) {
+            logger.info("Files in model directory: \(files.joined(separator: ", "))")
+        }
 
-        embeddingContainer = container
-        modelState = .embeddingLoaded
+        if metalAvailable {
+            let memBefore = Memory.snapshot()
+            logger.info("Memory before load — active: \(memBefore.activeMemory / 1024 / 1024) MB, cache: \(memBefore.cacheMemory / 1024 / 1024) MB, peak: \(memBefore.peakMemory / 1024 / 1024) MB")
+        }
+        logger.info("System available RAM: \(self.memoryMonitor.availableMemoryMB) MB")
+
+        if metalAvailable {
+            logger.info("Setting MLX cache limit to 0...")
+            MLX.Memory.cacheLimit = 0
+            MLX.Memory.clearCache()
+            logger.info("Cache cleared. Cache memory now: \(Memory.cacheMemory / 1024 / 1024) MB")
+        }
+
+        do {
+            logger.info("Loading embedding model container from disk...")
+            let container = try await MLXEmbedders.loadModelContainer(
+                from: directory,
+                using: TokenizersLoader()
+            )
+
+            logger.info("Embedding model loaded successfully!")
+            if metalAvailable {
+                let memAfter = Memory.snapshot()
+                logger.info("Memory after load — active: \(memAfter.activeMemory / 1024 / 1024) MB, cache: \(memAfter.cacheMemory / 1024 / 1024) MB")
+            }
+
+            embeddingContainer = container
+            modelState = .embeddingLoaded
+            logger.info("State → .embeddingLoaded")
+        } catch {
+            logger.error("Failed to load embedding model: \(error.localizedDescription)")
+            logger.error("Error type: \(type(of: error))")
+            logger.error("Full error: \(String(describing: error))")
+            modelState = .idle
+            throw error
+        }
     }
 
     func loadLLM() async throws {
+        guard metalAvailable else {
+            logger.error("Metal GPU not available — cannot load MLX models on Simulator")
+            throw ModelManagerError.metalUnavailable
+        }
+
+        logger.info("loadLLM() — current state: \(String(describing: self.modelState))")
+
+        if modelState == .llmLoaded, llmContainer != nil {
+            logger.info("LLM already loaded, skipping")
+            return
+        }
+
         if modelState == .embeddingLoaded {
+            logger.info("Embedding is loaded, unloading first...")
             unloadEmbedding()
         }
 
         modelState = .transitioning
 
-        let requiredMB = 4000
+        let requiredMB = 2800
+        logger.info("Checking memory: available \(self.memoryMonitor.availableMemoryMB) MB, required \(requiredMB) MB")
         if !memoryMonitor.hasEnoughMemory(requiredMB: requiredMB) {
+            logger.error("Insufficient memory for LLM: \(self.memoryMonitor.availableMemoryMB) MB < \(requiredMB) MB")
             modelState = .idle
             throw ModelManagerError.insufficientMemory(
                 availableMB: memoryMonitor.availableMemoryMB,
@@ -230,43 +306,90 @@ final class ModelManager {
         }
 
         guard let directory = cachedModelURL(for: ModelInfo.llmModel.id) else {
+            logger.error("LLM model not found on disk. Model ID: \(ModelInfo.llmModel.id)")
             modelState = .idle
             throw ModelManagerError.modelNotDownloaded(ModelInfo.llmModel.name)
         }
 
-        MLX.Memory.cacheLimit = 0
+        logger.info("LLM model directory: \(directory.path)")
 
-        let container = try await LLMModelFactory.shared.loadContainer(
-            from: directory,
-            using: TokenizersLoader()
-        )
+        if let files = try? FileManager.default.contentsOfDirectory(atPath: directory.path) {
+            logger.info("Files in LLM directory: \(files.joined(separator: ", "))")
+        }
 
-        llmContainer = container
-        modelState = .llmLoaded
+        if metalAvailable {
+            let memBefore = Memory.snapshot()
+            logger.info("Memory before LLM load — active: \(memBefore.activeMemory / 1024 / 1024) MB, cache: \(memBefore.cacheMemory / 1024 / 1024) MB")
+            logger.info("Setting MLX cache limit to 0...")
+            MLX.Memory.cacheLimit = 0
+            MLX.Memory.clearCache()
+        }
+
+        do {
+            // Register Gemma 4 model type (no-op if already registered)
+            await registerGemma4ModelType()
+
+            logger.info("Loading LLM container from disk...")
+            let container = try await LLMModelFactory.shared.loadContainer(
+                from: directory,
+                using: TokenizersLoader()
+            )
+
+            logger.info("LLM loaded successfully!")
+            if metalAvailable {
+                let memAfter = Memory.snapshot()
+                logger.info("Memory after LLM load — active: \(memAfter.activeMemory / 1024 / 1024) MB, cache: \(memAfter.cacheMemory / 1024 / 1024) MB")
+            }
+
+            llmContainer = container
+            modelState = .llmLoaded
+            logger.info("State → .llmLoaded")
+        } catch {
+            logger.error("Failed to load LLM: \(error.localizedDescription)")
+            logger.error("Error type: \(type(of: error))")
+            logger.error("Full error: \(String(describing: error))")
+            modelState = .idle
+            throw error
+        }
     }
 
     // MARK: - Model Unloading
 
     func unloadEmbedding() {
+        logger.info("unloadEmbedding() — had model: \(self.embeddingContainer != nil)")
         let hadModel = embeddingContainer != nil
         embeddingContainer = nil
-        if hadModel { MLX.Memory.cacheLimit = 0 }
+        if hadModel && metalAvailable {
+            MLX.Memory.cacheLimit = 0
+            MLX.Memory.clearCache()
+        }
         modelState = .idle
+        logger.info("Embedding unloaded")
     }
 
     func unloadLLM() {
+        logger.info("unloadLLM() — had model: \(self.llmContainer != nil)")
         let hadModel = llmContainer != nil
         llmContainer = nil
-        if hadModel { MLX.Memory.cacheLimit = 0 }
+        if hadModel && metalAvailable {
+            MLX.Memory.cacheLimit = 0
+            MLX.Memory.clearCache()
+        }
         modelState = .idle
+        logger.info("LLM unloaded")
     }
 
     func unloadAll() {
+        logger.info("unloadAll()")
         let hadModels = embeddingContainer != nil || llmContainer != nil
         embeddingContainer = nil
         llmContainer = nil
-        if hadModels { MLX.Memory.cacheLimit = 0 }
+        if hadModels && metalAvailable {
+            MLX.Memory.cacheLimit = 0
+            MLX.Memory.clearCache()
+        }
         modelState = .idle
+        logger.info("All models unloaded. State → .idle")
     }
 
     // MARK: - Memory Warning
@@ -303,11 +426,20 @@ final class ModelManager {
     // MARK: - Private Helpers
 
     private func cachedModelURL(for modelId: String) -> URL? {
-        guard let repoId = Repo.ID(rawValue: modelId) else { return nil }
-        return hubClient.resolveCachedSnapshot(
+        guard let repoId = Repo.ID(rawValue: modelId) else {
+            logger.error("Invalid repo ID: \(modelId)")
+            return nil
+        }
+        let url = hubClient.resolveCachedSnapshot(
             repo: repoId,
             revision: "main",
             matching: ["config.json"]
         )
+        if let url {
+            logger.debug("cachedModelURL(\(modelId)) → \(url.path)")
+        } else {
+            logger.warning("cachedModelURL(\(modelId)) → nil (not found in cache)")
+        }
+        return url
     }
 }

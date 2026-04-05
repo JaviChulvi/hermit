@@ -30,6 +30,11 @@ targets:
     platform: iOS
     sources:
       - path: Hermit
+        excludes:
+          - "Resources/**"
+    resources:
+      - path: Hermit/Resources
+        buildPhase: resources
     settings:
       base:
         GENERATE_INFOPLIST_FILE: true
@@ -44,6 +49,8 @@ targets:
     dependencies:
       - package: mlx-swift
         product: MLX
+      - package: mlx-swift
+        product: MLXNN
       - package: mlx-swift-lm
         product: MLXLLM
       - package: mlx-swift-lm
