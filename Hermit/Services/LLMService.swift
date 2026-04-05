@@ -1,3 +1,4 @@
+import CoreImage
 import Foundation
 import MLXLMCommon
 
@@ -40,11 +41,12 @@ final class LLMService {
 
     // MARK: - Chat
 
-    /// Send a message with conversation history and optional RAG context.
+    /// Send a message with conversation history, optional image, and optional RAG context.
     /// Creates a fresh session each time (LLM is reloaded between messages
     /// due to embedding swap), with history embedded in the user message.
     func chat(
         message: String,
+        image: CIImage? = nil,
         history: [ChatMessage],
         ragContext: String? = nil
     ) async throws -> AsyncThrowingStream<String, Error> {
@@ -65,7 +67,11 @@ final class LLMService {
             generateParameters: Self.generateParams
         )
 
-        return session.streamResponse(to: fullMessage)
+        if let image {
+            return session.streamResponse(to: fullMessage, image: .ciImage(image))
+        } else {
+            return session.streamResponse(to: fullMessage)
+        }
     }
 
     /// Reset is a no-op now (no persistent session), but kept for API compatibility.

@@ -5,6 +5,7 @@ struct ChatMessage: Identifiable, Codable, Sendable {
     let role: Role
     let content: String
     let timestamp: Date
+    let imageData: Data?
 
     enum Role: String, Codable, Sendable {
         case user
@@ -12,10 +13,14 @@ struct ChatMessage: Identifiable, Codable, Sendable {
         case system
     }
 
-    init(id: UUID = UUID(), role: Role, content: String, timestamp: Date = Date()) {
+    init(
+        id: UUID = UUID(), role: Role, content: String,
+        timestamp: Date = Date(), imageData: Data? = nil
+    ) {
         self.id = id
         self.role = role
         self.content = content
         self.timestamp = timestamp
+        self.imageData = imageData
     }
 }

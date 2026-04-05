@@ -27,7 +27,7 @@ struct RopeAttentionParams: Codable {
     }
 }
 
-public struct Gemma4TextConfiguration: Codable {
+public struct Gemma4TextConfiguration: Codable, Sendable {
     let modelType: String
     let hiddenSize: Int
     let numHiddenLayers: Int
@@ -600,26 +600,40 @@ class Gemma4InnerModel: Module {
 
     func callAsFunction(
         _ inputs: MLXArray,
-        cache: [KVCache?]? = nil
+        cache: [KVCache?]? = nil,
+        inputEmbedding: MLXArray? = nil,
+        precomputedPerLayerInputs: MLXArray? = nil,
+        maskOverride: MLXFast.ScaledDotProductAttentionMaskMode? = nil
     ) -> MLXArray {
-        // Embed and scale
-        var h = embedTokens(inputs)
-        let embedScale = sqrt(Float(config.hiddenSize))
-        h = h * MLXArray(embedScale, dtype: h.dtype)
+        // Use precomputed embeddings (VLM path) or compute from token IDs
+        var h: MLXArray
+        if let inputEmbedding {
+            h = inputEmbedding
+        } else {
+            h = embedTokens(inputs)
+            let embedScale = sqrt(Float(config.hiddenSize))
+            h = h * MLXArray(embedScale, dtype: h.dtype)
+        }
 
-        // Get per-layer inputs
-        let perLayerInputs = getPerLayerInputs(inputs)
+        // Get per-layer inputs (use precomputed if provided by VLM)
+        let perLayerInputs = precomputedPerLayerInputs ?? getPerLayerInputs(inputs)
         let projectedInputs = projectPerLayerInputs(h, perLayerInputs: perLayerInputs)
-
         // Pad cache to match layer count
         let maxCacheIdx = layerIdxToCacheIdx.max() ?? 0
         let requiredCacheSize = max(firstKvSharedLayerIdx, maxCacheIdx + 1)
         let cacheArray = cache ?? Array(repeating: nil as KVCache?, count: requiredCacheSize)
 
-        // Create attention masks
-        let fullMask = createAttentionMask(h: h, cache: cacheArray[firstFullIdx])
-        let slidingWindowMask = createAttentionMask(
-            h: h, cache: cacheArray[firstSlidingIdx], windowSize: config.slidingWindow)
+        // Create attention masks (use override for VLM prefill, or compute from cache)
+        let fullMask: MLXFast.ScaledDotProductAttentionMaskMode
+        let slidingWindowMask: MLXFast.ScaledDotProductAttentionMaskMode
+        if let maskOverride {
+            fullMask = maskOverride
+            slidingWindowMask = maskOverride
+        } else {
+            fullMask = createAttentionMask(h: h, cache: cacheArray[firstFullIdx])
+            slidingWindowMask = createAttentionMask(
+                h: h, cache: cacheArray[firstSlidingIdx], windowSize: config.slidingWindow)
+        }
 
         // Forward through layers
         for (i, layer) in layers.enumerated() {
@@ -638,7 +652,7 @@ class Gemma4InnerModel: Module {
         return norm(h)
     }
 
-    private func getPerLayerInputs(_ inputIds: MLXArray) -> MLXArray {
+    func getPerLayerInputs(_ inputIds: MLXArray) -> MLXArray {
         var result = embedTokensPerLayer(inputIds)
         let perLayerScale = sqrt(Float(config.hiddenSizePerLayerInput))
         result = result * MLXArray(perLayerScale, dtype: result.dtype)
@@ -648,7 +662,7 @@ class Gemma4InnerModel: Module {
         return result
     }
 
-    private func projectPerLayerInputs(
+    func projectPerLayerInputs(
         _ inputEmbeds: MLXArray, perLayerInputs: MLXArray
     ) -> MLXArray {
         var projection = perLayerModelProjection(inputEmbeds)
@@ -693,6 +707,33 @@ public class Gemma4TextModel: Module, LanguageModel {
 
         return out
     }
+
+    /// Forward with precomputed embeddings and per-layer inputs (used by VLM).
+    func forwardWithEmbeddings(
+        embeddings: MLXArray,
+        perLayerInputs: MLXArray?,
+        cache: [KVCache]?
+    ) -> MLXArray {
+        let cacheArray: [KVCache?]? = cache?.map { $0 as KVCache? }
+        // Pass dummy token IDs (not used when embedding + perLayerInputs are provided)
+        let dummyTokens = MLXArray.zeros([embeddings.dim(0), embeddings.dim(1)], type: Int32.self)
+        var out = model(
+            dummyTokens, cache: cacheArray,
+            inputEmbedding: embeddings,
+            precomputedPerLayerInputs: perLayerInputs,
+            maskOverride: .causal)
+
+        out = model.embedTokens.asLinear(out)
+        out = tanh(out / config.finalLogitSoftcapping) * config.finalLogitSoftcapping
+        // Force-evaluate all cache contents so autoregressive steps
+        // don't trigger deferred prefill ops that cause shape errors
+        if let cache {
+            eval(cache)
+        }
+
+        return out
+    }
+
 
     public func newCache(parameters: GenerateParameters?) -> [KVCache] {
         let layerTypes = config.resolvedLayerTypes
@@ -771,11 +812,12 @@ public class Gemma4TextModel: Module, LanguageModel {
 // MARK: - Registration
 
 /// Registers Gemma 4 model types with the LLM type registry.
+/// Creates the VLM model (which wraps the text model + vision tower).
 /// Must be called before attempting to load a Gemma 4 model.
 func registerGemma4ModelType() async {
     let creator: @Sendable (Data) throws -> any LanguageModel = { data in
-        let config = try JSONDecoder.json5().decode(Gemma4TextConfiguration.self, from: data)
-        return Gemma4TextModel(config)
+        let config = try JSONDecoder.json5().decode(Gemma4VLMConfiguration.self, from: data)
+        return Gemma4VLMModel(config)
     }
 
     await LLMTypeRegistry.shared.registerModelType("gemma4", creator: creator)

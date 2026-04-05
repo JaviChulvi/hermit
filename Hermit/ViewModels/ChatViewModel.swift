@@ -1,3 +1,4 @@
+import CoreImage
 import Foundation
 import UIKit
 
@@ -26,13 +27,15 @@ class ChatViewModel {
 
     // MARK: - Send Message
 
-    func sendMessage(text: String) {
+    func sendMessage(text: String, image: UIImage? = nil) {
         let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !trimmed.isEmpty else { return }
+        guard !trimmed.isEmpty || image != nil else { return }
 
         UIImpactFeedbackGenerator(style: .light).impactOccurred()
 
-        let userMessage = ChatMessage(role: .user, content: trimmed)
+        let imageData = image?.jpegData(compressionQuality: 0.8)
+        let ciImage = image.flatMap { CIImage(image: $0) }
+        let userMessage = ChatMessage(role: .user, content: trimmed, imageData: imageData)
         messages.append(userMessage)
         lastFailedQuery = nil
 
@@ -62,9 +65,11 @@ class ChatViewModel {
                 }
                 statusMessage = ""
 
-                // 3. Generate response with history + optional RAG context
+                // 3. Generate response with history + optional image + optional RAG context
+                let messageText = trimmed.isEmpty ? "Describe this image." : trimmed
                 let stream = try await llmService.chat(
-                    message: trimmed,
+                    message: messageText,
+                    image: ciImage,
                     history: history,
                     ragContext: ragContext
                 )

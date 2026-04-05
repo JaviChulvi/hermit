@@ -294,7 +294,7 @@ final class ModelManager {
 
         modelState = .transitioning
 
-        let requiredMB = 2800
+        let requiredMB = 3200
         logger.info("Checking memory: available \(self.memoryMonitor.availableMemoryMB) MB, required \(requiredMB) MB")
         if !memoryMonitor.hasEnoughMemory(requiredMB: requiredMB) {
             logger.error("Insufficient memory for LLM: \(self.memoryMonitor.availableMemoryMB) MB < \(requiredMB) MB")
@@ -326,16 +326,68 @@ final class ModelManager {
         }
 
         do {
-            // Register Gemma 4 model type (no-op if already registered)
+            // Register Gemma 4 VLM model type (no-op if already registered)
             await registerGemma4ModelType()
 
-            logger.info("Loading LLM container from disk...")
-            let container = try await LLMModelFactory.shared.loadContainer(
-                from: directory,
-                using: TokenizersLoader()
-            )
+            logger.info("Loading VLM container from disk...")
 
-            logger.info("LLM loaded successfully!")
+            // Custom loading path: build ModelContext with our VLM processor
+            let configURL = directory.appending(component: "config.json")
+            let configData = try Data(contentsOf: configURL)
+            let decoder = JSONDecoder.json5()
+            let baseConfig: MLXLMCommon.BaseConfiguration = try decoder.decode(
+                MLXLMCommon.BaseConfiguration.self, from: configData)
+
+            // Create VLM model via type registry
+            let model = try await LLMTypeRegistry.shared.createModel(
+                configuration: configData, modelType: baseConfig.modelType)
+
+            // Load weights (calls model.sanitize() internally)
+            try loadWeights(
+                modelDirectory: directory, model: model,
+                perLayerQuantization: baseConfig.perLayerQuantization)
+
+            // Load tokenizer
+            let tokenizer = try await TokenizersLoader().load(from: directory)
+
+            // Load processor config and create image-aware processor
+            let vlmConfig = try JSONDecoder.json5().decode(
+                Gemma4VLMConfiguration.self, from: configData)
+            let processorConfigURL = directory.appending(component: "processor_config.json")
+            let processorConfig: Gemma4ProcessorConfiguration
+            if let processorData = try? Data(contentsOf: processorConfigURL) {
+                processorConfig = try JSONDecoder.json5().decode(
+                    Gemma4ProcessorConfiguration.self, from: processorData)
+            } else {
+                processorConfig = Gemma4ProcessorConfiguration()
+            }
+            let processor = Gemma4Processor(
+                processorConfig, vlmConfig: vlmConfig, tokenizer: tokenizer)
+
+            // Read EOS token IDs from generation_config.json (like LLMModelFactory does)
+            var eosTokenIds = Set<Int>()
+            let genConfigURL = directory.appending(component: "generation_config.json")
+            if let genData = try? Data(contentsOf: genConfigURL),
+                let genJSON = try? JSONSerialization.jsonObject(with: genData) as? [String: Any]
+            {
+                if let eosId = genJSON["eos_token_id"] as? Int {
+                    eosTokenIds.insert(eosId)
+                } else if let eosIds = genJSON["eos_token_id"] as? [Int] {
+                    eosTokenIds.formUnion(eosIds)
+                }
+            }
+
+            // Build ModelContext → ModelContainer
+            let modelConfig = ModelConfiguration(
+                directory: directory,
+                extraEOSTokens: ["<end_of_turn>"],
+                eosTokenIds: eosTokenIds)
+            let context = ModelContext(
+                configuration: modelConfig, model: model,
+                processor: processor, tokenizer: tokenizer)
+            let container = ModelContainer(context: context)
+
+            logger.info("VLM loaded successfully!")
             if metalAvailable {
                 let memAfter = Memory.snapshot()
                 logger.info("Memory after LLM load — active: \(memAfter.activeMemory / 1024 / 1024) MB, cache: \(memAfter.cacheMemory / 1024 / 1024) MB")

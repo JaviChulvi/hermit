@@ -1,3 +1,4 @@
+import PhotosUI
 import SwiftUI
 
 struct ChatView: View {
@@ -7,6 +8,9 @@ struct ChatView: View {
     @Environment(\.keyboardVisible) private var keyboardVisible
     @State private var messageText = ""
     @State private var showClearAlert = false
+    @State private var selectedPhoto: PhotosPickerItem?
+    @State private var pendingImage: UIImage?
+    @State private var showCamera = false
     @FocusState private var isTextFieldFocused: Bool
 
     var body: some View {
@@ -25,6 +29,12 @@ struct ChatView: View {
             inputBar
         }
         .background(Color("BackgroundPrimary").ignoresSafeArea())
+        .fullScreenCover(isPresented: $showCamera) {
+            CameraPicker { image in
+                pendingImage = image
+            }
+            .ignoresSafeArea()
+        }
         .alert("Clear Conversation", isPresented: $showClearAlert) {
             Button("Cancel", role: .cancel) { }
             Button("Clear", role: .destructive) {
@@ -166,50 +176,158 @@ struct ChatView: View {
     // MARK: - Input Bar
 
     private var inputBar: some View {
-        HStack(spacing: 12) {
-            TextField("Ask anything...", text: $messageText)
-                .textFieldStyle(.plain)
-                .foregroundStyle(.white)
-                .padding(.horizontal, 14)
-                .padding(.vertical, 10)
-                .background(Color("BackgroundSecondary"), in: RoundedRectangle(cornerRadius: 22))
-                .focused($isTextFieldFocused)
-                .onSubmit { send() }
-                .disabled(viewModel.isGenerating)
-
-            if viewModel.isGenerating {
-                Button {
-                    viewModel.stopGenerating()
-                } label: {
-                    Image(systemName: "stop.fill")
-                        .font(.system(size: 16))
-                        .foregroundStyle(.white)
-                        .frame(width: 36, height: 36)
-                        .background(Color.red.opacity(0.8), in: Circle())
+        VStack(spacing: 8) {
+            // Image preview strip
+            if let pendingImage {
+                HStack {
+                    Image(uiImage: pendingImage)
+                        .resizable()
+                        .scaledToFill()
+                        .frame(width: 80, height: 80)
+                        .clipShape(RoundedRectangle(cornerRadius: 12))
+                        .overlay(alignment: .topTrailing) {
+                            Button {
+                                self.pendingImage = nil
+                                selectedPhoto = nil
+                            } label: {
+                                Image(systemName: "xmark.circle.fill")
+                                    .font(.system(size: 20))
+                                    .foregroundStyle(.white, Color("BackgroundSecondary"))
+                            }
+                            .offset(x: 6, y: -6)
+                        }
+                    Spacer()
                 }
-            } else {
+                .padding(.horizontal, 16)
+            }
+
+            HStack(spacing: 8) {
+                // Camera button
                 Button {
-                    send()
+                    showCamera = true
                 } label: {
-                    Image(systemName: "paperplane.fill")
+                    Image(systemName: "camera")
                         .font(.system(size: 18))
                         .foregroundStyle(Color("AccentColor"))
                         .frame(width: 36, height: 36)
                 }
-                .disabled(messageText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+                .disabled(viewModel.isGenerating)
+
+                // Photo picker button
+                PhotosPicker(selection: $selectedPhoto, matching: .images) {
+                    Image(systemName: "photo")
+                        .font(.system(size: 18))
+                        .foregroundStyle(Color("AccentColor"))
+                        .frame(width: 36, height: 36)
+                }
+                .disabled(viewModel.isGenerating)
+
+                TextField("Ask anything...", text: $messageText)
+                    .textFieldStyle(.plain)
+                    .foregroundStyle(.white)
+                    .padding(.horizontal, 14)
+                    .padding(.vertical, 10)
+                    .background(
+                        Color("BackgroundSecondary"), in: RoundedRectangle(cornerRadius: 22))
+                    .focused($isTextFieldFocused)
+                    .onSubmit { send() }
+                    .disabled(viewModel.isGenerating)
+
+                if viewModel.isGenerating {
+                    Button {
+                        viewModel.stopGenerating()
+                    } label: {
+                        Image(systemName: "stop.fill")
+                            .font(.system(size: 16))
+                            .foregroundStyle(.white)
+                            .frame(width: 36, height: 36)
+                            .background(Color.red.opacity(0.8), in: Circle())
+                    }
+                } else {
+                    Button {
+                        send()
+                    } label: {
+                        Image(systemName: "paperplane.fill")
+                            .font(.system(size: 18))
+                            .foregroundStyle(Color("AccentColor"))
+                            .frame(width: 36, height: 36)
+                    }
+                    .disabled(hasNoInput)
+                }
             }
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 10)
         .padding(.bottom, keyboardVisible ? 0 : 72)
+        .onChange(of: selectedPhoto) { _, item in
+            Task {
+                if let item,
+                    let data = try? await item.loadTransferable(type: Data.self),
+                    let image = UIImage(data: data)
+                {
+                    pendingImage = image
+                }
+            }
+        }
+    }
+
+    private var hasNoInput: Bool {
+        messageText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty && pendingImage == nil
     }
 
     // MARK: - Actions
 
     private func send() {
         let text = messageText
+        let image = pendingImage
         messageText = ""
-        viewModel.sendMessage(text: text)
+        pendingImage = nil
+        selectedPhoto = nil
+        viewModel.sendMessage(text: text, image: image)
+    }
+}
+
+// MARK: - Camera Picker
+
+struct CameraPicker: UIViewControllerRepresentable {
+    let onImageCaptured: (UIImage) -> Void
+    @Environment(\.dismiss) private var dismiss
+
+    func makeUIViewController(context: Context) -> UIImagePickerController {
+        let picker = UIImagePickerController()
+        picker.sourceType = .camera
+        picker.delegate = context.coordinator
+        return picker
+    }
+
+    func updateUIViewController(_ uiViewController: UIImagePickerController, context: Context) {}
+
+    func makeCoordinator() -> Coordinator {
+        Coordinator(onImageCaptured: onImageCaptured, dismiss: dismiss)
+    }
+
+    class Coordinator: NSObject, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
+        let onImageCaptured: (UIImage) -> Void
+        let dismiss: DismissAction
+
+        init(onImageCaptured: @escaping (UIImage) -> Void, dismiss: DismissAction) {
+            self.onImageCaptured = onImageCaptured
+            self.dismiss = dismiss
+        }
+
+        func imagePickerController(
+            _ picker: UIImagePickerController,
+            didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey: Any]
+        ) {
+            if let image = info[.originalImage] as? UIImage {
+                onImageCaptured(image)
+            }
+            dismiss()
+        }
+
+        func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
+            dismiss()
+        }
     }
 }
 

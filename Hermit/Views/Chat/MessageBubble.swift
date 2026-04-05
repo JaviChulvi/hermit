@@ -17,21 +17,32 @@ struct MessageBubble: View {
             if message.role == .user { Spacer() }
 
             VStack(alignment: message.role == .user ? .trailing : .leading, spacing: 4) {
-                if message.role == .assistant {
-                    Text(LocalizedStringKey(message.content))
-                        .padding(.horizontal, 14)
-                        .padding(.vertical, 10)
-                        .background(bubbleBackground)
-                        .foregroundStyle(bubbleForeground)
-                        .clipShape(RoundedRectangle(cornerRadius: 20))
-                } else {
-                    Text(message.content)
-                        .padding(.horizontal, 14)
-                        .padding(.vertical, 10)
-                        .background(bubbleBackground)
-                        .foregroundStyle(bubbleForeground)
-                        .clipShape(RoundedRectangle(cornerRadius: 20))
+                VStack(alignment: .leading, spacing: 6) {
+                    // Image thumbnail if present
+                    if let imageData = message.imageData,
+                        let uiImage = UIImage(data: imageData)
+                    {
+                        Image(uiImage: uiImage)
+                            .resizable()
+                            .scaledToFill()
+                            .frame(maxWidth: 200, maxHeight: 200)
+                            .clipShape(RoundedRectangle(cornerRadius: 12))
+                    }
+
+                    // Text content
+                    if !message.content.isEmpty {
+                        if message.role == .assistant {
+                            Text(LocalizedStringKey(message.content))
+                        } else {
+                            Text(message.content)
+                        }
+                    }
                 }
+                .padding(.horizontal, 14)
+                .padding(.vertical, 10)
+                .background(bubbleBackground)
+                .foregroundStyle(bubbleForeground)
+                .clipShape(RoundedRectangle(cornerRadius: 20))
 
                 Text(message.timestamp, style: .time)
                     .font(.caption2)

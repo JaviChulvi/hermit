@@ -27,6 +27,8 @@
 		48355385830B690C0F0BB1B9 /* OnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0710EF871796EFA2BC0C4DD0 /* OnboardingView.swift */; };
 		4FEDD1C85DCA41156F94B343 /* ChunkingStrategy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 398F1B97288A19FE2503B584 /* ChunkingStrategy.swift */; };
 		5DCEB120ABA99A11ECB5EC42 /* Gemma4Text.swift in Sources */ = {isa = PBXBuildFile; fileRef = 321B46E393498AEEC3A51DCF /* Gemma4Text.swift */; };
+		CF603572C2252F9E6D50F1CA /* Gemma4Vision.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C91F3967182066202D8E93A /* Gemma4Vision.swift */; };
+		664D62B9FE8D0DF4670EFB63 /* Gemma4VLM.swift in Sources */ = {isa = PBXBuildFile; fileRef = 61E6706DDDD4871857846DD7 /* Gemma4VLM.swift */; };
 		5E046F72FB9B80F921FF957D /* TextChunk.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2990B9093E413AE2F07C63CA /* TextChunk.swift */; };
 		5F538BC45A11D3571425D528 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = AE86124BC8833C2AC2555333 /* Assets.xcassets */; };
 		6986586F8F0BFB4D5563D8BF /* CosineSimilarityTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AFB5EDF4B9B52EF51EB02383 /* CosineSimilarityTests.swift */; };
@@ -85,6 +87,8 @@
 		2C3C8B370DFA4C0C5E49BC79 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		2C9F80BB7E9596D45FB44299 /* EmbeddingService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmbeddingService.swift; sourceTree = "<group>"; };
 		321B46E393498AEEC3A51DCF /* Gemma4Text.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Gemma4Text.swift; sourceTree = "<group>"; };
+		3C91F3967182066202D8E93A /* Gemma4Vision.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Gemma4Vision.swift; sourceTree = "<group>"; };
+		61E6706DDDD4871857846DD7 /* Gemma4VLM.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Gemma4VLM.swift; sourceTree = "<group>"; };
 		36B136C1534240FD865B9DA9 /* ChatViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatViewModelTests.swift; sourceTree = "<group>"; };
 		398F1B97288A19FE2503B584 /* ChunkingStrategy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChunkingStrategy.swift; sourceTree = "<group>"; };
 		3CC0AA2A8B1E4AF64066ED01 /* DocumentProcessor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DocumentProcessor.swift; sourceTree = "<group>"; };
@@ -238,6 +242,8 @@
 				3CC0AA2A8B1E4AF64066ED01 /* DocumentProcessor.swift */,
 				2C9F80BB7E9596D45FB44299 /* EmbeddingService.swift */,
 				321B46E393498AEEC3A51DCF /* Gemma4Text.swift */,
+				3C91F3967182066202D8E93A /* Gemma4Vision.swift */,
+				61E6706DDDD4871857846DD7 /* Gemma4VLM.swift */,
 				6075305059054DB6E8DB88BD /* LLMService.swift */,
 				A4B116364D854C2E71B8E380 /* ModelManager.swift */,
 				BAFB7CBD3668A606647680F4 /* RAGEngine.swift */,
@@ -468,6 +474,8 @@
 				ACA2FB48D1523A4E43C6F52B /* DownloadProgressView.swift in Sources */,
 				8867A36E35C53C8A5640EAB2 /* EmbeddingService.swift in Sources */,
 				5DCEB120ABA99A11ECB5EC42 /* Gemma4Text.swift in Sources */,
+				CF603572C2252F9E6D50F1CA /* Gemma4Vision.swift in Sources */,
+				664D62B9FE8D0DF4670EFB63 /* Gemma4VLM.swift in Sources */,
 				7FAE910BD41B46658811AE72 /* HermitApp.swift in Sources */,
 				8A6223BA4964098166B82603 /* LLMService.swift in Sources */,
 				3B068FCD4B87CB878DFF3573 /* MemoryMonitor.swift in Sources */,
@@ -595,6 +603,8 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = WVF9VP7KAL;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSCameraUsageDescription = "Hermit uses the camera to take photos for AI visual analysis";
+				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "Hermit uses your photos to provide visual context for AI conversations";
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
@@ -682,6 +692,8 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = WVF9VP7KAL;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSCameraUsageDescription = "Hermit uses the camera to take photos for AI visual analysis";
+				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "Hermit uses your photos to provide visual context for AI conversations";
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
