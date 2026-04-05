@@ -354,7 +354,13 @@ struct SettingsView: View {
     SettingsView()
         .environment(ModelManager())
         .environment(VectorStore())
-        .environment(DocumentViewModel(ragEngine: RAGEngine(embeddingService: EmbeddingService(modelManager: ModelManager()), vectorStore: VectorStore(), modelManager: ModelManager(), llmService: LLMService(modelManager: ModelManager())), vectorStore: VectorStore()))
-        .environment(ChatViewModel(ragEngine: RAGEngine(embeddingService: EmbeddingService(modelManager: ModelManager()), vectorStore: VectorStore(), modelManager: ModelManager(), llmService: LLMService(modelManager: ModelManager()))))
+        .environment(DocumentViewModel(ragEngine: RAGEngine(embeddingService: EmbeddingService(modelManager: ModelManager()), vectorStore: VectorStore(), modelManager: ModelManager()), vectorStore: VectorStore()))
+        .environment({
+            let mm = ModelManager()
+            let vs = VectorStore()
+            let ls = LLMService(modelManager: mm)
+            let re = RAGEngine(embeddingService: EmbeddingService(modelManager: mm), vectorStore: vs, modelManager: mm)
+            return ChatViewModel(ragEngine: re, llmService: ls)
+        }())
         .preferredColorScheme(.dark)
 }

@@ -4,13 +4,10 @@ struct ChatView: View {
     @Environment(ChatViewModel.self) private var viewModel
     @Environment(DocumentViewModel.self) private var documentViewModel
     @Environment(ModelManager.self) private var modelManager
+    @Environment(\.keyboardVisible) private var keyboardVisible
     @State private var messageText = ""
     @State private var showClearAlert = false
     @FocusState private var isTextFieldFocused: Bool
-
-    private var hasDocuments: Bool {
-        !documentViewModel.documents.isEmpty
-    }
 
     var body: some View {
         VStack(spacing: 0) {
@@ -67,51 +64,18 @@ struct ChatView: View {
     private var emptyState: some View {
         VStack(spacing: 16) {
             Spacer()
-            if hasDocuments {
-                Image(systemName: "bubble.left.and.text.bubble.right")
-                    .font(.system(size: 52))
-                    .foregroundStyle(Color("AccentColor"))
-                Text("Ask a Question")
-                    .font(.title3.bold())
-                    .foregroundStyle(.white)
-                Text("Ask a question about your documents")
-                    .font(.subheadline)
-                    .foregroundStyle(Color("TextSecondary"))
-
-                VStack(spacing: 8) {
-                    suggestionButton("Summarize the main points")
-                    suggestionButton("What are the key takeaways?")
-                    suggestionButton("Explain the main topic")
-                }
-                .padding(.top, 12)
-            } else {
-                Image(systemName: "doc.text.magnifyingglass")
-                    .font(.system(size: 52))
-                    .foregroundStyle(Color("AccentColor"))
-                Text("No Documents Yet")
-                    .font(.title3.bold())
-                    .foregroundStyle(.white)
-                Text("Import a document to start chatting")
-                    .font(.subheadline)
-                    .foregroundStyle(Color("TextSecondary"))
-            }
+            Image(systemName: "bubble.left.and.text.bubble.right")
+                .font(.system(size: 52))
+                .foregroundStyle(Color("AccentColor"))
+            Text("Start a Conversation")
+                .font(.title3.bold())
+                .foregroundStyle(.white)
+            Text("Chat with Hermit or import documents for Q&A")
+                .font(.subheadline)
+                .foregroundStyle(Color("TextSecondary"))
             Spacer()
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-    }
-
-    private func suggestionButton(_ text: String) -> some View {
-        Button {
-            messageText = text
-            send()
-        } label: {
-            Text(text)
-                .font(.subheadline)
-                .foregroundStyle(.white)
-                .padding(.horizontal, 16)
-                .padding(.vertical, 10)
-                .background(Color("BackgroundSecondary"), in: RoundedRectangle(cornerRadius: 20))
-        }
+        .frame(maxWidth: .infinity)
     }
 
     // MARK: - Message List
@@ -203,7 +167,7 @@ struct ChatView: View {
 
     private var inputBar: some View {
         HStack(spacing: 12) {
-            TextField("Ask about your documents...", text: $messageText)
+            TextField("Ask anything...", text: $messageText)
                 .textFieldStyle(.plain)
                 .foregroundStyle(.white)
                 .padding(.horizontal, 14)
@@ -237,6 +201,7 @@ struct ChatView: View {
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 10)
+        .padding(.bottom, keyboardVisible ? 0 : 72)
     }
 
     // MARK: - Actions
@@ -253,10 +218,10 @@ struct ChatView: View {
     let vs = VectorStore()
     let es = EmbeddingService(modelManager: mm)
     let ls = LLMService(modelManager: mm)
-    let re = RAGEngine(embeddingService: es, vectorStore: vs, modelManager: mm, llmService: ls)
+    let re = RAGEngine(embeddingService: es, vectorStore: vs, modelManager: mm)
 
     ChatView()
-        .environment(ChatViewModel(ragEngine: re))
+        .environment(ChatViewModel(ragEngine: re, llmService: ls))
         .environment(DocumentViewModel(ragEngine: re, vectorStore: vs))
         .environment(mm)
         .preferredColorScheme(.dark)

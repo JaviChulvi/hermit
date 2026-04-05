@@ -281,7 +281,7 @@ private func makePreviewEnvironment() -> (ModelManager, VectorStore, RAGEngine, 
     let vs = VectorStore()
     let es = EmbeddingService(modelManager: mm)
     let ls = LLMService(modelManager: mm)
-    let re = RAGEngine(embeddingService: es, vectorStore: vs, modelManager: mm, llmService: ls)
+    let re = RAGEngine(embeddingService: es, vectorStore: vs, modelManager: mm)
     let dvm = DocumentViewModel(ragEngine: re, vectorStore: vs)
     return (mm, vs, re, dvm)
 }

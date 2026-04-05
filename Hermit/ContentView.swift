@@ -1,4 +1,18 @@
 import SwiftUI
+import UIKit
+
+// MARK: - Keyboard Visibility Environment Key
+
+private struct KeyboardVisibleKey: EnvironmentKey {
+    static let defaultValue = false
+}
+
+extension EnvironmentValues {
+    var keyboardVisible: Bool {
+        get { self[KeyboardVisibleKey.self] }
+        set { self[KeyboardVisibleKey.self] = newValue }
+    }
+}
 
 enum AppTab: Int, CaseIterable {
     case chat, documents, settings
@@ -22,6 +36,7 @@ enum AppTab: Int, CaseIterable {
 
 struct ContentView: View {
     @State private var selectedTab: AppTab = .chat
+    @State private var keyboardVisible = false
 
     var body: some View {
         ZStack(alignment: .bottom) {
@@ -37,11 +52,20 @@ struct ContentView: View {
                 }
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .environment(\.keyboardVisible, keyboardVisible)
 
-            // Custom tab bar
-            customTabBar
+            // Custom tab bar — hide when keyboard is up
+            if !keyboardVisible {
+                customTabBar
+            }
         }
         .background(Color("BackgroundPrimary").ignoresSafeArea())
+        .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardWillShowNotification)) { _ in
+            keyboardVisible = true
+        }
+        .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardWillHideNotification)) { _ in
+            keyboardVisible = false
+        }
     }
 
     private var customTabBar: some View {
@@ -84,9 +108,9 @@ struct ContentView: View {
     let vs = VectorStore()
     let es = EmbeddingService(modelManager: mm)
     let ls = LLMService(modelManager: mm)
-    let re = RAGEngine(embeddingService: es, vectorStore: vs, modelManager: mm, llmService: ls)
+    let re = RAGEngine(embeddingService: es, vectorStore: vs, modelManager: mm)
     let dvm = DocumentViewModel(ragEngine: re, vectorStore: vs)
-    let cvm = ChatViewModel(ragEngine: re)
+    let cvm = ChatViewModel(ragEngine: re, llmService: ls)
 
     ContentView()
         .environment(mm)

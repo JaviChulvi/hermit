@@ -14,8 +14,8 @@ struct ChatViewModelTests {
         let vs = VectorStore()
         let es = EmbeddingService(modelManager: mm)
         let ls = LLMService(modelManager: mm)
-        let re = RAGEngine(embeddingService: es, vectorStore: vs, modelManager: mm, llmService: ls)
-        return ChatViewModel(ragEngine: re)
+        let re = RAGEngine(embeddingService: es, vectorStore: vs, modelManager: mm)
+        return ChatViewModel(ragEngine: re, llmService: ls)
     }
 
     // MARK: - sendMessage
