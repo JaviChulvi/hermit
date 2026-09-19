@@ -3,7 +3,7 @@ import Observation
 import HFAPI
 import MLXLMHFAPI
 import MLX
-import MLXLLM
+import MLXVLM
 import MLXEmbedders
 import MLXLMCommon
 import MLXLMTokenizers
@@ -14,7 +14,11 @@ import os
 private let logger = Logger(subsystem: "com.hermit.app", category: "ModelManager")
 
 /// Whether the Metal GPU is available (false on Simulator)
+#if targetEnvironment(simulator)
+private let metalAvailable = false
+#else
 private let metalAvailable: Bool = MTLCreateSystemDefaultDevice() != nil
+#endif
 
 enum ModelState: Equatable {
     case idle
@@ -27,6 +31,7 @@ enum ModelManagerError: LocalizedError {
     case insufficientMemory(availableMB: Int, requiredMB: Int)
     case modelNotDownloaded(String)
     case metalUnavailable
+    case busy
 
     var errorDescription: String? {
         switch self {
@@ -34,6 +39,8 @@ enum ModelManagerError: LocalizedError {
             return "Not enough memory: \(available) MB available, \(required) MB required"
         case .modelNotDownloaded(let name):
             return "Model '\(name)' is not downloaded"
+        case .busy:
+            return "Hermit is busy. Stop the current response or wait for the document import to finish."
         case .metalUnavailable:
             return "MLX requires a physical device with Metal GPU support. The iOS Simulator is not supported."
         }
@@ -63,16 +70,21 @@ final class ModelManager {
 
     // MARK: - Model Containers
 
-    private(set) var embeddingContainer: MLXEmbedders.ModelContainer?
-    private(set) var llmContainer: MLXLMCommon.ModelContainer?
+    private var embeddingContainer: EmbedderModelContainer?
+    private var llmContainer: MLXLMCommon.ModelContainer?
 
     // MARK: - Private
 
     private let memoryMonitor: MemoryMonitor
     private let hubClient = HubClient()
-    private var embeddingDownloadTask: Task<Void, Error>?
-    private var llmDownloadTask: Task<Void, Error>?
-    nonisolated(unsafe) private var memoryWarningObserver: Any?
+    private(set) var isBusy = false
+    var onUnloadLLM: () -> Void = {}
+    private var cancelOperation: (() -> Void)?
+    private var unloadRequested = false
+
+    // Keep the conservative phone baseline until bounded caches are measured on device.
+    var inferenceCacheBytes = 0
+    @ObservationIgnored nonisolated(unsafe) private var memoryWarningObserver: Any?
 
     private static let modelFilePatterns = ["*.safetensors", "*.json", "*.txt", "*.jinja", "*.model"]
 
@@ -115,9 +127,11 @@ final class ModelManager {
             embeddingDownloadState = .completed
         } catch is CancellationError {
             embeddingDownloadState = .notStarted
+            throw CancellationError()
         } catch {
             if Task.isCancelled {
                 embeddingDownloadState = .notStarted
+                throw CancellationError()
             } else {
                 embeddingDownloadState = .error(message: error.localizedDescription)
                 throw error
@@ -145,9 +159,11 @@ final class ModelManager {
             llmDownloadState = .completed
         } catch is CancellationError {
             llmDownloadState = .notStarted
+            throw CancellationError()
         } catch {
             if Task.isCancelled {
                 llmDownloadState = .notStarted
+                throw CancellationError()
             } else {
                 llmDownloadState = .error(message: error.localizedDescription)
                 throw error
@@ -156,10 +172,6 @@ final class ModelManager {
     }
 
     func cancelDownloads() {
-        embeddingDownloadTask?.cancel()
-        llmDownloadTask?.cancel()
-        embeddingDownloadTask = nil
-        llmDownloadTask = nil
         if case .downloading = embeddingDownloadState {
             embeddingDownloadState = .notStarted
         }
@@ -169,6 +181,8 @@ final class ModelManager {
     }
 
     func deleteModels() throws {
+        guard !isBusy else { throw ModelManagerError.busy }
+        unloadAll()
         let cacheDir = hubClient.cache.cacheDirectory
 
         for modelId in [ModelInfo.embeddingModel.id, ModelInfo.llmModel.id] {
@@ -184,264 +198,116 @@ final class ModelManager {
         modelState = .idle
     }
 
-    func diskSpaceUsedMB() -> Int {
-        let cacheDir = hubClient.cache.cacheDirectory
+    // MARK: - Exclusive model access
 
-        guard let enumerator = FileManager.default.enumerator(
-            at: cacheDir,
-            includingPropertiesForKeys: [.fileSizeKey]
-        ) else { return 0 }
-
-        var totalSize: Int64 = 0
-        for case let fileURL as URL in enumerator {
-            if let size = try? fileURL.resourceValues(forKeys: [.fileSizeKey]).fileSize {
-                totalSize += Int64(size)
-            }
+    // Hold ownership across every await, including the entire generation stream.
+    // Reject overlapping UI operations instead of building an unbounded work queue.
+    func exclusively<T: Sendable>(
+        _ operation: @escaping @MainActor () async throws -> T
+    ) async throws -> T {
+        guard !isBusy else { throw ModelManagerError.busy }
+        try Task.checkCancellation()
+        isBusy = true
+        let task = Task {
+            try Task.checkCancellation()
+            return try await operation()
         }
-        return Int(totalSize / (1024 * 1024))
-    }
-
-    // MARK: - Model Loading
-
-    func loadEmbeddingModel() async throws {
-        guard metalAvailable else {
-            logger.error("Metal GPU not available — cannot load MLX models on Simulator")
-            throw ModelManagerError.metalUnavailable
+        cancelOperation = { task.cancel() }
+        defer {
+            cancelOperation = nil
+            isBusy = false
+            if unloadRequested { unloadAll() }
         }
-
-        logger.info("loadEmbeddingModel() — current state: \(String(describing: self.modelState))")
-
-        if modelState == .embeddingLoaded, embeddingContainer != nil {
-            logger.info("Embedding model already loaded, skipping")
-            return
-        }
-
-        if modelState == .llmLoaded {
-            logger.info("LLM is loaded, unloading first...")
-            unloadLLM()
-        }
-
-        modelState = .transitioning
-
-        guard let directory = cachedModelURL(for: ModelInfo.embeddingModel.id) else {
-            logger.error("Embedding model not found on disk. Model ID: \(ModelInfo.embeddingModel.id)")
-            modelState = .idle
-            throw ModelManagerError.modelNotDownloaded(ModelInfo.embeddingModel.name)
-        }
-
-        logger.info("Embedding model directory: \(directory.path)")
-
-        // List files in the directory for debugging
-        if let files = try? FileManager.default.contentsOfDirectory(atPath: directory.path) {
-            logger.info("Files in model directory: \(files.joined(separator: ", "))")
-        }
-
-        if metalAvailable {
-            let memBefore = Memory.snapshot()
-            logger.info("Memory before load — active: \(memBefore.activeMemory / 1024 / 1024) MB, cache: \(memBefore.cacheMemory / 1024 / 1024) MB, peak: \(memBefore.peakMemory / 1024 / 1024) MB")
-        }
-        logger.info("System available RAM: \(self.memoryMonitor.availableMemoryMB) MB")
-
-        if metalAvailable {
-            logger.info("Setting MLX cache limit to 0...")
-            MLX.Memory.cacheLimit = 0
-            MLX.Memory.clearCache()
-            logger.info("Cache cleared. Cache memory now: \(Memory.cacheMemory / 1024 / 1024) MB")
-        }
-
-        do {
-            logger.info("Loading embedding model container from disk...")
-            let container = try await MLXEmbedders.loadModelContainer(
-                from: directory,
-                using: TokenizersLoader()
-            )
-
-            logger.info("Embedding model loaded successfully!")
-            if metalAvailable {
-                let memAfter = Memory.snapshot()
-                logger.info("Memory after load — active: \(memAfter.activeMemory / 1024 / 1024) MB, cache: \(memAfter.cacheMemory / 1024 / 1024) MB")
-            }
-
-            embeddingContainer = container
-            modelState = .embeddingLoaded
-            logger.info("State → .embeddingLoaded")
-        } catch {
-            logger.error("Failed to load embedding model: \(error.localizedDescription)")
-            logger.error("Error type: \(type(of: error))")
-            logger.error("Full error: \(String(describing: error))")
-            modelState = .idle
-            throw error
+        return try await withTaskCancellationHandler {
+            try await task.value
+        } onCancel: {
+            task.cancel()
         }
     }
 
-    func loadLLM() async throws {
-        guard metalAvailable else {
-            logger.error("Metal GPU not available — cannot load MLX models on Simulator")
-            throw ModelManagerError.metalUnavailable
-        }
-
-        logger.info("loadLLM() — current state: \(String(describing: self.modelState))")
-
-        if modelState == .llmLoaded, llmContainer != nil {
-            logger.info("LLM already loaded, skipping")
-            return
-        }
-
-        if modelState == .embeddingLoaded {
-            logger.info("Embedding is loaded, unloading first...")
-            unloadEmbedding()
-        }
-
-        modelState = .transitioning
-
-        let requiredMB = 3200
-        logger.info("Checking memory: available \(self.memoryMonitor.availableMemoryMB) MB, required \(requiredMB) MB")
-        if !memoryMonitor.hasEnoughMemory(requiredMB: requiredMB) {
-            logger.error("Insufficient memory for LLM: \(self.memoryMonitor.availableMemoryMB) MB < \(requiredMB) MB")
-            modelState = .idle
-            throw ModelManagerError.insufficientMemory(
-                availableMB: memoryMonitor.availableMemoryMB,
-                requiredMB: requiredMB
-            )
-        }
-
-        guard let directory = cachedModelURL(for: ModelInfo.llmModel.id) else {
-            logger.error("LLM model not found on disk. Model ID: \(ModelInfo.llmModel.id)")
-            modelState = .idle
-            throw ModelManagerError.modelNotDownloaded(ModelInfo.llmModel.name)
-        }
-
-        logger.info("LLM model directory: \(directory.path)")
-
-        if let files = try? FileManager.default.contentsOfDirectory(atPath: directory.path) {
-            logger.info("Files in LLM directory: \(files.joined(separator: ", "))")
-        }
-
-        if metalAvailable {
-            let memBefore = Memory.snapshot()
-            logger.info("Memory before LLM load — active: \(memBefore.activeMemory / 1024 / 1024) MB, cache: \(memBefore.cacheMemory / 1024 / 1024) MB")
-            logger.info("Setting MLX cache limit to 0...")
-            MLX.Memory.cacheLimit = 0
-            MLX.Memory.clearCache()
-        }
-
-        do {
-            // Register Gemma 4 VLM model type (no-op if already registered)
-            await registerGemma4ModelType()
-
-            logger.info("Loading VLM container from disk...")
-
-            // Custom loading path: build ModelContext with our VLM processor
-            let configURL = directory.appending(component: "config.json")
-            let configData = try Data(contentsOf: configURL)
-            let decoder = JSONDecoder.json5()
-            let baseConfig: MLXLMCommon.BaseConfiguration = try decoder.decode(
-                MLXLMCommon.BaseConfiguration.self, from: configData)
-
-            // Create VLM model via type registry
-            let model = try await LLMTypeRegistry.shared.createModel(
-                configuration: configData, modelType: baseConfig.modelType)
-
-            // Load weights (calls model.sanitize() internally)
-            try loadWeights(
-                modelDirectory: directory, model: model,
-                perLayerQuantization: baseConfig.perLayerQuantization)
-
-            // Load tokenizer
-            let tokenizer = try await TokenizersLoader().load(from: directory)
-
-            // Load processor config and create image-aware processor
-            let vlmConfig = try JSONDecoder.json5().decode(
-                Gemma4VLMConfiguration.self, from: configData)
-            let processorConfigURL = directory.appending(component: "processor_config.json")
-            let processorConfig: Gemma4ProcessorConfiguration
-            if let processorData = try? Data(contentsOf: processorConfigURL) {
-                processorConfig = try JSONDecoder.json5().decode(
-                    Gemma4ProcessorConfiguration.self, from: processorData)
-            } else {
-                processorConfig = Gemma4ProcessorConfiguration()
+    func withEmbeddingModel<T: Sendable>(
+        _ operation: @escaping @MainActor (EmbedderModelContainer) async throws -> T
+    ) async throws -> T {
+        try await exclusively {
+            self.releaseModels()
+            let directory = try self.requiredDirectory(for: ModelInfo.embeddingModel)
+            self.modelState = .transitioning
+            defer {
+                self.embeddingContainer = nil
+                self.clearMemory()
+                self.modelState = .idle
             }
-            let processor = Gemma4Processor(
-                processorConfig, vlmConfig: vlmConfig, tokenizer: tokenizer)
+            let container = try await EmbedderModelFactory.shared.loadContainer(
+                from: directory, using: EmbeddingTokenizerLoader())
+            self.embeddingContainer = container
+            self.modelState = .embeddingLoaded
+            MLX.Memory.cacheLimit = self.inferenceCacheBytes
+            try Task.checkCancellation()
+            return try await operation(container)
+        }
+    }
 
-            // Read EOS token IDs from generation_config.json (like LLMModelFactory does)
-            var eosTokenIds = Set<Int>()
-            let genConfigURL = directory.appending(component: "generation_config.json")
-            if let genData = try? Data(contentsOf: genConfigURL),
-                let genJSON = try? JSONSerialization.jsonObject(with: genData) as? [String: Any]
-            {
-                if let eosId = genJSON["eos_token_id"] as? Int {
-                    eosTokenIds.insert(eosId)
-                } else if let eosIds = genJSON["eos_token_id"] as? [Int] {
-                    eosTokenIds.formUnion(eosIds)
+    func withLLM<T: Sendable>(
+        _ operation: @escaping @MainActor (MLXLMCommon.ModelContainer) async throws -> T
+    ) async throws -> T {
+        try await exclusively {
+            if self.llmContainer == nil {
+                let directory = try self.requiredDirectory(for: ModelInfo.llmModel)
+                let requiredMB = 3200
+                guard self.memoryMonitor.hasEnoughMemory(requiredMB: requiredMB) else {
+                    throw ModelManagerError.insufficientMemory(
+                        availableMB: self.availableMemoryMB, requiredMB: requiredMB)
+                }
+                self.modelState = .transitioning
+                MLX.Memory.cacheLimit = self.inferenceCacheBytes
+                do {
+                    self.llmContainer = try await VLMModelFactory.shared.loadContainer(
+                        from: directory, using: TokenizersLoader())
+                    self.modelState = .llmLoaded
+                } catch {
+                    self.clearMemory()
+                    self.modelState = .idle
+                    throw error
                 }
             }
-
-            // Build ModelContext → ModelContainer
-            let modelConfig = ModelConfiguration(
-                directory: directory,
-                extraEOSTokens: ["<end_of_turn>"],
-                eosTokenIds: eosTokenIds)
-            let context = ModelContext(
-                configuration: modelConfig, model: model,
-                processor: processor, tokenizer: tokenizer)
-            let container = ModelContainer(context: context)
-
-            logger.info("VLM loaded successfully!")
-            if metalAvailable {
-                let memAfter = Memory.snapshot()
-                logger.info("Memory after LLM load — active: \(memAfter.activeMemory / 1024 / 1024) MB, cache: \(memAfter.cacheMemory / 1024 / 1024) MB")
-            }
-
-            llmContainer = container
-            modelState = .llmLoaded
-            logger.info("State → .llmLoaded")
-        } catch {
-            logger.error("Failed to load LLM: \(error.localizedDescription)")
-            logger.error("Error type: \(type(of: error))")
-            logger.error("Full error: \(String(describing: error))")
-            modelState = .idle
-            throw error
+            MLX.Memory.cacheLimit = self.inferenceCacheBytes
+            try Task.checkCancellation()
+            return try await operation(self.llmContainer!)
         }
     }
 
-    // MARK: - Model Unloading
-
-    func unloadEmbedding() {
-        logger.info("unloadEmbedding() — had model: \(self.embeddingContainer != nil)")
-        let hadModel = embeddingContainer != nil
-        embeddingContainer = nil
-        if hadModel && metalAvailable {
-            MLX.Memory.cacheLimit = 0
-            MLX.Memory.clearCache()
-        }
-        modelState = .idle
-        logger.info("Embedding unloaded")
-    }
-
-    func unloadLLM() {
-        logger.info("unloadLLM() — had model: \(self.llmContainer != nil)")
-        let hadModel = llmContainer != nil
-        llmContainer = nil
-        if hadModel && metalAvailable {
-            MLX.Memory.cacheLimit = 0
-            MLX.Memory.clearCache()
-        }
-        modelState = .idle
-        logger.info("LLM unloaded")
-    }
-
+    /// Cancel active work first; its completion releases the session and model safely.
     func unloadAll() {
-        logger.info("unloadAll()")
-        let hadModels = embeddingContainer != nil || llmContainer != nil
+        if isBusy {
+            unloadRequested = true
+            cancelOperation?()
+            return
+        }
+        releaseModels()
+    }
+
+    private func releaseModels() {
+        onUnloadLLM()
         embeddingContainer = nil
         llmContainer = nil
-        if hadModels && metalAvailable {
+        clearMemory()
+        modelState = .idle
+        unloadRequested = false
+    }
+
+    private func clearMemory() {
+        if metalAvailable {
             MLX.Memory.cacheLimit = 0
             MLX.Memory.clearCache()
         }
-        modelState = .idle
-        logger.info("All models unloaded. State → .idle")
+    }
+
+    private func requiredDirectory(for model: ModelInfo) throws -> URL {
+        guard metalAvailable else { throw ModelManagerError.metalUnavailable }
+        guard let directory = cachedModelURL(for: model.id) else {
+            throw ModelManagerError.modelNotDownloaded(model.name)
+        }
+        return directory
     }
 
     // MARK: - Memory Warning
@@ -468,11 +334,6 @@ final class ModelManager {
         if llmModelDownloaded {
             llmDownloadState = .completed
         }
-    }
-
-    func modelDirectory(for modelId: String) -> URL {
-        let documentsURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
-        return documentsURL.appendingPathComponent("models").appendingPathComponent(modelId)
     }
 
     // MARK: - Private Helpers

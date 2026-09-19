@@ -54,7 +54,7 @@ struct DocumentListView: View {
             }
             Button("Delete", role: .destructive) {
                 if let doc = documentToDelete {
-                    viewModel.deleteDocument(id: doc.id)
+                    Task { await viewModel.deleteDocument(id: doc.id) }
                     documentToDelete = nil
                 }
             }
@@ -247,41 +247,12 @@ struct DocumentRow: View {
 
 // MARK: - Previews
 
-#if DEBUG
-extension Document {
-    static let previewSamples: [Document] = [
-        Document(
-            name: "Climate Change Report",
-            fileExtension: "pdf",
-            dateAdded: Date().addingTimeInterval(-86400 * 3),
-            chunkCount: 12,
-            isProcessed: true
-        ),
-        Document(
-            name: "Meeting Notes Q1",
-            fileExtension: "txt",
-            dateAdded: Date().addingTimeInterval(-86400),
-            chunkCount: 5,
-            isProcessed: true
-        ),
-        Document(
-            name: "Research Paper Draft",
-            fileExtension: "pdf",
-            dateAdded: Date(),
-            chunkCount: 0,
-            isProcessed: false
-        ),
-    ]
-}
-#endif
-
 @MainActor
 private func makePreviewEnvironment() -> (ModelManager, VectorStore, RAGEngine, DocumentViewModel) {
     let mm = ModelManager()
     let vs = VectorStore()
     let es = EmbeddingService(modelManager: mm)
-    let ls = LLMService(modelManager: mm)
-    let re = RAGEngine(embeddingService: es, vectorStore: vs, modelManager: mm)
+    let re = RAGEngine(embeddingService: es, vectorStore: vs)
     let dvm = DocumentViewModel(ragEngine: re, vectorStore: vs)
     return (mm, vs, re, dvm)
 }

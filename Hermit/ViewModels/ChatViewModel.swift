@@ -1,4 +1,3 @@
-import CoreImage
 import Foundation
 import UIKit
 
@@ -10,7 +9,8 @@ class ChatViewModel {
     private(set) var isGenerating: Bool = false
     var statusMessage: String = ""
     var errorMessage: String?
-    private(set) var lastFailedQuery: String?
+    private var lastFailedMessage: ChatMessage?
+    var searchDocuments = false
 
     private let ragEngine: RAGEngine
     private let llmService: LLMService
@@ -29,15 +29,14 @@ class ChatViewModel {
 
     func sendMessage(text: String, image: UIImage? = nil) {
         let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !trimmed.isEmpty || image != nil else { return }
+        guard !isGenerating, !trimmed.isEmpty || image != nil else { return }
 
         UIImpactFeedbackGenerator(style: .light).impactOccurred()
 
         let imageData = image?.jpegData(compressionQuality: 0.8)
-        let ciImage = image.flatMap { CIImage(image: $0) }
         let userMessage = ChatMessage(role: .user, content: trimmed, imageData: imageData)
         messages.append(userMessage)
-        lastFailedQuery = nil
+        lastFailedMessage = nil
 
         isGenerating = true
         currentStreamedText = ""
@@ -50,35 +49,20 @@ class ChatViewModel {
 
                 // 1. Retrieve RAG context if documents exist
                 var ragContext: String? = nil
-                if hasDocuments {
-                    // Release chat session so the LLM container can be fully freed
-                    // before embedding model loads (they can't coexist in memory)
-                    llmService.resetSession()
+                if searchDocuments && hasDocuments && !trimmed.isEmpty {
                     statusMessage = "Searching documents..."
                     ragContext = try await ragEngine.retrieveContext(for: trimmed)
+                        ?? "No relevant document excerpts were found."
                 }
 
-                // 2. Load LLM
-                if !llmService.isModelLoaded {
-                    statusMessage = "Loading model..."
-                    try await llmService.loadModel()
+                try Task.checkCancellation()
+                statusMessage = "Preparing response..."
+                let assistantMessage = try await llmService.respond(
+                    to: userMessage, history: history, ragContext: ragContext
+                ) { [weak self] text in
+                    self?.statusMessage = ""
+                    self?.currentStreamedText = text
                 }
-                statusMessage = ""
-
-                // 3. Generate response with history + optional image + optional RAG context
-                let messageText = trimmed.isEmpty ? "Describe this image." : trimmed
-                let stream = try await llmService.chat(
-                    message: messageText,
-                    image: ciImage,
-                    history: history,
-                    ragContext: ragContext
-                )
-
-                for try await token in stream {
-                    currentStreamedText += token
-                }
-
-                let assistantMessage = ChatMessage(role: .assistant, content: currentStreamedText)
                 messages.append(assistantMessage)
                 currentStreamedText = ""
                 statusMessage = ""
@@ -88,7 +72,7 @@ class ChatViewModel {
             } catch {
                 savePartialResponse()
                 errorMessage = error.localizedDescription
-                lastFailedQuery = trimmed
+                lastFailedMessage = userMessage
 
                 UINotificationFeedbackGenerator().notificationOccurred(.error)
                 let errorMsg = ChatMessage(role: .system, content: error.localizedDescription)
@@ -100,34 +84,31 @@ class ChatViewModel {
     }
 
     func retryLastMessage() {
-        guard let query = lastFailedQuery else { return }
-
-        if let last = messages.last, last.role == .system {
-            messages.removeLast()
+        guard !isGenerating, let message = lastFailedMessage else { return }
+        if let index = messages.firstIndex(where: { $0.id == message.id }) {
+            messages.removeSubrange(index...)
         }
-        if let last = messages.last, last.role == .user {
-            messages.removeLast()
-        }
-
-        lastFailedQuery = nil
-        sendMessage(text: query)
+        let image = message.imageData.flatMap { UIImage(data: $0) }
+        sendMessage(text: message.content, image: image)
     }
 
     // MARK: - Cancellation
 
     func stopGenerating() {
         generationTask?.cancel()
-        generationTask = nil
     }
 
     // MARK: - Clear Conversation
 
-    func clearConversation() {
+    func clearConversation() async {
+        stopGenerating()
+        await generationTask?.value
+        generationTask = nil
+        lastFailedMessage = nil
         messages.removeAll()
         currentStreamedText = ""
         statusMessage = ""
         errorMessage = nil
-        stopGenerating()
         llmService.resetSession()
     }
 

@@ -100,7 +100,7 @@ struct DocumentDetailView: View {
 }
 
 #Preview {
-    let doc = Document.previewSamples[0]
+    let doc = Document(name: "Climate Change Report", fileExtension: "pdf", chunkCount: 3, isProcessed: true)
     let chunks = (0..<3).map { i in
         TextChunk(
             documentId: doc.id,

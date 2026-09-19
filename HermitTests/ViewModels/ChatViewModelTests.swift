@@ -14,7 +14,7 @@ struct ChatViewModelTests {
         let vs = VectorStore()
         let es = EmbeddingService(modelManager: mm)
         let ls = LLMService(modelManager: mm)
-        let re = RAGEngine(embeddingService: es, vectorStore: vs, modelManager: mm)
+        let re = RAGEngine(embeddingService: es, vectorStore: vs)
         return ChatViewModel(ragEngine: re, llmService: ls)
     }
 
@@ -104,7 +104,7 @@ struct ChatViewModelTests {
 
         #expect(!vm.messages.isEmpty)
 
-        vm.clearConversation()
+        await vm.clearConversation()
 
         #expect(vm.messages.isEmpty)
         #expect(vm.currentStreamedText.isEmpty)
@@ -113,10 +113,10 @@ struct ChatViewModelTests {
         #expect(!vm.isGenerating)
     }
 
-    @Test func clearConversationWhileIdleWorks() {
+    @Test func clearConversationWhileIdleWorks() async {
         let vm = makeViewModel()
         // Clear when already empty — should not crash
-        vm.clearConversation()
+        await vm.clearConversation()
 
         #expect(vm.messages.isEmpty)
         #expect(!vm.isGenerating)

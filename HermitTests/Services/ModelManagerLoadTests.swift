@@ -4,87 +4,53 @@ import Foundation
 
 @MainActor
 struct ModelManagerLoadTests {
-    // MARK: - State Transitions
-
-    @Test func unloadEmbeddingResetsStateToIdle() {
+    @Test func overlappingWorkIsRejectedAndOwnerIsPreserved() async throws {
         let manager = ModelManager()
-        manager.unloadEmbedding()
-        #expect(manager.modelState == .idle)
-        #expect(manager.embeddingContainer == nil)
-    }
-
-    @Test func unloadLLMResetsStateToIdle() {
-        let manager = ModelManager()
-        manager.unloadLLM()
-        #expect(manager.modelState == .idle)
-        #expect(manager.llmContainer == nil)
-    }
-
-    @Test func unloadAllResetsStateToIdle() {
-        let manager = ModelManager()
-        manager.unloadAll()
-        #expect(manager.modelState == .idle)
-        #expect(manager.embeddingContainer == nil)
-        #expect(manager.llmContainer == nil)
-    }
-
-    // MARK: - Loading Without Downloaded Models
-
-    @Test func loadEmbeddingThrowsWhenModelNotDownloaded() async {
-        let manager = ModelManager()
-        do {
-            try await manager.loadEmbeddingModel()
-            Issue.record("Expected modelNotDownloaded error")
-        } catch let error as ModelManagerError {
-            if case .modelNotDownloaded = error {
-                // Expected
-            } else {
-                Issue.record("Wrong error type: \(error)")
+        try await manager.exclusively {
+            #expect(manager.isBusy)
+            do {
+                _ = try await manager.exclusively { Issue.record("Overlapping operation started") }
+                Issue.record("Expected busy error")
+            } catch ModelManagerError.busy {
+                #expect(manager.isBusy)
             }
+        }
+        #expect(!manager.isBusy)
+    }
+
+    @Test func memoryWarningCancelsBeforeReleasingModels() async {
+        let manager = ModelManager()
+        var released = false
+        manager.onUnloadLLM = { released = true }
+        do {
+            try await manager.exclusively {
+                manager.unloadAll()
+                #expect(!released)
+                #expect(manager.isBusy)
+                try Task.checkCancellation()
+            }
+            Issue.record("Expected cancellation")
+        } catch is CancellationError {
+            #expect(released)
+            #expect(!manager.isBusy)
+            #expect(manager.modelState == .idle)
         } catch {
             Issue.record("Unexpected error: \(error)")
         }
-        #expect(manager.modelState == .idle)
     }
 
-    @Test func loadLLMThrowsWhenModelNotDownloaded() async {
+    @Test func failedLoadReleasesOwnership() async throws {
         let manager = ModelManager()
+        guard !manager.embeddingModelDownloaded else { return }
         do {
-            try await manager.loadLLM()
-            Issue.record("Expected modelNotDownloaded error")
+            _ = try await manager.withEmbeddingModel { _ in Issue.record("Expected unavailable model") }
         } catch let error as ModelManagerError {
-            if case .modelNotDownloaded = error {
-                // Expected
-            } else if case .insufficientMemory = error {
-                // Also acceptable in constrained environments
-            } else {
-                Issue.record("Wrong error type: \(error)")
+            switch error {
+            case .metalUnavailable, .modelNotDownloaded: break
+            default: Issue.record("Unexpected error: \(error)")
             }
-        } catch {
-            Issue.record("Unexpected error: \(error)")
         }
+        #expect(!manager.isBusy)
         #expect(manager.modelState == .idle)
-    }
-
-    // MARK: - State After Failed Load
-
-    @Test func stateResetsToIdleAfterFailedEmbeddingLoad() async {
-        let manager = ModelManager()
-        try? await manager.loadEmbeddingModel()
-        #expect(manager.modelState == .idle)
-    }
-
-    @Test func stateResetsToIdleAfterFailedLLMLoad() async {
-        let manager = ModelManager()
-        try? await manager.loadLLM()
-        #expect(manager.modelState == .idle)
-    }
-
-    // MARK: - Containers Are Nil Initially
-
-    @Test func containersAreNilInitially() {
-        let manager = ModelManager()
-        #expect(manager.embeddingContainer == nil)
-        #expect(manager.llmContainer == nil)
     }
 }

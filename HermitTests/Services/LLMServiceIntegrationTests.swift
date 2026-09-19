@@ -1,80 +1,71 @@
 import Testing
 import Foundation
+import UIKit
 @testable import Hermit
 
-/// Integration tests for LLMService.
-/// These tests require the LLM (Gemma 4 E2B) to be downloaded on disk.
-/// They pass as no-ops when the model is not available.
+// Explicitly opt in on a physical device with both models downloaded.
+@Suite(.enabled(if: ProcessInfo.processInfo.environment["HERMIT_MODEL_TESTS"] == "1"), .serialized)
 @MainActor
 struct LLMServiceIntegrationTests {
-
-    private func makeServiceIfModelAvailable() -> (LLMService, ModelManager)? {
+    @Test func structuredConversationAndModelSwap() async throws {
         let manager = ModelManager()
-        guard manager.llmModelDownloaded else { return nil }
-        return (LLMService(modelManager: manager), manager)
-    }
-
-    @Test func loadModel_setsStateLLMLoaded() async throws {
-        guard let (service, manager) = makeServiceIfModelAvailable() else { return }
-
-        try await service.loadModel()
+        try #require(manager.llmModelDownloaded && manager.embeddingModelDownloaded)
+        defer { manager.unloadAll() }
+        let service = LLMService(modelManager: manager)
+        let question = ChatMessage(role: .user, content: "My name is Elena. Say hello briefly.")
+        var updates: [String] = []
+        let answer = try await service.respond(to: question, history: []) { updates.append($0) }
+        #expect(!answer.content.isEmpty)
+        #expect(updates.last == answer.content)
         #expect(manager.modelState == .llmLoaded)
 
-        service.unloadModel()
+        let followup = ChatMessage(role: .user, content: "What is my name?")
+        let response = try await service.respond(to: followup, history: [question, answer]) { _ in }
+        #expect(response.content.localizedCaseInsensitiveContains("Elena"))
+
+        _ = try await EmbeddingService(modelManager: manager).embed(text: "A short document.")
         #expect(manager.modelState == .idle)
+        let rebuilt = try await service.respond(to: followup, history: [question, answer]) { _ in }
+        #expect(rebuilt.content.localizedCaseInsensitiveContains("Elena"))
     }
 
-    @Test func chat_yieldsAtLeastOneToken() async throws {
-        guard let (service, manager) = makeServiceIfModelAvailable() else { return }
+    @Test func cancellationAndMemoryWarningDuringGeneration() async throws {
+        let manager = ModelManager()
+        try #require(manager.llmModelDownloaded && manager.embeddingModelDownloaded)
+        defer { manager.unloadAll() }
+        let service = LLMService(modelManager: manager)
 
-        try await service.loadModel()
-
-        let stream = try await service.chat(
-            message: "Say hello in one word.",
-            history: []
-        )
-
-        var tokens: [String] = []
-        for try await token in stream {
-            tokens.append(token)
-            if tokens.count >= 3 { break }
+        for sendMemoryWarning in [false, true] {
+            var interrupted = false
+            var generation: Task<ChatMessage, Error>?
+            generation = Task {
+                try await service.respond(to: ChatMessage(role: .user,
+                    content: "Count from 1 to 500, writing every number on a separate line."), history: []) { text in
+                    guard !interrupted, !text.isEmpty else { return }
+                    interrupted = true
+                    if sendMemoryWarning {
+                        NotificationCenter.default.post(
+                            name: UIApplication.didReceiveMemoryWarningNotification, object: nil)
+                    } else {
+                        generation?.cancel()
+                    }
+                }
+            }
+            do {
+                _ = try await generation!.value
+                Issue.record("Expected cancellation during GPU generation")
+            } catch is CancellationError {}
+            generation = nil
+            #expect(interrupted)
+            #expect(!manager.isBusy)
+            if sendMemoryWarning { #expect(manager.modelState == .idle) }
+            // A completed cancellation must permit a safe model swap and fresh generation.
+            _ = try await EmbeddingService(modelManager: manager).embed(text: "Recovery after cancellation.")
+            #expect(manager.modelState == .idle)
+            let reply = try await service.respond(
+                to: ChatMessage(role: .user, content: "Reply only OK."), history: [], onUpdate: { _ in })
+            #expect(!reply.content.isEmpty)
+            manager.unloadAll()
         }
-
-        #expect(!tokens.isEmpty, "Stream should yield at least one token")
-
-        service.unloadModel()
-        #expect(manager.modelState == .idle)
-    }
-
-    @Test func chat_completesWithNonEmptyResult() async throws {
-        guard let (service, manager) = makeServiceIfModelAvailable() else { return }
-
-        try await service.loadModel()
-
-        let stream = try await service.chat(
-            message: "What is 2+2?",
-            history: []
-        )
-
-        var fullResponse = ""
-        for try await token in stream {
-            fullResponse += token
-        }
-
-        #expect(!fullResponse.isEmpty, "Response should not be empty")
-
-        service.unloadModel()
-        #expect(manager.modelState == .idle)
-    }
-
-    @Test func unloadModel_setsStateToIdle() async throws {
-        guard let (service, manager) = makeServiceIfModelAvailable() else { return }
-
-        try await service.loadModel()
-        #expect(manager.modelState == .llmLoaded)
-
-        service.unloadModel()
-        #expect(manager.modelState == .idle)
-        #expect(manager.llmContainer == nil)
     }
 }

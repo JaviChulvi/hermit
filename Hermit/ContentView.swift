@@ -108,7 +108,7 @@ struct ContentView: View {
     let vs = VectorStore()
     let es = EmbeddingService(modelManager: mm)
     let ls = LLMService(modelManager: mm)
-    let re = RAGEngine(embeddingService: es, vectorStore: vs, modelManager: mm)
+    let re = RAGEngine(embeddingService: es, vectorStore: vs)
     let dvm = DocumentViewModel(ragEngine: re, vectorStore: vs)
     let cvm = ChatViewModel(ragEngine: re, llmService: ls)
 

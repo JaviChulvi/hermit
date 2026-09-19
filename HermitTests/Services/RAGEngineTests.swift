@@ -6,6 +6,7 @@ import Foundation
 /// Note: `ingestDocument` and `retrieveContext` require a downloaded embedding model,
 /// so they are covered in integration tests. These tests verify the retrieval path
 /// using a pre-populated VectorStore with known embeddings.
+@MainActor
 struct RAGEngineTests {
     private func makeTempDirectory() -> URL {
         let tmp = FileManager.default.temporaryDirectory
@@ -18,7 +19,7 @@ struct RAGEngineTests {
         try? FileManager.default.removeItem(at: url)
     }
 
-    private func makePopulatedStore(directory: URL) -> VectorStore {
+    private func makePopulatedStore(directory: URL) async throws -> VectorStore {
         let store = VectorStore(storeDirectory: directory)
         let docId = UUID()
         let chunks = [
@@ -28,14 +29,14 @@ struct RAGEngineTests {
             TextChunk(documentId: docId, text: "Mathematics builds on logic", embedding: [0, 0.1, 0.9], chunkIndex: 3),
             TextChunk(documentId: docId, text: "Feline behavior patterns", embedding: [0.95, 0.05, 0], chunkIndex: 4),
         ]
-        store.addChunks(chunks, forDocument: docId)
+        try await store.addChunks(chunks, forDocument: docId)
         return store
     }
 
-    @Test func retrieveContextReturnsChunks() {
+    @Test func retrieveContextReturnsChunks() async throws {
         let dir = makeTempDirectory()
         defer { cleanup(dir) }
-        let store = makePopulatedStore(directory: dir)
+        let store = try await makePopulatedStore(directory: dir)
 
         // Directly test the vector store search (which RAGEngine.retrieveContext delegates to)
         let results = store.search(queryEmbedding: [1, 0, 0], topK: 3)
@@ -43,19 +44,19 @@ struct RAGEngineTests {
         #expect(results.count == 3)
     }
 
-    @Test func retrieveContextRespectsTopK() {
+    @Test func retrieveContextRespectsTopK() async throws {
         let dir = makeTempDirectory()
         defer { cleanup(dir) }
-        let store = makePopulatedStore(directory: dir)
+        let store = try await makePopulatedStore(directory: dir)
 
         let results = store.search(queryEmbedding: [1, 0, 0], topK: 2)
         #expect(results.count == 2)
     }
 
-    @Test func retrieveContextReturnsMostRelevantFirst() {
+    @Test func retrieveContextReturnsMostRelevantFirst() async throws {
         let dir = makeTempDirectory()
         defer { cleanup(dir) }
-        let store = makePopulatedStore(directory: dir)
+        let store = try await makePopulatedStore(directory: dir)
 
         // Query embedding [1, 0, 0] is most similar to "The cat sat on the mat" [1, 0, 0]
         let results = store.search(queryEmbedding: [1, 0, 0], topK: 3)

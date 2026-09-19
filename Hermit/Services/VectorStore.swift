@@ -1,8 +1,13 @@
+import Accelerate
 import Foundation
 
 @Observable
+@MainActor
 class VectorStore {
     private(set) var chunks: [TextChunk] = []
+    var needsReimport: Bool {
+        chunks.contains { $0.embeddingVersion != TextChunk.currentEmbeddingVersion }
+    }
     private let storeDirectory: URL
 
     init(storeDirectory: URL? = nil) {
@@ -12,57 +17,57 @@ class VectorStore {
             let documents = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
             self.storeDirectory = documents.appendingPathComponent("vector_store")
         }
-        loadAll()
     }
 
     // MARK: - CRUD
 
-    func addChunks(_ newChunks: [TextChunk], forDocument documentId: UUID) {
-        chunks.append(contentsOf: newChunks)
-        save(documentId: documentId)
+    func addChunks(_ newChunks: [TextChunk], forDocument documentId: UUID) async throws {
+        let prepared = Self.normalize(newChunks)
+        let saved = chunksForDocument(documentId) + prepared
+        let directory = storeDirectory
+        try await Task.detached {
+            try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+            let data = try JSONEncoder().encode(saved)
+            try data.write(to: directory.appendingPathComponent("\(documentId.uuidString).json"), options: .atomic)
+        }.value
+        chunks.append(contentsOf: prepared)
     }
 
     func chunksForDocument(_ documentId: UUID) -> [TextChunk] {
         chunks.filter { $0.documentId == documentId }
     }
 
-    func deleteChunks(forDocument documentId: UUID) {
-        chunks.removeAll { $0.documentId == documentId }
+    func deleteChunks(forDocument documentId: UUID) async throws {
         let fileURL = storeDirectory.appendingPathComponent("\(documentId.uuidString).json")
-        try? FileManager.default.removeItem(at: fileURL)
+        try await Task.detached {
+            if FileManager.default.fileExists(atPath: fileURL.path) {
+                try FileManager.default.removeItem(at: fileURL)
+            }
+        }.value
+        chunks.removeAll { $0.documentId == documentId }
     }
 
-    func allEmbeddings() -> [(index: Int, embedding: [Float])] {
-        chunks.enumerated().compactMap { index, chunk in
-            guard let embedding = chunk.embedding else { return nil }
-            return (index: index, embedding: embedding)
-        }
-    }
-
-    func deleteAllChunks() {
+    func deleteAllChunks() async throws {
+        let directory = storeDirectory
+        try await Task.detached {
+            if FileManager.default.fileExists(atPath: directory.path) {
+                try FileManager.default.removeItem(at: directory)
+            }
+        }.value
         chunks.removeAll()
-        let fm = FileManager.default
-        if fm.fileExists(atPath: storeDirectory.path),
-           let files = try? fm.contentsOfDirectory(at: storeDirectory, includingPropertiesForKeys: nil) {
-            for file in files where file.pathExtension == "json" {
-                try? fm.removeItem(at: file)
-            }
-        }
     }
 
-    func storageSizeMB() -> Int {
-        let fm = FileManager.default
-        guard fm.fileExists(atPath: storeDirectory.path),
-              let enumerator = fm.enumerator(at: storeDirectory, includingPropertiesForKeys: [.fileSizeKey])
-        else { return 0 }
-
-        var totalSize: Int64 = 0
-        for case let fileURL as URL in enumerator {
-            if let size = try? fileURL.resourceValues(forKeys: [.fileSizeKey]).fileSize {
-                totalSize += Int64(size)
+    func storageSizeMB() async -> Int {
+        let directory = storeDirectory
+        return await Task.detached {
+            guard let files = FileManager.default.enumerator(
+                at: directory, includingPropertiesForKeys: [.fileSizeKey]) else { return 0 }
+            var bytes = 0
+            while let url = files.nextObject() as? URL {
+                bytes += (try? url.resourceValues(forKeys: [.fileSizeKey]).fileSize) ?? 0
             }
-        }
-        return Int(totalSize / (1024 * 1024))
+            return bytes / (1024 * 1024)
+        }.value
     }
 
     // MARK: - Search
@@ -71,49 +76,34 @@ class VectorStore {
         searchWithScores(queryEmbedding: queryEmbedding, topK: topK).map(\.chunk)
     }
 
-    func searchWithScores(queryEmbedding: [Float], topK: Int = 3) -> [(chunk: TextChunk, score: Float)] {
-        let indexed = allEmbeddings()
-        guard !indexed.isEmpty else { return [] }
-
-        let candidates = indexed.map { $0.embedding }
-        let results = findTopK(query: queryEmbedding, candidates: candidates, k: topK)
-
-        return results.map { result in
-            let originalIndex = indexed[result.index].index
-            return (chunk: chunks[originalIndex], score: result.score)
+    func searchWithScores(queryEmbedding: [Float], topK count: Int = 3) -> [(chunk: TextChunk, score: Float)] {
+        guard let query = normalized(queryEmbedding) else { return [] }
+        let scores = chunks.enumerated().lazy.compactMap { index, chunk -> (index: Int, score: Float)? in
+            guard let embedding = chunk.embedding, embedding.count == query.count else { return nil }
+            return (index, vDSP.dot(query, embedding))
         }
+        return topK(scores, k: count).map { (chunks[$0.index], $0.score) }
     }
 
     // MARK: - Persistence
 
-    private func save(documentId: UUID) {
-        let fm = FileManager.default
-        if !fm.fileExists(atPath: storeDirectory.path) {
-            try? fm.createDirectory(at: storeDirectory, withIntermediateDirectories: true)
-        }
-
-        let documentChunks = chunksForDocument(documentId)
-        let fileURL = storeDirectory.appendingPathComponent("\(documentId.uuidString).json")
-        let encoder = JSONEncoder()
-        if let data = try? encoder.encode(documentChunks) {
-            try? data.write(to: fileURL)
-        }
+    func loadAll() async throws {
+        let directory = storeDirectory
+        chunks = try await Task.detached {
+            guard FileManager.default.fileExists(atPath: directory.path) else { return [] }
+            let files = try FileManager.default.contentsOfDirectory(at: directory, includingPropertiesForKeys: nil)
+            return try files.filter { $0.pathExtension == "json" }.flatMap {
+                Self.normalize(try JSONDecoder().decode([TextChunk].self, from: Data(contentsOf: $0)))
+            }
+        }.value
     }
 
-    func loadAll() {
-        let fm = FileManager.default
-        guard fm.fileExists(atPath: storeDirectory.path),
-              let files = try? fm.contentsOfDirectory(at: storeDirectory, includingPropertiesForKeys: nil)
-        else { return }
-
-        let decoder = JSONDecoder()
-        var loaded: [TextChunk] = []
-        for file in files where file.pathExtension == "json" {
-            if let data = try? Data(contentsOf: file),
-               let decoded = try? decoder.decode([TextChunk].self, from: data) {
-                loaded.append(contentsOf: decoded)
-            }
+    private nonisolated static func normalize(_ chunks: [TextChunk]) -> [TextChunk] {
+        chunks.map { chunk in
+            var chunk = chunk
+            chunk.embedding = chunk.embeddingVersion == TextChunk.currentEmbeddingVersion
+                ? chunk.embedding.flatMap(normalized) : nil
+            return chunk
         }
-        chunks = loaded
     }
 }

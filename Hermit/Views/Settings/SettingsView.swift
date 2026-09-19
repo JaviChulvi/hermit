@@ -7,6 +7,8 @@ struct SettingsView: View {
     @Environment(DocumentViewModel.self) private var documentViewModel
     @Environment(ChatViewModel.self) private var chatViewModel
 
+    @State private var vectorStoreMB = 0
+    @State private var deletionError: String?
     @State private var showDeleteModelsConfirmation = false
     @State private var showDeleteDocumentsConfirmation = false
     @State private var showResetAppConfirmation = false
@@ -31,6 +33,7 @@ struct SettingsView: View {
                     memorySection
                     documentsSection
                     dataManagementSection
+                        .disabled(modelManager.isBusy || documentViewModel.isProcessing)
                     aboutSection
                 }
                 .padding(.horizontal, 16)
@@ -39,13 +42,19 @@ struct SettingsView: View {
             }
         }
         .background(Color("BackgroundPrimary").ignoresSafeArea())
+        .task(id: vectorStore.chunks.count) { vectorStoreMB = await vectorStore.storageSizeMB() }
+        .alert("Deletion Failed", isPresented: Binding(
+            get: { deletionError != nil }, set: { if !$0 { deletionError = nil } }
+        )) { Button("OK") { deletionError = nil } } message: {
+            Text(deletionError ?? "")
+        }
         .alert("Delete Models?", isPresented: $showDeleteModelsConfirmation) {
             Button("Delete", role: .destructive) {
                 do {
                     try modelManager.deleteModels()
                     onboardingComplete = false
                 } catch {
-                    // Deletion failed
+                    deletionError = error.localizedDescription
                 }
             }
             Button("Cancel", role: .cancel) {}
@@ -54,8 +63,10 @@ struct SettingsView: View {
         }
         .alert("Delete All Documents?", isPresented: $showDeleteDocumentsConfirmation) {
             Button("Delete", role: .destructive) {
-                documentViewModel.deleteAllDocuments()
-                chatViewModel.clearConversation()
+                Task {
+                    await chatViewModel.clearConversation()
+                    await documentViewModel.deleteAllDocuments()
+                }
             }
             Button("Cancel", role: .cancel) {}
         } message: {
@@ -63,14 +74,14 @@ struct SettingsView: View {
         }
         .alert("Reset App?", isPresented: $showResetAppConfirmation) {
             Button("Reset", role: .destructive) {
-                documentViewModel.deleteAllDocuments()
-                chatViewModel.clearConversation()
-                do {
-                    try modelManager.deleteModels()
-                } catch {
-                    // Deletion failed
+                Task {
+                    await chatViewModel.clearConversation()
+                    await documentViewModel.deleteAllDocuments()
+                    do {
+                        try modelManager.deleteModels()
+                        onboardingComplete = false
+                    } catch { deletionError = error.localizedDescription }
                 }
-                onboardingComplete = false
             }
             Button("Cancel", role: .cancel) {}
         } message: {
@@ -307,7 +318,7 @@ struct SettingsView: View {
     }
 
     private var vectorStoreSizeText: String {
-        let mb = vectorStore.storageSizeMB()
+        let mb = vectorStoreMB
         if mb > 0 {
             return "\(mb) MB"
         }
@@ -354,12 +365,12 @@ struct SettingsView: View {
     SettingsView()
         .environment(ModelManager())
         .environment(VectorStore())
-        .environment(DocumentViewModel(ragEngine: RAGEngine(embeddingService: EmbeddingService(modelManager: ModelManager()), vectorStore: VectorStore(), modelManager: ModelManager()), vectorStore: VectorStore()))
+        .environment(DocumentViewModel(ragEngine: RAGEngine(embeddingService: EmbeddingService(modelManager: ModelManager()), vectorStore: VectorStore()), vectorStore: VectorStore()))
         .environment({
             let mm = ModelManager()
             let vs = VectorStore()
             let ls = LLMService(modelManager: mm)
-            let re = RAGEngine(embeddingService: EmbeddingService(modelManager: mm), vectorStore: vs, modelManager: mm)
+            let re = RAGEngine(embeddingService: EmbeddingService(modelManager: mm), vectorStore: vs)
             return ChatViewModel(ragEngine: re, llmService: ls)
         }())
         .preferredColorScheme(.dark)

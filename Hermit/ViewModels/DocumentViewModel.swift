@@ -10,87 +10,77 @@ class DocumentViewModel {
 
     private let ragEngine: RAGEngine
     private let vectorStore: VectorStore
-
     private static var metadataURL: URL {
-        let documents = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
-        let dir = documents.appendingPathComponent("documents")
-        return dir.appendingPathComponent("metadata.json")
+        FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
+            .appendingPathComponent("documents/metadata.json")
     }
 
     init(ragEngine: RAGEngine, vectorStore: VectorStore) {
         self.ragEngine = ragEngine
         self.vectorStore = vectorStore
-        loadDocuments()
     }
-
-    // MARK: - Import
 
     func importDocument(url: URL) async {
+        guard !isProcessing else { return }
         isProcessing = true
-        processingStatus = "Starting..."
         errorMessage = nil
-
-        // Start accessing the security-scoped resource
-        let didStartAccessing = url.startAccessingSecurityScopedResource()
+        let accessed = url.startAccessingSecurityScopedResource()
         defer {
-            if didStartAccessing {
-                url.stopAccessingSecurityScopedResource()
-            }
+            if accessed { url.stopAccessingSecurityScopedResource() }
+            isProcessing = false
+            processingStatus = ""
         }
-
         do {
-            let document = try await ragEngine.ingestDocument(url: url) { [weak self] status in
-                self?.processingStatus = status
+            let document = try await ragEngine.ingestDocument(url: url) { [weak self] in
+                self?.processingStatus = $0
             }
-            documents.append(document)
-            saveDocuments()
-        } catch {
-            errorMessage = error.localizedDescription
-        }
-
-        isProcessing = false
-        processingStatus = ""
+            let updated = documents + [document]
+            do {
+                try await Self.save(updated)
+                documents = updated
+            } catch {
+                try await vectorStore.deleteChunks(forDocument: document.id)
+                throw error
+            }
+        } catch { errorMessage = error.localizedDescription }
     }
 
-    // MARK: - Delete
-
-    func deleteDocument(id: UUID) {
-        documents.removeAll { $0.id == id }
-        vectorStore.deleteChunks(forDocument: id)
-        saveDocuments()
-    }
-
-    func deleteAllDocuments() {
-        documents.removeAll()
-        vectorStore.deleteAllChunks()
-        saveDocuments()
-    }
-
-    // MARK: - Persistence
-
-    func loadDocuments() {
-        let url = Self.metadataURL
-        guard FileManager.default.fileExists(atPath: url.path) else { return }
-
+    func deleteDocument(id: UUID) async {
+        guard !isProcessing else { return }
+        isProcessing = true
+        defer { isProcessing = false }
         do {
-            let data = try Data(contentsOf: url)
-            documents = try JSONDecoder().decode([Document].self, from: data)
-        } catch {
+            try await vectorStore.deleteChunks(forDocument: id)
+            let updated = documents.filter { $0.id != id }
+            try await Self.save(updated)
+            documents = updated
+        } catch { errorMessage = error.localizedDescription }
+    }
+
+    func deleteAllDocuments() async {
+        guard !isProcessing else { return }
+        isProcessing = true
+        defer { isProcessing = false }
+        do {
+            try await vectorStore.deleteAllChunks()
+            try await Self.save([])
             documents = []
-        }
+        } catch { errorMessage = error.localizedDescription }
     }
 
-    private func saveDocuments() {
+    func loadDocuments() async throws {
         let url = Self.metadataURL
-        let dir = url.deletingLastPathComponent()
+        documents = try await Task.detached {
+            guard FileManager.default.fileExists(atPath: url.path) else { return [] }
+            return try JSONDecoder().decode([Document].self, from: Data(contentsOf: url))
+        }.value
+    }
 
-        let fm = FileManager.default
-        if !fm.fileExists(atPath: dir.path) {
-            try? fm.createDirectory(at: dir, withIntermediateDirectories: true)
-        }
-
-        if let data = try? JSONEncoder().encode(documents) {
-            try? data.write(to: url)
-        }
+    private static func save(_ documents: [Document]) async throws {
+        let url = metadataURL
+        try await Task.detached {
+            try FileManager.default.createDirectory(at: url.deletingLastPathComponent(), withIntermediateDirectories: true)
+            try JSONEncoder().encode(documents).write(to: url, options: .atomic)
+        }.value
     }
 }
