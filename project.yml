@@ -16,7 +16,8 @@ packages:
     exactVersion: "0.31.4"
   mlx-swift-lm:
     url: https://github.com/ml-explore/mlx-swift-lm.git
-    exactVersion: "3.31.4"
+    # Latest tag cannot load Gemma E2B shared-KV layers; pin the upstream fix.
+    revision: "68947ccdca79bcf7a26dc220f73caa060369513c"
   swift-tokenizers-mlx:
     url: https://github.com/DePasqualeOrg/swift-tokenizers-mlx
     exactVersion: "0.3.0"

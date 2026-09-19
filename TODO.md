@@ -1213,6 +1213,7 @@
 ## 5.1 — Upstream MLX and app performance
 
 - [x] Pin official MLX packages and compatible adapters; check in the dependency lockfile.
+- [x] Pull the merged upstream Gemma E-series loading fix (`68947cc`) and verify native model loading/generation; release 3.31.4 fails with the deployed checkpoint.
 - [x] Replace custom Gemma text/vision/loading code with upstream MLXVLM.
 - [x] Keep structured ChatSession history/KV state with a total token budget and safe reset on prefix/model changes.
 - [x] Make document retrieval explicit; use the deployed tokenizer to budget chunks.

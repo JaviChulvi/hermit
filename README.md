@@ -80,7 +80,7 @@ Running ML models on a phone with limited RAM is the core engineering challenge.
 
 ## Dependency update and validation
 
-`project.yml` pins MLX **0.31.4** and official `mlx-swift-lm` **3.31.4**. The checked-in `Package.resolved` also pins transitive dependencies. The tokenizer/Hugging Face adapters retain compatible versions; upgrading their transitive packages independently can break their APIs. No custom Gemma model or vision implementation is maintained by Hermit.
+`project.yml` pins MLX **0.31.4** and official `mlx-swift-lm` commit **`68947cc`** (the merged [Gemma E-series loading fix](https://github.com/ml-explore/mlx-swift-lm/pull/384), absent from the latest 3.31.4 tag). The checked-in `Package.resolved` also pins transitive dependencies. The tokenizer/Hugging Face adapters retain compatible versions; upgrading their transitive packages independently can break their APIs. No custom Gemma model or vision implementation is maintained by Hermit.
 
 ```bash
 xcodegen generate

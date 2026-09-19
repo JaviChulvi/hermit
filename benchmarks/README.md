@@ -28,3 +28,9 @@ Empty decision matrix (filled only after the relevant run):
 | Full sort / bounded top-K | pending | pending | pending | CPU search correctness/cost |
 
 An independent read-only review approved this scoped Mac plan with controls for the incumbent's hard capacity, app-level session coverage, article-disjoint retrieval splits, multiple image shapes, timing warm-up/synchronization, and reproducible raw artifacts. Those controls are incorporated above. **Actual Hermit `LLMService` behavior, memory warnings, iPhone inference/thermals, and full photo-answer regression remain separate device gates when the native harness cannot execute them.**
+
+## Compatibility correction during execution
+
+The first real load with release **3.31.4** failed with `MLXNN.UpdateError.keyNotFound` at `language_model.model.layers.15.self_attn.k_norm.weight`. This is the known [upstream shared-KV loader defect](https://github.com/ml-explore/mlx-swift-lm/issues/552). Compilation and simulator tests did not cover it.
+
+The app now pins the **merged upstream fix**, `68947ccdca79bcf7a26dc220f73caa060369513c` ([PR #384](https://github.com/ml-explore/mlx-swift-lm/pull/384)); no local Gemma code was restored. Native loading with `mlx-community/gemma-4-e2b-it-4bit` revision `238767527555cb75a05732a84dff5d6ba0dd6809` succeeds and the deterministic prompt “Reply with only the capital of France.” returns `PARIS` on the Mac. The [two-cat photo](https://huggingface.co/datasets/huggingface/documentation-images/resolve/main/coco_sample.png) with “How many cats are in this image? Reply with only the number.” returns `2` (335 prepared input tokens). These are compatibility smoke checks, not performance or quality comparisons. The wider comparison matrix remains pending; no tuning decision is based on these exploratory runs.

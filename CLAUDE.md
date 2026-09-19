@@ -97,7 +97,7 @@ When implementing ANY view, apply these colors. Do not leave default iOS styling
 | Package | URL | Version |
 |---|---|---|
 | mlx-swift | https://github.com/ml-explore/mlx-swift | exact: 0.31.4 |
-| mlx-swift-lm | https://github.com/ml-explore/mlx-swift-lm.git | exact: 3.31.4 |
+| mlx-swift-lm | https://github.com/ml-explore/mlx-swift-lm.git | revision: 68947ccdca79bcf7a26dc220f73caa060369513c |
 | swift-tokenizers-mlx | https://github.com/DePasqualeOrg/swift-tokenizers-mlx | exact: 0.3.0 |
 | swift-hf-api-mlx | https://github.com/DePasqualeOrg/swift-hf-api-mlx | exact: 0.2.0 |
 | swift-tokenizers | https://github.com/DePasqualeOrg/swift-tokenizers | exact: 0.5.0 |
