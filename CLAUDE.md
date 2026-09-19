@@ -9,7 +9,7 @@ Hermit is an iOS app (SwiftUI) that performs RAG (Retrieval-Augmented Generation
 
 ## Tech stack
 - **UI**: SwiftUI, iOS 18.0+, Swift 6.3
-- **LLM inference**: `mlx-swift` + `mlx-swift-lm` (MLXVLM, MLXEmbedders, MLXLMCommon)
+- **LLM inference**: `mlx-swift` + `mlx-swift-lm` (MLXLLM, MLXEmbedders, MLXLMCommon)
 - **Tokenizers**: `swift-tokenizers-mlx` (MLXLMTokenizers)
 - **Model downloads**: `swift-hf-api-mlx` (HubClientMLX)
 - **Embeddings**: all-MiniLM-L6-v2 via MLXEmbedders
@@ -52,7 +52,7 @@ xcodebuild -scheme Hermit -destination 'platform=iOS Simulator,name=iPhone 17 Pr
 - iPhone has 8 GB RAM, app can use ~5-6 GB with increased-memory-limit entitlement
 - **NEVER** load embedding model (MiniLM) and LLM (Gemma 4) simultaneously
 - ModelManager enforces mutual exclusion: load one → unload it → load the other
-- Always call `MLX.Memory.cacheLimit = 0` and `MLX.Memory.clearCache()` when unloading a model
+- Always call `MLX.GPU.set(cacheLimit: 0)` when unloading a model
 - Always check `os_proc_available_memory()` before loading Gemma 4
 
 ## iOS 26 Liquid Glass — CRITICAL (READ THIS)
@@ -90,19 +90,16 @@ When implementing ANY view, apply these colors. Do not leave default iOS styling
 - Use `@MainActor` on view models and UI-bound services
 - Use SwiftUI `.environment()` for dependency injection
 - Prefer `async/await` and `AsyncThrowingStream` over closures/callbacks
-- MiniLM requires untruncated/unpadded tokenization and masked mean pooling with L2 normalization. Its MLX checkpoint lacks pooling metadata. Increment `TextChunk.currentEmbeddingVersion` for any embedding/tokenizer/pooling change; never mix old vectors with new queries.
 - Keep services stateless where possible; state lives in ViewModels or Managers
 - Test file naming: `{ClassName}Tests.swift` in matching subdirectory under HermitTests/
 
 ## SPM Dependencies (exact packages)
 | Package | URL | Version |
 |---|---|---|
-| mlx-swift | https://github.com/ml-explore/mlx-swift | exact: 0.31.4 |
-| mlx-swift-lm | https://github.com/ml-explore/mlx-swift-lm.git | revision: 68947ccdca79bcf7a26dc220f73caa060369513c |
-| swift-tokenizers-mlx | https://github.com/DePasqualeOrg/swift-tokenizers-mlx | exact: 0.3.0 |
-| swift-hf-api-mlx | https://github.com/DePasqualeOrg/swift-hf-api-mlx | exact: 0.2.0 |
-| swift-tokenizers | https://github.com/DePasqualeOrg/swift-tokenizers | exact: 0.5.0 |
-| swift-hf-api | https://github.com/DePasqualeOrg/swift-hf-api | exact: 0.3.2 |
+| mlx-swift | https://github.com/ml-explore/mlx-swift | from: 0.10.0 |
+| mlx-swift-lm | https://github.com/DePasqualeOrg/mlx-swift-lm.git | branch: swift-tokenizers |
+| swift-tokenizers-mlx | https://github.com/DePasqualeOrg/swift-tokenizers-mlx | branch: main |
+| swift-hf-api-mlx | https://github.com/DePasqualeOrg/swift-hf-api-mlx | branch: main |
 
 ## HuggingFace model IDs
 - Embeddings: `mlx-community/all-MiniLM-L6-v2-bf16` (~90 MB)

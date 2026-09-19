@@ -1,1 +1,0 @@
-Swift/ErrorType.swift:254: Fatal error: Error raised at top level: MLXNN.UpdateError.keyNotFound(path: ["language_model", "model", "layers", "15", "self_attn", "k_norm", "weight"], modules: ["Gemma4", "Gemma4TextLanguageModel", "Gemma4TextBackbone", "Gemma4TextDecoderLayer", "Gemma4TextAttention", "Gemma4RMSNormZeroShift"])

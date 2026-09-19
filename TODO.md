@@ -1209,22 +1209,3 @@
 | **Phase 3** | 7 stories | 31 tasks | DocumentProcessor (4), Chunking (7), CosineSimilarity (7), VectorStore (6), RAGEngine (3+), EmbeddingService (4) | Task 3.7.4: document flow |
 | **Phase 4** | 7 stories | 36 tasks | LLMService (4), RAGQuery (4+), ChatViewModel (6), E2E | Task 4.6.5: full app review |
 | **Total** | **29 stories** | **139 tasks** | **~55 tests** | **4 quality gates** |
-
-## 5.1 — Upstream MLX and app performance
-
-- [x] Pin official MLX packages and compatible adapters; check in the dependency lockfile.
-- [x] Pull the merged upstream Gemma E-series loading fix (`68947cc`) and verify native model loading/generation; release 3.31.4 fails with the deployed checkpoint.
-- [x] Replace custom Gemma text/vision/loading code with upstream MLXVLM.
-- [x] Keep structured ChatSession history/KV state with a total token budget and safe reset on prefix/model changes.
-- [x] Make document retrieval explicit; use the deployed tokenizer to budget chunks.
-- [x] Remove serialized 128-token truncation/padding, select upstream MiniLM mean pooling, and require reimporting incompatible stored vectors.
-- [x] Hold exclusive model ownership through loading, streaming, cancellation, and unloading.
-- [x] Move document extraction/JSON I/O off MainActor, throttle streaming updates, and use normalized bounded top-K search.
-- [x] Update regression tests, explicitly skip unavailable GPU integration tests, and compile simulator/device targets.
-- [x] Fix the preview-only sample dependency that blocked Release compilation; build a signed validation target for the connected iPhone 16 Pro.
-- [x] Prepare the isolated Release device benchmark and GPU cancellation/memory-warning checks; stage pinned model files with HubClient repository metadata.
-- [x] Record native Mac EN/ES retrieval and answer pilots, cache/batch sweeps, text/photo stages, actual-service session checks, and bounded-search measurements with reproducible inputs and outputs.
-- [x] Verify the original locked package stack and correct the retrieval baseline; retain the old-logic/new-runtime runs as separate migration controls.
-- [ ] Repeat device-relevant workloads on the user-selected iPhone 16 Pro, including GPU cancellation, memory warnings, UI responsiveness and thermals, before claiming device performance gains.
-- [ ] Resolve the Spanish retrieval acceptance failure: corrected original-stack Recall@3 is 45%, proposed 256/32 mean pooling is 43%; do not tune against the held-out set.
-- [ ] Resolve original-vs-upstream answer/photo regression: unchanged custom Gemma fails loading the current checkpoint on both the original locked stack and current runtime.

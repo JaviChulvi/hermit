@@ -1,5 +1,3 @@
-> Actualización de implementación (2026-09-19): Hermit usa MLXVLM/ChatSession de upstream (commit 68947cc, con el arreglo de carga E2B posterior a 3.31.4), sin Gemma propio. Chunking de hasta 256 tokens con el tokenizer real (solapamiento 32); sesiones persistentes con presupuesto total de 4096 tokens, incluidos 1024 de respuesta; modos General/Documentos; I/O de documentos fuera de MainActor. Las propuestas históricas de abajo sobre chunks de 300 palabras y carga manual quedan sustituidas. Versiones, comportamiento actual y mediciones pendientes: [README](README.md#dependency-update-and-validation).
-
 # Hermit - RAG 100% On-Device para iOS
 
 > **Retrieval-Augmented Generation privado y local.** Sin servidores, sin APIs, sin telemetría. Tus datos nunca salen del iPhone.
