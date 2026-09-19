@@ -1222,6 +1222,7 @@
 - [x] Move document extraction/JSON I/O off MainActor, throttle streaming updates, and use normalized bounded top-K search.
 - [x] Update regression tests, explicitly skip unavailable GPU integration tests, and compile simulator/device targets.
 - [x] Fix the preview-only sample dependency that blocked Release compilation; build a signed validation target for the connected iPhone 16 Pro.
+- [x] Prepare the isolated Release device benchmark and GPU cancellation/memory-warning checks; stage pinned model files with HubClient repository metadata.
 - [x] Record native Mac EN/ES retrieval and answer pilots, cache/batch sweeps, text/photo stages, actual-service session checks, and bounded-search measurements with reproducible inputs and outputs.
 - [x] Verify the original locked package stack and correct the retrieval baseline; retain the old-logic/new-runtime runs as separate migration controls.
 - [ ] Repeat device-relevant workloads on the user-selected iPhone 16 Pro, including GPU cancellation, memory warnings, UI responsiveness and thermals, before claiming device performance gains.

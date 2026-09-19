@@ -103,7 +103,7 @@ Ten seeded queries per repeat use independently generated vectors, not duplicate
 
 ## Remaining gates
 
-- Physical iPhone inference, memory warnings, cancellation under GPU load, sustained thermals, and measured UI responsiveness remain unverified. Device results will be recorded with the actual connected hardware.
+- Physical iPhone inference, memory warnings, cancellation under GPU load, sustained thermals, and measured UI responsiveness remain unverified. A signed Release validation build is installed on the user-selected iPhone 16 Pro (iOS 26.7), with the increased-memory-limit entitlement. Certificate trust is resolved. The initial embedding tests stopped at the missing-model precondition because USB staging omitted HubClient's cached repository metadata; the metadata is now staged and the reproduction script includes it. The retry is waiting for the phone to be unlocked. No completed device inference or performance result is claimed.
 - Original-vs-upstream photo/answer regression remains unresolved because the unchanged custom model fails on both the original locked stack and current runtime with the current checkpoint. Existing simple upstream fixtures do not replace that comparison.
 - The Spanish retrieval no-regression gate fails against the corrected original-stack baseline. Current retrieval parameters remain provisional; this report does not approve merging them as a quality improvement.
 - Spanish answer quality and abstention need broader, human-checked document queries. Lexical/fusion are measured candidates, not shipped features or established production winners.

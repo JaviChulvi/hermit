@@ -83,3 +83,40 @@ For cache comparisons, invoke `HermitBench gemma upstream MODEL PROMPT IMAGE_OR_
 The Gemma legacy command is the same with `legacy` instead of `upstream`. Its recorded load failure is a result; do not modify its weights/model to manufacture a quality comparison. The separate original-stack harness also fails loading the same checkpoint. No original iOS binary or older working checkpoint is compared.
 
 Raw vector files are regeneration intermediates and are not committed. The reference summaries, per-query ranks, outputs, provenance, and source hashes are retained in `results/2026-09-19/`. Compare the recorded input hashes before treating a rerun as identical. The MLQA development corpus is [Facebook Research MLQA](https://github.com/facebookresearch/MLQA), CC BY-SA 3.0; its Wikipedia passages and annotations remain external inputs. No user documents are used.
+
+## Physical iPhone validation
+
+The connected device selected by the user is an **iPhone 16 Pro**, replacing the initial iPhone 15 Pro target. Use a separate validation bundle identifier to preserve installed app data and avoid changing the repository's identifier. Xcode must be signed in; pair/unlock the phone, enable Developer Mode, and trust the development certificate under Settings → General → VPN & Device Management. Use your own team and bundle identifiers below. The reference profile includes the increased-memory-limit entitlement.
+
+```bash
+export HERMIT_DEVICE_ROOT=/tmp/hermit-device-project
+export HERMIT_DEVICE_BUILD=/tmp/hermit-device-validation
+# Set HERMIT_DEVICE_ID (UDID), HERMIT_TEAM_ID, and HERMIT_BUNDLE_ID for your device/team.
+python3 benchmarks/prepare_device.py "$HERMIT_DEVICE_ROOT" "$HERMIT_BUNDLE_ID" "$HERMIT_BENCH_ROOT/data"
+xcodegen generate --spec "$HERMIT_DEVICE_ROOT/project.yml" --project "$HERMIT_DEVICE_ROOT"
+xcodebuild -project "$HERMIT_DEVICE_ROOT/Hermit.xcodeproj" -scheme Hermit -configuration Release \
+  -destination "platform=iOS,id=$HERMIT_DEVICE_ID" -derivedDataPath "$HERMIT_DEVICE_BUILD" \
+  -disableAutomaticPackageResolution -skipPackageUpdates DEVELOPMENT_TEAM="$HERMIT_TEAM_ID" \
+  CODE_SIGN_STYLE=Automatic ENABLE_TESTABILITY=YES -allowProvisioningUpdates -allowProvisioningDeviceRegistration build-for-testing
+xcrun devicectl device install app --device "$HERMIT_DEVICE_ID" "$HERMIT_DEVICE_BUILD/Build/Products/Release-iphoneos/Hermit.app"
+xcrun devicectl device copy to --device "$HERMIT_DEVICE_ID" --source "$HERMIT_DEVICE_ROOT/model-cache" \
+  --destination Library/Caches/huggingface/hub --domain-type appDataContainer --domain-identifier "$HERMIT_BUNDLE_ID"
+xcrun devicectl device copy to --device "$HERMIT_DEVICE_ID" --source "$HERMIT_DEVICE_ROOT/hermit-benchmark-inputs.json" \
+  --destination Documents/hermit-benchmark-inputs.json --domain-type appDataContainer --domain-identifier "$HERMIT_BUNDLE_ID"
+xcrun devicectl device copy to --device "$HERMIT_DEVICE_ID" --source "$HERMIT_BENCH_ROOT/data/cats.png" \
+  --destination Documents/hermit-cats.png --domain-type appDataContainer --domain-identifier "$HERMIT_BUNDLE_ID"
+```
+
+The preparation script stages the pinned model files from `$HERMIT_BENCH_ROOT/models`, reusing hard links when possible, and fetches their public repository metadata. It writes `refs/main` and the `.metadata/models--mlx-community--MODEL/REVISION.json` file required by HubClient's snapshot verification, checking local file sizes against the pinned repository metadata. Copy the entire staged cache, including `.metadata`; copying only snapshots/refs makes the app report models as unavailable. No credentials are copied. This bypasses network downloading in the app, so it is not a validation of the onboarding download flow.
+
+In a copy of the generated `.xctestrun` next to the original, set `HERMIT_MODEL_TESTS=1` and `HERMIT_DEVICE_BENCHMARKS=1` in each `TestConfigurations[].TestTargets[].EnvironmentVariables`, and `ParallelizationEnabled=false`. Keep `__TESTROOT__` paths intact. Run the suites **sequentially**, because separate test suites would otherwise create independent model managers. Ordinary view-model tests assume no downloaded models and must not run alongside these GPU suites.
+
+```bash
+for suite in EmbeddingServiceIntegrationTests LLMServiceIntegrationTests DevicePerformanceTests; do
+  xcodebuild test-without-building -xctestrun "$HERMIT_DEVICE_BUILD/Build/Products/Hermit-models.xctestrun" \
+    -destination "platform=iOS,id=$HERMIT_DEVICE_ID" -parallel-testing-enabled NO -collect-test-diagnostics never \
+    -only-testing:"HermitTests/$suite" -resultBundlePath "$HERMIT_DEVICE_ROOT/$suite.xcresult"
+done
+```
+
+Use fresh result-bundle paths for reruns. Copy `Documents/hermit-device-cache.json`, `hermit-device-batches.json`, and `hermit-device-runtime.json` back with `devicectl device copy from`. The cache sweep uses the same prompts, temperature 0, 128-token cap, and preprocessing probe as the Mac harness. It interleaves text/photo and 0/32/64 MiB caches for one warm-up and five measured repetitions, with a fresh session per request. The batch sweep uses the same 32 passages/32 queries, but measures the actual app service including model load/unload on every call; its timings are not equivalent to the Mac kernel-only measurements. Record thermal state and output/token changes before choosing defaults. Footprint is sampled after each request, not a peak process-footprint measurement; MLX peak allocation is separately recorded. MainActor scheduling gaps are a responsiveness probe, not rendered frame times or a full UI audit. Injected memory-warning notifications verify the app's handler during GPU generation, not survival of real OS memory pressure.
