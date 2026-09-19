@@ -27,7 +27,7 @@ xcodebuild -project "$HERMIT_BENCH_ROOT/HermitBench.xcodeproj" -scheme HermitBen
   -derivedDataPath "$HERMIT_BENCH_ROOT/build" build
 ```
 
-Run beside the MLX resource bundle. Keep GPU workloads sequential. The `legacy` embedding arm preserves serialized tokenizer truncation/padding and old pooling; `legacy_full` removes truncation/padding but keeps word chunks and old pooling; `tokenizer_only` adds 256/32 token chunks while retaining old pooling. Numeric candidates use the final app pipeline.
+Run beside the MLX resource bundle. Keep GPU workloads sequential. The `legacy` embedding arm uses the new runtime/tokenizer with serialized truncation/padding and old pooling; it is not the original locked-stack baseline. `legacy_full` removes truncation/padding but keeps word chunks and old pooling; `tokenizer_only` adds 256/32 token chunks while retaining old pooling. Numeric candidates use the final app pipeline.
 
 ```bash
 cd "$HERMIT_BENCH_ROOT/build/Build/Products/Release"
@@ -46,7 +46,29 @@ for shape in square portrait landscape; do
 done
 ```
 
-From the repository, score retrieval, generate matched answer inputs, then score the outputs. The answer scorer reports normalized exact match and token-overlap F1: lowercase, remove Unicode punctuation, remove the English/Spanish articles explicitly listed in `analyze.py`, and maximize over annotated gold answers. It is not a semantic judge or a production success metric.
+Before scoring, also run the original locked stack. The snapshot in `original-stack/Package.resolved` came from the original local checkout, where the lockfile was ignored by Git. The harness uses unchanged model/chunker sources from `dd98f8e` and the original embedding call. Its >512-token whole-document guard is a benchmark safety measure absent from the old app. Preserve the branch declaration required by the old adapters, and disable automatic resolution so the saved revision is used.
+
+```bash
+# Run from the repository root.
+export HERMIT_ORIGINAL_ROOT=/tmp/hermit-original-stack
+mkdir -p "$HERMIT_ORIGINAL_ROOT/Sources" "$HERMIT_ORIGINAL_ROOT/HermitOriginal.xcodeproj/project.xcworkspace/xcshareddata/swiftpm"
+cp benchmarks/original-stack/Run.swift "$HERMIT_ORIGINAL_ROOT/Sources/Run.swift"
+cp benchmarks/original-stack/project.yml "$HERMIT_ORIGINAL_ROOT/project.yml"
+cp benchmarks/original-stack/Package.resolved "$HERMIT_ORIGINAL_ROOT/HermitOriginal.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved"
+for name in Gemma4Text Gemma4Vision Gemma4VLM ChunkingStrategy; do
+  git show "dd98f8e:Hermit/Services/$name.swift" > "$HERMIT_ORIGINAL_ROOT/Sources/$name.swift"
+done
+xcodegen generate --spec "$HERMIT_ORIGINAL_ROOT/project.yml" --project "$HERMIT_ORIGINAL_ROOT"
+xcodebuild -project "$HERMIT_ORIGINAL_ROOT/HermitOriginal.xcodeproj" -scheme HermitOriginal \
+  -configuration Release -destination 'platform=macOS,arch=arm64' \
+  -derivedDataPath "$HERMIT_ORIGINAL_ROOT/build" -disableAutomaticPackageResolution -skipPackageUpdates build
+cd "$HERMIT_ORIGINAL_ROOT/build/Build/Products/Release"
+./HermitOriginal embeddings "$HERMIT_BENCH_ROOT/models/minilm" "$HERMIT_BENCH_ROOT/data/corpus.json" \
+  "$HERMIT_BENCH_ROOT/data/corrected-original_stack.json"
+./HermitOriginal gemma "$HERMIT_BENCH_ROOT/models/gemma" "$HERMIT_BENCH_ROOT/data/original-stack-gemma.txt"
+```
+
+From the repository, score retrieval, generate matched answer inputs, then score the outputs. The 160-answer pilot uses only new-stack retrieval/generation arms, not original-stack generation. The answer scorer reports normalized exact match and token-overlap F1: lowercase, remove Unicode punctuation, remove the English/Spanish articles explicitly listed in `analyze.py`, and maximize over annotated gold answers. It is not a semantic judge or a production success metric.
 
 ```bash
 VECLIB_MAXIMUM_THREADS=1 OPENBLAS_NUM_THREADS=1 uv run --no-project --with numpy==2.4.3 \
@@ -58,6 +80,6 @@ cd "$HERMIT_BENCH_ROOT/build/Build/Products/Release"
 
 For cache comparisons, invoke `HermitBench gemma upstream MODEL PROMPT IMAGE_OR_DASH OUTPUT.json` with default environment (0/32/64 MiB, one warm-up each, five interleaved repeats). Exact text/photo prompts are retained in the reference `cache-text.json` and `cache-photo.json`. Each request starts with an empty allocation cache and a fresh conversation; weights stay loaded. Report only repetitions 0–4. These runs measure cache reuse within a request, not retained allocation reuse between requests. Preprocessing is separately timed and synchronized; generation prepares its own input again. The preprocessing probe can warm GPU kernels. No operating-system page cache was flushed, so these are warm workload comparisons, not cold-start benchmarks.
 
-The Gemma legacy command is the same with `legacy` instead of `upstream`. Its recorded load failure is a result; do not modify its weights/model to manufacture a quality comparison. The old full package stack and the original iOS binary are outside that controlled comparison.
+The Gemma legacy command is the same with `legacy` instead of `upstream`. Its recorded load failure is a result; do not modify its weights/model to manufacture a quality comparison. The separate original-stack harness also fails loading the same checkpoint. No original iOS binary or older working checkpoint is compared.
 
 Raw vector files are regeneration intermediates and are not committed. The reference summaries, per-query ranks, outputs, provenance, and source hashes are retained in `results/2026-09-19/`. Compare the recorded input hashes before treating a rerun as identical. The MLQA development corpus is [Facebook Research MLQA](https://github.com/facebookresearch/MLQA), CC BY-SA 3.0; its Wikipedia passages and annotations remain external inputs. No user documents are used.

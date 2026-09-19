@@ -1,6 +1,8 @@
 # Native validation results — 2026-09-19
 
-**Keep upstream Gemma, correct MiniLM tokenization and mean pooling, and retain cache=0 / batch=1 / dense top-3 at 0.2 until phone validation.** The Mac experiments found two concrete embedding defects and support the bounded top-K change. They do not establish iPhone speed, memory safety, or a production retrieval winner.
+**The upstream package loads Gemma successfully; phone validation and retrieval acceptance remain open.** Retain cache=0 / batch=1 while validating. The corrected original-stack comparison gives English Recall@3 64% → 78% and Spanish 45% → 43%. The Spanish result fails the preregistered no-regression gate; the current retrieval settings are provisional, not an accepted multilingual improvement.
+
+**Baseline correction:** the earlier report mislabeled `legacy` as the original app. That arm runs old app logic on the new tokenizer, which honors serialized 128-token padding/truncation. The original locked tokenizer 0.2.1 ignores those settings. Its separately executed `original_stack` arm is now the before/after baseline below. The earlier 10%/7% scores remain as a migration-regression control, not original-app quality.
 
 App revision: `e2b721e`. M3 Pro / 36 GiB, macOS 26.6.1, Xcode 26.4. [Raw evidence](results/2026-09-19/), [reproduction](REPRODUCE.md), and the [preregistered plan and corrections](README.md) accompany this report. This was a local interactive host, with sequential GPU workloads, not a dedicated iPhone test rig. No paid inference API or user documents were used.
 
@@ -10,14 +12,15 @@ A subsequent cache-path fix resolves relative Hugging Face symlinks before copyi
 
 | Check | Observed result | Scope |
 |---|---|---|
-| Custom Gemma on current runtime/checkpoint | Load fails: packed projection shape `[8960,192]` vs expected `[8960,1536]` | No original-vs-upstream output-quality verdict |
+| Original custom Gemma on original locked stack/checkpoint | Load fails: missing layer 15 shared-KV `k_proj.weight` | No original output exists for comparison |
+| Custom Gemma on current runtime/checkpoint | Load fails: packed projection shape `[8960,192]` vs expected `[8960,1536]` | Separate runtime-migration control |
 | Tagged upstream 3.31.4 | Load fails on missing shared-KV `k_norm.weight` | Superseded by upstream fix |
 | Pinned upstream `68947cc` | Text, real photo, and three aspect-ratio fixtures generate successfully | Native compatibility only |
 | Shape/color/OCR fixtures | All three answer “Red circle, blue square, green triangle. MAP 42” | Simple generated fixtures, not real-photo quality coverage |
 | Actual `LLMService` | Seven structural checks pass; cached follow-up returns `cobalt7`, changed document context returns `amber9`; photo and follow-up both return `2` | Native model-owner adapter; iOS manager is not exercised |
 | App tests/build | 50 passed, 5 explicitly skipped; generic iOS unsigned build passes | Physical MLX integration tests remain skipped |
 
-The service checks verify retained session identity, prefix reset, history trimming, rejection of oversized current input, unload-callback reset, photo-history reuse, and combined image/text budget rejection. The photo turn accounts for 347 tokens and its follow-up reaches 371. The custom Gemma comparison used unchanged old model code plus a protocol forwarding adapter on the current package stack; it does not prove that an older installed app binary fails.
+The service checks verify retained session identity, prefix reset, history trimming, rejection of oversized current input, unload-callback reset, photo-history reuse, and combined image/text budget rejection. The photo turn accounts for 347 tokens and its follow-up reaches 371. The original-stack control uses unchanged `dd98f8e` model source and all 16 original lockfile pins (MLX 0.31.3, fork `d18efe1`, tokenizer 0.2.1). It also fails with the current checkpoint. No older working checkpoint or installed binary was compared. The current-runtime control uses a protocol forwarding adapter and remains separately identified.
 
 ## Retrieval quality
 
@@ -25,19 +28,20 @@ MLQA development data supplies 978 English and 454 Spanish passages. The fixed s
 
 | Pipeline | Chunks | Failed documents | English answer Recall@3 [CI] | Spanish answer Recall@3 [CI] | Change vs original EN / ES | Mean context MiniLM tokens EN / ES |
 |---|---:|---:|---:|---:|---:|---:|
-| Original words + serialized tokenizer + classification pooler | 1712 | 0 | 10% [6, 17] | 7% [3, 14] | +0 / +0 pp | 75 / 96 |
-| Untruncated words + classification pooler | 1679 | 12 | 64% [54, 73] | 45% [36, 55] | +54 / +38 pp | 621 / 645 |
-| 256/32 tokens + classification pooler | 1909 | 0 | 61% [51, 70] | 48% [38, 58] | +51 / +41 pp | 527 / 551 |
-| Mean pooling: 128 / 0 | 2987 | 0 | 73% [64, 81] | 39% [30, 49] | +63 / +32 pp | 247 / 211 |
-| Mean pooling: 128 / 32 | 3319 | 0 | 77% [68, 84] | 43% [34, 53] | +67 / +36 pp | 283 / 263 |
-| Mean pooling: 192 / 0 | 2255 | 0 | 75% [66, 82] | 41% [32, 51] | +65 / +34 pp | 328 / 291 |
-| Mean pooling: 192 / 32 | 2322 | 0 | 78% [69, 85] | 45% [36, 55] | +68 / +38 pp | 373 / 354 |
-| Mean pooling: 256 / 0 | 1879 | 0 | 77% [68, 84] | 43% [34, 53] | +67 / +36 pp | 390 / 315 |
-| **App: mean pooling 256 / 32** | 1909 | 0 | 78% [69, 85] | 43% [34, 53] | +68 / +36 pp | 401 / 385 |
+| **Original locked stack: words + classification pooler** | 1679 | 12 | 64% [54, 73] | 45% [36, 55] | +0 / +0 pp | 621 / 643 |
+| Legacy logic on new stack (`legacy`): serialized tokenizer | 1712 | 0 | 10% [6, 17] | 7% [3, 14] | -54 / -38 pp | 75 / 96 |
+| New stack: untruncated words + classification pooler | 1679 | 12 | 64% [54, 73] | 45% [36, 55] | +0 / +0 pp | 621 / 645 |
+| 256/32 tokens + classification pooler | 1909 | 0 | 61% [51, 70] | 48% [38, 58] | -3 / +3 pp | 527 / 551 |
+| Mean pooling: 128 / 0 | 2987 | 0 | 73% [64, 81] | 39% [30, 49] | +9 / -6 pp | 247 / 211 |
+| Mean pooling: 128 / 32 | 3319 | 0 | 77% [68, 84] | 43% [34, 53] | +13 / -2 pp | 283 / 263 |
+| Mean pooling: 192 / 0 | 2255 | 0 | 75% [66, 82] | 41% [32, 51] | +11 / -4 pp | 328 / 291 |
+| Mean pooling: 192 / 32 | 2322 | 0 | 78% [69, 85] | 45% [36, 55] | +14 / +0 pp | 373 / 354 |
+| Mean pooling: 256 / 0 | 1879 | 0 | 77% [68, 84] | 43% [34, 53] | +13 / -2 pp | 390 / 315 |
+| **App: mean pooling 256 / 32 (provisional)** | 1909 | 0 | 78% [69, 85] | 43% [34, 53] | +14 / -2 pp | 401 / 385 |
 
-The original path silently truncated 977 of 1,712 chunks to 128 tokens. Removing truncation exposed 12 documents whose word chunks exceeded the hard 512-position limit; the untruncated word control rejects those documents without silently truncating. Every token-based candidate indexes all 1,432 documents. The JSON summary includes both full-denominator scores and common-eligible scores excluding queries affected by any control ingestion failure.
+The `legacy` migration control silently truncated 977 of 1,712 chunks to 128 tokens. This is new-tokenizer behavior, not original-stack behavior. Both untruncated word controls encounter 12 Spanish documents exceeding the hard 512-position limit. The harness rejects those whole documents to avoid undefined gathers; the original app has no such guard. Every token-based candidate indexes all 1,432 documents. On the common-eligible Spanish held-out subset (93 questions), the original stack scores 48.4% and the app 44.1%; failures do not explain away the regression. Full and common-eligible scores are in the JSON summary.
 
-Masked mean pooling is the documented MiniLM contract; the checkpoint omits the metadata that would select it automatically. Its English score improves over the tokenizer-only classification-pooler control, while its Spanish score is 5 points lower on this sample. That intermediate comparison is not hidden. The final app improves both languages over the actual original pipeline, but this study does not establish uniformly better multilingual embeddings or an optimal chunk size.
+Masked mean pooling is the documented MiniLM contract; the checkpoint omits the metadata that would select it automatically. Its English score improves over the tokenizer-only classification-pooler control, while its Spanish score is 5 points lower on this sample. The app also scores 2 points below the original stack in Spanish. Do not select another chunk size using the now-visible held-out scores or claim the no-regression gate passed. A separately registered evaluation is needed before accepting a retrieval winner.
 
 | Search on corrected 256/32 chunks | English Recall@3 | Spanish Recall@3 | Change vs dense 0.2 EN / ES | Mean context MiniLM tokens EN / ES |
 |---|---:|---:|---:|---:|
@@ -53,9 +57,9 @@ Lexical search uses in-memory SQLite FTS5 BM25 (`unicode61`, diacritics removed)
 
 ## Generated answers
 
-The same 20 held-out questions per language produce 160 answers across four retrieval arms through the actual app generation service. Sessions reset between cases; seed=20260919, temperature=0.7, app context/output budgets=4096/1024. The maximum observed session length is 935 tokens. Exact match and token F1 use the documented lexical normalization, not human correctness grading; Spanish phrases can be semantically correct while failing exact match. These are small pilot samples, not production acceptance rates.
+The same 20 held-out questions per language produce 160 answers across four retrieval arms through the actual app generation service. All four use the new package stack and generator; `legacy` is the migration-regression control, not the original app or original-stack retrieval. Thus this pilot provides no before/after answer-quality estimate. Sessions reset between cases; seed=20260919, temperature=0.7, app context/output budgets=4096/1024. The maximum observed session length is 935 tokens. Exact match and token F1 use lexical normalization, not human correctness grading; Spanish phrases can be semantically correct while failing exact match. These are small pilot samples, not production acceptance rates.
 
-| Retrieval arm | EN exact match | EN token F1 | ES exact match | ES token F1 | F1 change vs original EN / ES | Questions / language |
+| Retrieval arm (new stack) | EN exact match | EN token F1 | ES exact match | ES token F1 | F1 change vs migration control EN / ES | Questions / language |
 |---|---:|---:|---:|---:|---:|---:|
 | legacy/dense_0.2 | 5% | 8.3% | 0% | 4.2% | +0.0 / +0.0 pp | 20 |
 | **256_32/dense_0.2 (app)** | 45% | 69.3% | 0% | 14.8% | +60.9 / +10.6 pp | 20 |
@@ -99,8 +103,9 @@ Ten seeded queries per repeat use independently generated vectors, not duplicate
 
 ## Remaining gates
 
-- Physical iPhone 15 Pro / 8 GB inference, memory warnings, cancellation under GPU load, sustained thermals, and measured UI responsiveness remain unverified. The only paired phone was an unavailable iPhone 16 Pro.
-- Original-vs-upstream photo/answer regression remains unresolved because the unchanged custom model fails the controlled current-runtime load. Existing simple upstream fixtures do not replace that comparison.
+- Physical iPhone inference, memory warnings, cancellation under GPU load, sustained thermals, and measured UI responsiveness remain unverified. Device results will be recorded with the actual connected hardware.
+- Original-vs-upstream photo/answer regression remains unresolved because the unchanged custom model fails on both the original locked stack and current runtime with the current checkpoint. Existing simple upstream fixtures do not replace that comparison.
+- The Spanish retrieval no-regression gate fails against the corrected original-stack baseline. Current retrieval parameters remain provisional; this report does not approve merging them as a quality improvement.
 - Spanish answer quality and abstention need broader, human-checked document queries. Lexical/fusion are measured candidates, not shipped features or established production winners.
 - Local artifacts remain under `/tmp/hermit-bench`; there is no cloud resource or paid service to tear down. Models, raw vectors, and the corpus stay outside the app repository. The reproducible summaries and outputs are committed; no user data was modified.
 - The PR remains draft. These findings justify the tokenizer/pooling corrections and continued validation, not completion of the physical-device gates.

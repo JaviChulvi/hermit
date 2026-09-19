@@ -1,0 +1,66 @@
+name: HermitOriginal
+options:
+  deploymentTarget: {macOS: "14.0"}
+settings:
+  base: {SWIFT_VERSION: "6.0", CODE_SIGNING_ALLOWED: NO}
+packages:
+  mlx-swift:
+    url: https://github.com/ml-explore/mlx-swift
+    exactVersion: "0.31.3"
+  mlx-swift-lm:
+    url: https://github.com/DePasqualeOrg/mlx-swift-lm.git
+    branch: swift-tokenizers
+  swift-asn1:
+    url: https://github.com/apple/swift-asn1.git
+    exactVersion: "1.6.0"
+  swift-collections:
+    url: https://github.com/apple/swift-collections.git
+    exactVersion: "1.4.1"
+  swift-crypto:
+    url: https://github.com/apple/swift-crypto
+    exactVersion: "4.3.1"
+  swift-filelock:
+    url: https://github.com/DePasqualeOrg/swift-filelock
+    exactVersion: "0.1.1"
+  swift-hf-api:
+    url: https://github.com/DePasqualeOrg/swift-hf-api
+    exactVersion: "0.2.2"
+  swift-hf-api-mlx:
+    url: https://github.com/DePasqualeOrg/swift-hf-api-mlx
+    revision: "7290accd75c218838db4a0b3bde83050043ab16d"
+  swift-jinja:
+    url: https://github.com/huggingface/swift-jinja.git
+    exactVersion: "2.3.5"
+  swift-numerics:
+    url: https://github.com/apple/swift-numerics
+    exactVersion: "1.1.1"
+  swift-sse:
+    url: https://github.com/DePasqualeOrg/swift-sse
+    exactVersion: "0.1.0"
+  swift-syntax:
+    url: https://github.com/swiftlang/swift-syntax.git
+    exactVersion: "600.0.1"
+  swift-tokenizers:
+    url: https://github.com/DePasqualeOrg/swift-tokenizers.git
+    exactVersion: "0.2.1"
+  swift-tokenizers-mlx:
+    url: https://github.com/DePasqualeOrg/swift-tokenizers-mlx
+    revision: "bc5b9d4031100fab556e49a3df1e9db9820a497c"
+  swift-xet:
+    url: https://github.com/DePasqualeOrg/swift-xet
+    exactVersion: "0.1.1"
+  yyjson:
+    url: https://github.com/ibireme/yyjson.git
+    exactVersion: "0.12.0"
+targets:
+  HermitOriginal:
+    type: tool
+    platform: macOS
+    sources: [Sources]
+    dependencies:
+      - {package: mlx-swift, product: MLX}
+      - {package: mlx-swift, product: MLXNN}
+      - {package: mlx-swift-lm, product: MLXLLM}
+      - {package: mlx-swift-lm, product: MLXLMCommon}
+      - {package: mlx-swift-lm, product: MLXEmbedders}
+      - {package: swift-tokenizers-mlx, product: MLXLMTokenizers}

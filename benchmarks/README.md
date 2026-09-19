@@ -1,6 +1,6 @@
 # Hermit performance validation
 
-The [completed Mac results](RESULTS.md) and [reproduction commands](REPRODUCE.md) supersede the pending entries in the historical plan below. Physical-device gates remain open.
+The [completed Mac results](RESULTS.md) and [reproduction commands](REPRODUCE.md) supersede the pending entries in the historical plan below. Physical-device gates remain open. **The original-stack correction at the end supersedes the earlier baseline labels: the Spanish no-regression gate has not passed.**
 
 ## Plan recorded before measurement (2026-09-19)
 
@@ -52,3 +52,11 @@ Generated-answer screening uses the first 20 held-out questions per language in 
 The tokenizer-only run improved retrieval, but corrected cosine scores were suspiciously high even for unrelated passages. Inspection found that the MLX checkpoint omits `1_Pooling/config.json`; upstream falls back to BERT's classification pooler. The [MiniLM model card](https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2) and [pooling configuration](https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2/blob/main/1_Pooling/config.json) specify masked mean pooling followed by L2 normalization, without extra layer normalization.
 
 The app now selects `MLXEmbedders.Pooling(strategy: .mean)` explicitly. The entire token grid, batch comparison, and the same generated-answer cases are rerun. Actual legacy and untruncated legacy controls retain classification pooling; a `tokenizer_only` 256/32 control isolates the additional pooling correction. Preceding tokenizer-only results are retained separately and do not describe the final app. The reimport requirement applies to both corrections.
+
+## Original locked-stack correction
+
+The earlier execution notes incorrectly call `legacy` the actual deployed baseline. All those embedding arms used the new packages. The original lockfile instead pins swift-tokenizers 0.2.1, whose implementation ignores serialized padding/truncation. The 128-token behavior is a migration regression to prevent, not established behavior of the old app.
+
+An additional native harness now runs the unchanged original chunker, embedding inference and custom Gemma model with all 16 original package pins. It uses the same input/model revisions and query split. Its MiniLM probe returns 3 tokens for `hello` and 602 for 600 repetitions; there is no implicit 128-token cap. The harness safely rejects whole documents above the 512-position capacity, a guard absent from the original app.
+
+Original-stack held-out dense Recall@3 is EN 64%, ES 45%; the proposed 256/32 mean-pooling path is EN 78%, ES 43%. The preregistered no-regression rule therefore fails in Spanish. Do not choose a replacement setting using these held-out scores. The 160-answer pilot contains no original-stack arm and establishes no before/after answer-quality gain. Custom Gemma also fails with the original locked stack and current checkpoint (missing layer 15 `k_proj.weight`), so original-vs-upstream generation regression remains unresolved.

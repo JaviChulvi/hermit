@@ -15,7 +15,7 @@ root = Path(sys.argv[1])
 corpus = json.loads((root / 'corpus.json').read_text())
 truth = json.loads((root / 'truth.json').read_text())
 documents = {d['id']: d for d in corpus['documents']}
-arms = ['legacy', 'legacy_full', 'tokenizer_only', '128_0', '128_32', '192_0', '192_32', '256_0', '256_32']
+arms = ['original_stack', 'legacy', 'legacy_full', 'tokenizer_only', '128_0', '128_32', '192_0', '192_32', '256_0', '256_32']
 summaries, per_query, lengths = [], [], []
 
 
@@ -122,7 +122,8 @@ with gzip.open(root / 'retrieval-queries.jsonl.gz', 'wt') as output:
     for row in per_query:
         output.write(json.dumps(row) + '\n')
 
-# The generated-answer pilot uses a fixed held-out subset and matched app budgets.
+# This pilot isolates retrieval on the new generator. Its legacy arm uses the
+# new tokenizer/runtime; it is not an original-app answer-quality baseline.
 questions = []
 for language in ['en', 'es']:
     questions += [q for q in corpus['questions'] if q['language'] == language

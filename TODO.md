@@ -1222,5 +1222,7 @@
 - [x] Move document extraction/JSON I/O off MainActor, throttle streaming updates, and use normalized bounded top-K search.
 - [x] Update regression tests, explicitly skip unavailable GPU integration tests, and compile simulator/device targets.
 - [x] Record native Mac EN/ES retrieval and answer pilots, cache/batch sweeps, text/photo stages, actual-service session checks, and bounded-search measurements with reproducible inputs and outputs.
-- [ ] Repeat device-relevant workloads on iPhone 15 Pro / 8 GB, including GPU cancellation, memory warnings, UI responsiveness and thermals, before claiming device performance gains.
-- [ ] Resolve original-vs-upstream answer/photo regression: unchanged custom Gemma fails loading the deployed checkpoint on the controlled current runtime.
+- [x] Verify the original locked package stack and correct the retrieval baseline; retain the old-logic/new-runtime runs as separate migration controls.
+- [ ] Repeat device-relevant workloads on the user-selected iPhone 16 Pro, including GPU cancellation, memory warnings, UI responsiveness and thermals, before claiming device performance gains.
+- [ ] Resolve the Spanish retrieval acceptance failure: corrected original-stack Recall@3 is 45%, proposed 256/32 mean pooling is 43%; do not tune against the held-out set.
+- [ ] Resolve original-vs-upstream answer/photo regression: unchanged custom Gemma fails loading the current checkpoint on both the original locked stack and current runtime.
