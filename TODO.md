@@ -1221,4 +1221,6 @@
 - [x] Hold exclusive model ownership through loading, streaming, cancellation, and unloading.
 - [x] Move document extraction/JSON I/O off MainActor, throttle streaming updates, and use normalized bounded top-K search.
 - [x] Update regression tests, explicitly skip unavailable GPU integration tests, and compile simulator/device targets.
-- [ ] Run the README's compatibility, EN/ES retrieval, cache/batch, text/photo, and thermal comparisons on the target iPhone before tuning defaults or claiming device performance gains.
+- [x] Record native Mac EN/ES retrieval and answer pilots, cache/batch sweeps, text/photo stages, actual-service session checks, and bounded-search measurements with reproducible inputs and outputs.
+- [ ] Repeat device-relevant workloads on iPhone 15 Pro / 8 GB, including GPU cancellation, memory warnings, UI responsiveness and thermals, before claiming device performance gains.
+- [ ] Resolve original-vs-upstream answer/photo regression: unchanged custom Gemma fails loading the deployed checkpoint on the controlled current runtime.

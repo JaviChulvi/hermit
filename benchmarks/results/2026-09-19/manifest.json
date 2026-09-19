@@ -1,0 +1,58 @@
+{
+  "app_commit": "e2b721e09029c59a28c5569dbcd65bdb5db244d0",
+  "platform": {
+    "cpu": "Apple M3 Pro",
+    "memory_bytes": 38654705664,
+    "macos": "26.6.1 (25G76)",
+    "xcode": "26.4 (17E192)"
+  },
+  "gemma_revision": "238767527555cb75a05732a84dff5d6ba0dd6809",
+  "minilm_revision": "b6691709eacd8f0afcc3faace288cf50e611f3aa",
+  "mlx_swift": "0.31.4",
+  "mlx_swift_lm": "68947ccdca79bcf7a26dc220f73caa060369513c",
+  "input_sha256": {
+    "MLQA_V1.zip": "246e8089933d13007fe80684d5c5c0713d6834cf8b3b4a0ec7c66f0a0d2baac8",
+    "cats.png": "cf6f3c4befa148732c7453e0de5afab00f682427435fead2d88b07a9615cdac2",
+    "square.png": "5d484358858b7689a0e811a8558d548f7600dbe897a351416b6c10bdde845b80",
+    "portrait.png": "a9ceebd9d5392484aa374d2598578c9fb93bb1dbc9ba9e30cefccd78bab80346",
+    "landscape.png": "f3674b1da1d3fcabf528ad34c712bd63004b65e6ef3dfc645f858dec0dbbc1ce",
+    "corpus.json": "d64f04530a77a9279960eebb00c4a2eebe54812794d2e2c13848f1c28f4e2a62",
+    "truth.json": "17f8910a5dfb0c1ca107f84e405f63aac4aed5a8a6f58b17713d1fdb4d792903"
+  },
+  "source_sha256": {
+    "benchmarks/Fixtures.swift": "6eefc6cb7a6377b92af63b59f45c295306f265a31a30065066d275fdfda3f0e5",
+    "benchmarks/LegacyBridge.swift": "55bf360f83263ca4b38e6e91cea2cbd5f49536a3c25459618f7bc2f66acb5824",
+    "benchmarks/Runner.swift": "78c29704b692bd08f3394553a2e26cf008ae028bde1a7ec88220e386c1c8dc3b",
+    "benchmarks/Sessions.swift": "1f162b4a7df15c01747e2f2a2b0ec0e16769e11895a5c10a46a594a5b3ab057b",
+    "benchmarks/analyze.py": "80d83f93ab640adbfb3762ed314ec3d0c8705d2b2b2ee5cb919a2f11e0162688",
+    "benchmarks/prepare.py": "a564b0dbdc78d8fb44adca47132e4674aef9a068bd1a14844a4b40e35683673e",
+    "Hermit/Services/EmbeddingService.swift": "e11ae6754de80cefc64dd939455770a285f9caf54858aa88a10200839163381b",
+    "Hermit/Services/LLMService.swift": "dabf40af14ce9857831c58d537fa116ff0cfbb5a1a39dcb18304b53eb4ec010c",
+    "Hermit/Services/ChunkingStrategy.swift": "11dbee6c73f6d24a0ae4312fa07d4205acc95cd1f7e1b55e3aa54b998f165397",
+    "Hermit/Utilities/CosineSimilarity.swift": "27e0dc3aba7302b2cd3d9d6e407c88a3e76515581e1da6e58406c3eff45fa931"
+  },
+  "python": "3.12.9",
+  "numpy": "2.4.3",
+  "sqlite": "3.53.4",
+  "result_sha256": {
+    "Package.resolved": "454939eb09ba9b7c6ae79b603ce0cf70a806c265aac90a377e8dbeb4d5a484b6",
+    "answer-summary.json": "db8a048b769912620a3f0032b9188f5ab7219263a6d5892ac24fbf3ffa25cedb",
+    "answers.json": "ee34ec5ecbf6ce56bb866349ed75499a689f13c8ec391dae12749e14d55c3a75",
+    "batches.json": "cfb9fb482333cb124b83a5f7249ced90a8319c243b1801822be564cd1277e849",
+    "cache-photo.json": "e884ff0db27248a4feb168e23d8611f57b47fb69d8f1b5e235a9dff9eceb5b38",
+    "cache-text.json": "19ddc390fa06e7c9a9abcaf70e4d848a2f68b890c4161a8445627f503f4e2646",
+    "legacy-gemma-load-error.txt": "a886777c350b358708014a3d16f9d981d0daef9babaff53efde8262ebad4ab60",
+    "provenance.json": "98b843a43743e73c9bf80c6a257e3168bb26dabd2a6768f8e6bc524a0a55457a",
+    "retrieval-queries.jsonl.gz": "da6be178c61ab8a30e348fe21de5add0972fd0717ab917b135a7f4402bfc281d",
+    "retrieval-summary.json": "09fb204552ab90c010344efa8b4891ea7895d75a100249bcd5404edcdd3e4895",
+    "search.json": "1e72db7f94fb415ac5ecf97bf160da901a104b210cc8c01d54efc4ea23273cdd",
+    "sessions.json": "1e0bc245bebb210a72b4172226358f7f80fcd18b4f79f22fe3063531ed890bcc",
+    "tagged-gemma-load-error.txt": "34427e474b849b9859efb95a1a24d474f0d85e4b3e18b7ec1c731edbc321258b",
+    "tokenizer-only/answer-summary.json": "4b77cb1e9cc8dea468f10d8c4f019fdbf0e502d1f88b2c4b685479de6d766fc0",
+    "tokenizer-only/batches.json": "6bd1b509a0d6281499d68da1b9b6218e2c27ba8d25b5cf3345345218ca4cdc9b",
+    "tokenizer-only/retrieval-summary.json": "bcfb5b29e8f22686e4fbc6a196602f9025158f6a3cf646da0edd9157e28c3f0c",
+    "vision-landscape.json": "ab9563e4dfa0252316d0d9f3762fa45d89b8518cdcdee44272b3066a3629f08b",
+    "vision-portrait.json": "c02f8f6e8fbef8190bebd2c3e3728634df6c4d6c476c48ea8372b17cf1b639ba",
+    "vision-square.json": "9941114ab0f1e223c0f9bf91c804de15645a2af5fa3b04d30905ca28f450fafd"
+  }
+}

@@ -1,0 +1,326 @@
+[
+  {
+    "arm" : "full_sort_cosine",
+    "dimensions" : 384,
+    "queries" : 10,
+    "rankAgreement" : true,
+    "repetition" : -1,
+    "seconds" : 0.0024830102920532227,
+    "vectors" : 1000
+  },
+  {
+    "arm" : "bounded_normalized",
+    "dimensions" : 384,
+    "queries" : 10,
+    "rankAgreement" : true,
+    "repetition" : -1,
+    "seconds" : 0.00066304206848144531,
+    "vectors" : 1000
+  },
+  {
+    "arm" : "full_sort_cosine",
+    "dimensions" : 384,
+    "queries" : 10,
+    "rankAgreement" : true,
+    "repetition" : 0,
+    "seconds" : 0.002200007438659668,
+    "vectors" : 1000
+  },
+  {
+    "arm" : "bounded_normalized",
+    "dimensions" : 384,
+    "queries" : 10,
+    "rankAgreement" : true,
+    "repetition" : 0,
+    "seconds" : 0.00064504146575927734,
+    "vectors" : 1000
+  },
+  {
+    "arm" : "full_sort_cosine",
+    "dimensions" : 384,
+    "queries" : 10,
+    "rankAgreement" : true,
+    "repetition" : 1,
+    "seconds" : 0.001873016357421875,
+    "vectors" : 1000
+  },
+  {
+    "arm" : "bounded_normalized",
+    "dimensions" : 384,
+    "queries" : 10,
+    "rankAgreement" : true,
+    "repetition" : 1,
+    "seconds" : 0.00063109397888183594,
+    "vectors" : 1000
+  },
+  {
+    "arm" : "full_sort_cosine",
+    "dimensions" : 384,
+    "queries" : 10,
+    "rankAgreement" : true,
+    "repetition" : 2,
+    "seconds" : 0.0016139745712280273,
+    "vectors" : 1000
+  },
+  {
+    "arm" : "bounded_normalized",
+    "dimensions" : 384,
+    "queries" : 10,
+    "rankAgreement" : true,
+    "repetition" : 2,
+    "seconds" : 0.00054097175598144531,
+    "vectors" : 1000
+  },
+  {
+    "arm" : "full_sort_cosine",
+    "dimensions" : 384,
+    "queries" : 10,
+    "rankAgreement" : true,
+    "repetition" : 3,
+    "seconds" : 0.0015699863433837891,
+    "vectors" : 1000
+  },
+  {
+    "arm" : "bounded_normalized",
+    "dimensions" : 384,
+    "queries" : 10,
+    "rankAgreement" : true,
+    "repetition" : 3,
+    "seconds" : 0.00051093101501464844,
+    "vectors" : 1000
+  },
+  {
+    "arm" : "full_sort_cosine",
+    "dimensions" : 384,
+    "queries" : 10,
+    "rankAgreement" : true,
+    "repetition" : 4,
+    "seconds" : 0.0016111135482788086,
+    "vectors" : 1000
+  },
+  {
+    "arm" : "bounded_normalized",
+    "dimensions" : 384,
+    "queries" : 10,
+    "rankAgreement" : true,
+    "repetition" : 4,
+    "seconds" : 0.00051999092102050781,
+    "vectors" : 1000
+  },
+  {
+    "arm" : "full_sort_cosine",
+    "dimensions" : 384,
+    "queries" : 10,
+    "rankAgreement" : true,
+    "repetition" : -1,
+    "seconds" : 0.012506008148193359,
+    "vectors" : 10000
+  },
+  {
+    "arm" : "bounded_normalized",
+    "dimensions" : 384,
+    "queries" : 10,
+    "rankAgreement" : true,
+    "repetition" : -1,
+    "seconds" : 0.00504302978515625,
+    "vectors" : 10000
+  },
+  {
+    "arm" : "full_sort_cosine",
+    "dimensions" : 384,
+    "queries" : 10,
+    "rankAgreement" : true,
+    "repetition" : 0,
+    "seconds" : 0.011716008186340332,
+    "vectors" : 10000
+  },
+  {
+    "arm" : "bounded_normalized",
+    "dimensions" : 384,
+    "queries" : 10,
+    "rankAgreement" : true,
+    "repetition" : 0,
+    "seconds" : 0.0047899484634399414,
+    "vectors" : 10000
+  },
+  {
+    "arm" : "full_sort_cosine",
+    "dimensions" : 384,
+    "queries" : 10,
+    "rankAgreement" : true,
+    "repetition" : 1,
+    "seconds" : 0.011381030082702637,
+    "vectors" : 10000
+  },
+  {
+    "arm" : "bounded_normalized",
+    "dimensions" : 384,
+    "queries" : 10,
+    "rankAgreement" : true,
+    "repetition" : 1,
+    "seconds" : 0.0049610137939453125,
+    "vectors" : 10000
+  },
+  {
+    "arm" : "full_sort_cosine",
+    "dimensions" : 384,
+    "queries" : 10,
+    "rankAgreement" : true,
+    "repetition" : 2,
+    "seconds" : 0.011368036270141602,
+    "vectors" : 10000
+  },
+  {
+    "arm" : "bounded_normalized",
+    "dimensions" : 384,
+    "queries" : 10,
+    "rankAgreement" : true,
+    "repetition" : 2,
+    "seconds" : 0.0041980743408203125,
+    "vectors" : 10000
+  },
+  {
+    "arm" : "full_sort_cosine",
+    "dimensions" : 384,
+    "queries" : 10,
+    "rankAgreement" : true,
+    "repetition" : 3,
+    "seconds" : 0.011216998100280762,
+    "vectors" : 10000
+  },
+  {
+    "arm" : "bounded_normalized",
+    "dimensions" : 384,
+    "queries" : 10,
+    "rankAgreement" : true,
+    "repetition" : 3,
+    "seconds" : 0.0046669244766235352,
+    "vectors" : 10000
+  },
+  {
+    "arm" : "full_sort_cosine",
+    "dimensions" : 384,
+    "queries" : 10,
+    "rankAgreement" : true,
+    "repetition" : 4,
+    "seconds" : 0.011157989501953125,
+    "vectors" : 10000
+  },
+  {
+    "arm" : "bounded_normalized",
+    "dimensions" : 384,
+    "queries" : 10,
+    "rankAgreement" : true,
+    "repetition" : 4,
+    "seconds" : 0.0045539140701293945,
+    "vectors" : 10000
+  },
+  {
+    "arm" : "full_sort_cosine",
+    "dimensions" : 384,
+    "queries" : 10,
+    "rankAgreement" : true,
+    "repetition" : -1,
+    "seconds" : 0.040900945663452148,
+    "vectors" : 30000
+  },
+  {
+    "arm" : "bounded_normalized",
+    "dimensions" : 384,
+    "queries" : 10,
+    "rankAgreement" : true,
+    "repetition" : -1,
+    "seconds" : 0.018313050270080566,
+    "vectors" : 30000
+  },
+  {
+    "arm" : "full_sort_cosine",
+    "dimensions" : 384,
+    "queries" : 10,
+    "rankAgreement" : true,
+    "repetition" : 0,
+    "seconds" : 0.038887977600097656,
+    "vectors" : 30000
+  },
+  {
+    "arm" : "bounded_normalized",
+    "dimensions" : 384,
+    "queries" : 10,
+    "rankAgreement" : true,
+    "repetition" : 0,
+    "seconds" : 0.015262007713317871,
+    "vectors" : 30000
+  },
+  {
+    "arm" : "full_sort_cosine",
+    "dimensions" : 384,
+    "queries" : 10,
+    "rankAgreement" : true,
+    "repetition" : 1,
+    "seconds" : 0.038076996803283691,
+    "vectors" : 30000
+  },
+  {
+    "arm" : "bounded_normalized",
+    "dimensions" : 384,
+    "queries" : 10,
+    "rankAgreement" : true,
+    "repetition" : 1,
+    "seconds" : 0.015643954277038574,
+    "vectors" : 30000
+  },
+  {
+    "arm" : "full_sort_cosine",
+    "dimensions" : 384,
+    "queries" : 10,
+    "rankAgreement" : true,
+    "repetition" : 2,
+    "seconds" : 0.038232922554016113,
+    "vectors" : 30000
+  },
+  {
+    "arm" : "bounded_normalized",
+    "dimensions" : 384,
+    "queries" : 10,
+    "rankAgreement" : true,
+    "repetition" : 2,
+    "seconds" : 0.015665054321289062,
+    "vectors" : 30000
+  },
+  {
+    "arm" : "full_sort_cosine",
+    "dimensions" : 384,
+    "queries" : 10,
+    "rankAgreement" : true,
+    "repetition" : 3,
+    "seconds" : 0.038740992546081543,
+    "vectors" : 30000
+  },
+  {
+    "arm" : "bounded_normalized",
+    "dimensions" : 384,
+    "queries" : 10,
+    "rankAgreement" : true,
+    "repetition" : 3,
+    "seconds" : 0.015082955360412598,
+    "vectors" : 30000
+  },
+  {
+    "arm" : "full_sort_cosine",
+    "dimensions" : 384,
+    "queries" : 10,
+    "rankAgreement" : true,
+    "repetition" : 4,
+    "seconds" : 0.038516998291015625,
+    "vectors" : 30000
+  },
+  {
+    "arm" : "bounded_normalized",
+    "dimensions" : 384,
+    "queries" : 10,
+    "rankAgreement" : true,
+    "repetition" : 4,
+    "seconds" : 0.016054987907409668,
+    "vectors" : 30000
+  }
+]

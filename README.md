@@ -100,7 +100,7 @@ For the iPhone 15 Pro / 8 GB target, measure the following before changing the c
 | 128 / 192 / 256-token chunks; overlaps 0 / 32 | Same English and Spanish documents/questions | Recall@3 by language, chunk count, import time |
 | Dense threshold 0.2 / 0.3 / 0.4; lexical+dense candidate | Same chunks, queries, top-3 context budget | Answerable recall and unanswerable abstention by language |
 
-Use a warm-up and at least five repeats, report medians and ranges, and measure text and image prefill separately. A reliable p95 needs more samples. Cache stays **0**, batch size stays **1**, and retrieval stays **dense top-3 at 0.2** pending phone measurements. The [native validation report](benchmarks/README.md) records Mac experiments and their limits; they do not establish iPhone performance.
+Use a warm-up and at least five repeats, report medians and ranges, and measure text and image prefill separately. A reliable p95 needs more samples. Cache stays **0**, batch size stays **1**, and retrieval stays **dense top-3 at 0.2** pending phone measurements. The [native validation report](benchmarks/RESULTS.md) records Mac experiments and their limits; they do not establish iPhone performance.
 
 **Existing documents need reimporting.** The deployed MiniLM tokenizer silently pads/truncates at 128 tokens, and its checkpoint omits mean-pooling metadata. Hermit clears those tokenizer settings in a temporary copy and uses upstream masked mean pooling with L2 normalization. New chunks carry an embedding version; old vectors are preserved on disk but excluded from search. Document search explains that old imports must be deleted and imported again. Any future model/tokenizer/pooling change must increment that version and rebuild all document vectors.
 
