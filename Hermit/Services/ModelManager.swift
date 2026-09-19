@@ -238,7 +238,7 @@ final class ModelManager {
                 self.modelState = .idle
             }
             let container = try await EmbedderModelFactory.shared.loadContainer(
-                from: directory, using: TokenizersLoader())
+                from: directory, using: EmbeddingTokenizerLoader())
             self.embeddingContainer = container
             self.modelState = .embeddingLoaded
             MLX.Memory.cacheLimit = self.inferenceCacheBytes

@@ -86,8 +86,32 @@ struct VectorStoreTests {
         let store2 = VectorStore(storeDirectory: dir)
         try await store2.loadAll()
         #expect(store2.chunks.count == 1)
+        #expect(!store2.needsReimport)
         #expect(store2.chunks[0].text == "Persisted chunk")
         #expect(abs(cosineSimilarity(store2.chunks[0].embedding!, [0.5, 0.5, 0.5]) - 1) < 1e-5)
+    }
+
+    @Test func legacyVectorsArePreservedOnDiskButNeverSearched() async throws {
+        let dir = makeTempDirectory()
+        defer { cleanup(dir) }
+        let docId = UUID()
+        let url = dir.appendingPathComponent("\(docId).json")
+        let data = Data("""
+            [{"id":"\(UUID())","documentId":"\(docId)","text":"Old document","embedding":[1,0],"chunkIndex":0}]
+            """.utf8)
+        try data.write(to: url)
+        let store = VectorStore(storeDirectory: dir)
+        try await store.loadAll()
+        #expect(store.needsReimport)
+        #expect(store.chunks.first?.text == "Old document")
+        #expect(store.search(queryEmbedding: [1, 0]).isEmpty)
+        #expect(try Data(contentsOf: url) == data)
+        let engine = RAGEngine(embeddingService: EmbeddingService(modelManager: ModelManager()), vectorStore: store)
+        await #expect(throws: RAGError.reimportRequired) {
+            try await engine.retrieveContext(for: "Old document")
+        }
+        try await store.deleteChunks(forDocument: docId)
+        #expect(!store.needsReimport)
     }
 
     @Test func searchReturnsCorrectTopK() async throws {

@@ -1217,6 +1217,7 @@
 - [x] Replace custom Gemma text/vision/loading code with upstream MLXVLM.
 - [x] Keep structured ChatSession history/KV state with a total token budget and safe reset on prefix/model changes.
 - [x] Make document retrieval explicit; use the deployed tokenizer to budget chunks.
+- [x] Remove serialized 128-token truncation/padding, select upstream MiniLM mean pooling, and require reimporting incompatible stored vectors.
 - [x] Hold exclusive model ownership through loading, streaming, cancellation, and unloading.
 - [x] Move document extraction/JSON I/O off MainActor, throttle streaming updates, and use normalized bounded top-K search.
 - [x] Update regression tests, explicitly skip unavailable GPU integration tests, and compile simulator/device targets.

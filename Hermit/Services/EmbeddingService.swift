@@ -1,6 +1,30 @@
 import Foundation
 import MLX
 import MLXEmbedders
+import MLXLMCommon
+import MLXLMTokenizers
+
+/// Serialized tokenizer padding/truncation must not hide text from our token budget.
+/// Keep the downloaded model untouched; the upstream loader reads a temporary copy.
+struct EmbeddingTokenizerLoader: TokenizerLoader {
+    func load(from directory: URL) async throws -> any MLXLMCommon.Tokenizer {
+        let temporary = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try FileManager.default.createDirectory(at: temporary, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: temporary) }
+        let data = try Data(contentsOf: directory.appendingPathComponent("tokenizer.json"))
+        guard var configuration = try JSONSerialization.jsonObject(with: data) as? [String: Any] else {
+            throw CocoaError(.coderReadCorrupt)
+        }
+        configuration.removeValue(forKey: "truncation")
+        configuration.removeValue(forKey: "padding")
+        try JSONSerialization.data(withJSONObject: configuration)
+            .write(to: temporary.appendingPathComponent("tokenizer.json"))
+        try FileManager.default.copyItem(
+            at: directory.appendingPathComponent("tokenizer_config.json"),
+            to: temporary.appendingPathComponent("tokenizer_config.json"))
+        return try await TokenizersLoader().load(from: temporary)
+    }
+}
 
 final class EmbeddingService: Sendable {
     private let modelManager: ModelManager
@@ -72,7 +96,9 @@ final class EmbeddingService: Sendable {
         }).reshaped(texts.count, width)
         let output = context.model(
             tokens, positionIds: nil, tokenTypeIds: MLXArray.zeros(like: tokens), attentionMask: mask)
-        let pooled = context.pooling(output, mask: mask, normalize: true, applyLayerNorm: true)
+        // The MLX checkpoint omits MiniLM's 1_Pooling/config.json. Its model card
+        // specifies masked mean pooling and L2 normalization, without layer norm.
+        let pooled = Pooling(strategy: .mean)(output, mask: mask, normalize: true)
         pooled.eval()
         return (0..<texts.count).map { pooled[$0].asArray(Float.self) }
     }

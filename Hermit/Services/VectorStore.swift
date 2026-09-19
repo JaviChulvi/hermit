@@ -5,6 +5,9 @@ import Foundation
 @MainActor
 class VectorStore {
     private(set) var chunks: [TextChunk] = []
+    var needsReimport: Bool {
+        chunks.contains { $0.embeddingVersion != TextChunk.currentEmbeddingVersion }
+    }
     private let storeDirectory: URL
 
     init(storeDirectory: URL? = nil) {
@@ -98,7 +101,8 @@ class VectorStore {
     private nonisolated static func normalize(_ chunks: [TextChunk]) -> [TextChunk] {
         chunks.map { chunk in
             var chunk = chunk
-            chunk.embedding = chunk.embedding.flatMap(normalized)
+            chunk.embedding = chunk.embeddingVersion == TextChunk.currentEmbeddingVersion
+                ? chunk.embedding.flatMap(normalized) : nil
             return chunk
         }
     }

@@ -41,8 +41,11 @@ struct HermitApp: App {
             }
             .task {
                 do {
-                    try await vectorStore.loadAll()
                     try await documentViewModel.loadDocuments()
+                    try await vectorStore.loadAll()
+                    if vectorStore.needsReimport {
+                        documentViewModel.errorMessage = RAGError.reimportRequired.localizedDescription
+                    }
                 } catch { documentViewModel.errorMessage = error.localizedDescription }
                 isLoading = false
             }

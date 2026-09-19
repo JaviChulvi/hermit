@@ -90,6 +90,7 @@ When implementing ANY view, apply these colors. Do not leave default iOS styling
 - Use `@MainActor` on view models and UI-bound services
 - Use SwiftUI `.environment()` for dependency injection
 - Prefer `async/await` and `AsyncThrowingStream` over closures/callbacks
+- MiniLM requires untruncated/unpadded tokenization and masked mean pooling with L2 normalization. Its MLX checkpoint lacks pooling metadata. Increment `TextChunk.currentEmbeddingVersion` for any embedding/tokenizer/pooling change; never mix old vectors with new queries.
 - Keep services stateless where possible; state lives in ViewModels or Managers
 - Test file naming: `{ClassName}Tests.swift` in matching subdirectory under HermitTests/
 

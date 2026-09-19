@@ -83,6 +83,7 @@ class RAGEngine {
 
     /// Retrieve relevant document context for a query. Returns nil if no chunks are relevant.
     func retrieveContext(for query: String, topK: Int = 3) async throws -> String? {
+        guard !vectorStore.needsReimport else { throw RAGError.reimportRequired }
         let results = try await retrieveContextWithScores(for: query, topK: topK)
         let relevant = results.filter { $0.score >= Self.relevanceThreshold }
         guard !relevant.isEmpty else { return nil }
@@ -98,4 +99,11 @@ class RAGEngine {
         return vectorStore.searchWithScores(queryEmbedding: queryEmbedding, topK: topK)
     }
 
+}
+
+enum RAGError: LocalizedError, Equatable {
+    case reimportRequired
+    var errorDescription: String? {
+        "Document search has been updated. Delete documents imported before this update and import them again to rebuild their search index."
+    }
 }
