@@ -4,6 +4,8 @@
 
 App revision: `e2b721e`. M3 Pro / 36 GiB, macOS 26.6.1, Xcode 26.4. [Raw evidence](results/2026-09-19/), [reproduction](REPRODUCE.md), and the [preregistered plan and corrections](README.md) accompany this report. This was a local interactive host, with sequential GPU workloads, not a dedicated iPhone test rig. No paid inference API or user documents were used.
 
+A subsequent cache-path fix resolves relative Hugging Face symlinks before copying tokenizer metadata. Its regression test passes with the same 50-pass/5-skip suite. The measurements above used regular files and are retained at their original source revision; the path fix does not change tokenization or pooling for those inputs.
+
 ## Compatibility and session behavior
 
 | Check | Observed result | Scope |

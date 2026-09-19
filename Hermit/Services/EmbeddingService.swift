@@ -20,7 +20,7 @@ struct EmbeddingTokenizerLoader: TokenizerLoader {
         try JSONSerialization.data(withJSONObject: configuration)
             .write(to: temporary.appendingPathComponent("tokenizer.json"))
         try FileManager.default.copyItem(
-            at: directory.appendingPathComponent("tokenizer_config.json"),
+            at: directory.appendingPathComponent("tokenizer_config.json").resolvingSymlinksInPath(),
             to: temporary.appendingPathComponent("tokenizer_config.json"))
         return try await TokenizersLoader().load(from: temporary)
     }

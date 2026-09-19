@@ -17,8 +17,13 @@ struct ChunkingStrategyTests {
          "model":{"type":"WordPiece","unk_token":"[UNK]","continuing_subword_prefix":"##","max_input_chars_per_word":100,"vocab":{"[PAD]":0,"[UNK]":1,"[CLS]":2,"[SEP]":3,"hello":4}}}
         """#
         try Data(serialized.utf8).write(to: directory.appendingPathComponent("tokenizer.json"))
-        try Data("{}".utf8).write(to: directory.appendingPathComponent("tokenizer_config.json"))
+        try Data(#"{"bos_token":"hello"}"#.utf8).write(to: directory.appendingPathComponent("metadata.json"))
+        // Hugging Face cache snapshots contain relative links to blob files.
+        try FileManager.default.createSymbolicLink(
+            atPath: directory.appendingPathComponent("tokenizer_config.json").path,
+            withDestinationPath: "metadata.json")
         let tokenizer = try await EmbeddingTokenizerLoader().load(from: directory)
+        #expect(tokenizer.bosToken == "hello")
         let text = Array(repeating: "hello", count: 20).joined(separator: " ")
         #expect(tokenizer.encode(text: "hello", addSpecialTokens: true).count == 3)
         #expect(tokenizer.encode(text: text, addSpecialTokens: true).count == 22)
