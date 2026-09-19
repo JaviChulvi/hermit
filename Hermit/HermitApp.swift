@@ -8,13 +8,14 @@ struct HermitApp: App {
     @State private var ragEngine: RAGEngine
     @State private var documentViewModel: DocumentViewModel
     @State private var chatViewModel: ChatViewModel
+    @State private var isLoading = true
 
     init() {
         let mm = ModelManager()
         let vs = VectorStore()
         let es = EmbeddingService(modelManager: mm)
         let ls = LLMService(modelManager: mm)
-        let re = RAGEngine(embeddingService: es, vectorStore: vs, modelManager: mm)
+        let re = RAGEngine(embeddingService: es, vectorStore: vs)
         let dvm = DocumentViewModel(ragEngine: re, vectorStore: vs)
         let cvm = ChatViewModel(ragEngine: re, llmService: ls)
 
@@ -28,11 +29,22 @@ struct HermitApp: App {
     var body: some Scene {
         WindowGroup {
             Group {
-                if onboardingComplete {
+                if isLoading {
+                    ProgressView().tint(Color("AccentColor"))
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                        .background(Color("BackgroundPrimary").ignoresSafeArea())
+                } else if onboardingComplete {
                     ContentView()
                 } else {
                     OnboardingView()
                 }
+            }
+            .task {
+                do {
+                    try await vectorStore.loadAll()
+                    try await documentViewModel.loadDocuments()
+                } catch { documentViewModel.errorMessage = error.localizedDescription }
+                isLoading = false
             }
             .preferredColorScheme(.dark)
             .environment(modelManager)

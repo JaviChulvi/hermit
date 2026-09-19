@@ -38,7 +38,7 @@ struct ChatView: View {
         .alert("Clear Conversation", isPresented: $showClearAlert) {
             Button("Cancel", role: .cancel) { }
             Button("Clear", role: .destructive) {
-                viewModel.clearConversation()
+                Task { await viewModel.clearConversation() }
             }
         } message: {
             Text("This will remove all messages. Your documents will not be affected.")
@@ -61,6 +61,17 @@ struct ChatView: View {
                         .font(.system(size: 16))
                         .foregroundStyle(Color("TextSecondary"))
                 }
+            }
+            if viewModel.hasDocuments {
+                Button {
+                    viewModel.searchDocuments.toggle()
+                } label: {
+                    Label(viewModel.searchDocuments ? "Documents" : "General", systemImage: "doc.text.magnifyingglass")
+                        .font(.caption)
+                        .foregroundStyle(viewModel.searchDocuments ? Color("AccentColor") : Color("TextSecondary"))
+                }
+                .disabled(viewModel.isGenerating)
+                .accessibilityHint("Choose whether to search your imported documents")
             }
             PrivacyBadge()
         }
@@ -147,9 +158,7 @@ struct ChatView: View {
                 }
             }
             .onChange(of: viewModel.currentStreamedText) {
-                withAnimation {
-                    scrollToBottom(proxy: proxy)
-                }
+                scrollToBottom(proxy: proxy)
             }
             .onChange(of: viewModel.isGenerating) {
                 if viewModel.isGenerating {
@@ -336,7 +345,7 @@ struct CameraPicker: UIViewControllerRepresentable {
     let vs = VectorStore()
     let es = EmbeddingService(modelManager: mm)
     let ls = LLMService(modelManager: mm)
-    let re = RAGEngine(embeddingService: es, vectorStore: vs, modelManager: mm)
+    let re = RAGEngine(embeddingService: es, vectorStore: vs)
 
     ChatView()
         .environment(ChatViewModel(ragEngine: re, llmService: ls))

@@ -8,7 +8,6 @@ private let logger = Logger(subsystem: "com.hermit.app", category: "RAGEngine")
 class RAGEngine {
     private let embeddingService: EmbeddingService
     private let vectorStore: VectorStore
-    private let modelManager: ModelManager
 
     /// Whether documents have been imported and are available for RAG queries.
     var hasDocuments: Bool { !vectorStore.chunks.isEmpty }
@@ -16,10 +15,9 @@ class RAGEngine {
     /// Minimum cosine similarity for a chunk to be considered relevant.
     static let relevanceThreshold: Float = 0.2
 
-    init(embeddingService: EmbeddingService, vectorStore: VectorStore, modelManager: ModelManager) {
+    init(embeddingService: EmbeddingService, vectorStore: VectorStore) {
         self.embeddingService = embeddingService
         self.vectorStore = vectorStore
-        self.modelManager = modelManager
     }
 
     // MARK: - Ingest Pipeline
@@ -39,37 +37,17 @@ class RAGEngine {
         logger.info("Step 1: Extracting text...")
         let text: String
         do {
-            text = try DocumentProcessor.extractText(from: url)
+            text = try await Task.detached { try DocumentProcessor.extractText(from: url) }.value
             logger.info("Text extracted: \(text.count) characters, \(text.split(separator: " ").count) words")
         } catch {
             logger.error("Text extraction failed: \(error.localizedDescription)")
             throw error
         }
 
-        // 2. Chunk text
-        progress("Splitting into chunks...")
-        logger.info("Step 2: Chunking text...")
-        let chunkStrings = ChunkingStrategy.chunk(text: text)
-        logger.info("Created \(chunkStrings.count) chunks")
-        for (i, chunk) in chunkStrings.enumerated() {
-            logger.debug("  Chunk \(i): \(chunk.split(separator: " ").count) words, \(chunk.count) chars")
-        }
-
-        // 3. Generate embeddings
-        progress("Generating embeddings...")
-        logger.info("Step 3: Generating embeddings for \(chunkStrings.count) chunks...")
-        let embeddings: [[Float]]
-        do {
-            embeddings = try await embeddingService.embed(chunks: chunkStrings) { @Sendable completed, total in
-                Task { @MainActor in
-                    progress("Embedding chunk \(completed)/\(total)...")
-                }
-            }
-            logger.info("All \(embeddings.count) embeddings generated, dimension: \(embeddings.first?.count ?? 0)")
-        } catch {
-            logger.error("Embedding generation failed: \(error.localizedDescription)")
-            logger.error("Error type: \(type(of: error)), full: \(String(describing: error))")
-            throw error
+        // Tokenize and embed while MiniLM is loaded once.
+        progress("Chunking and embedding...")
+        let (chunkStrings, embeddings) = try await embeddingService.embedDocument(text: text) { completed, total in
+            Task { @MainActor in progress("Embedding chunk \(completed)/\(total)...") }
         }
 
         // 4. Create TextChunk objects with embeddings
@@ -85,7 +63,7 @@ class RAGEngine {
         // 5. Save to VectorStore
         progress("Saving...")
         logger.info("Step 4: Saving \(textChunks.count) chunks to VectorStore...")
-        vectorStore.addChunks(textChunks, forDocument: documentId)
+        try await vectorStore.addChunks(textChunks, forDocument: documentId)
         logger.info("Saved. Total chunks in store: \(self.vectorStore.chunks.count)")
 
         // 6. Return Document metadata
@@ -115,9 +93,6 @@ class RAGEngine {
     private func retrieveContextWithScores(for query: String, topK: Int = 3) async throws -> [(chunk: TextChunk, score: Float)] {
         // 1. Load embedding model and embed the query
         let queryEmbedding = try await embeddingService.embed(text: query)
-
-        // 2. Unload embedding model to free RAM
-        modelManager.unloadEmbedding()
 
         // 3. Search VectorStore with scores
         return vectorStore.searchWithScores(queryEmbedding: queryEmbedding, topK: topK)

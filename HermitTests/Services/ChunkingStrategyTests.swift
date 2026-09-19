@@ -1,113 +1,38 @@
 import Testing
-import Foundation
 @testable import Hermit
 
 struct ChunkingStrategyTests {
+    // Deliberately different from word count, including two special tokens.
+    private func tokens(_ text: String) -> Int { text.split(separator: " ").count * 3 + 2 }
 
-    @Test func emptyStringReturnsEmptyArray() {
-        let chunks = ChunkingStrategy.chunk(text: "")
-        #expect(chunks.isEmpty)
+    @Test func emptyText() throws {
+        #expect(try ChunkingStrategy.chunk(text: "", tokenCount: tokens).isEmpty)
     }
 
-    @Test func shortTextReturnsSingleChunk() {
-        let words = (1...100).map { "word\($0)" }
-        let text = words.joined(separator: " ")
-
-        let chunks = ChunkingStrategy.chunk(text: text, targetWords: 300, overlapWords: 50)
-
-        #expect(chunks.count == 1)
-        #expect(chunks[0] == text)
+    @Test func budgetIncludesSpecialTokensAndRetainsEveryWord() throws {
+        let words = (0..<100).map { "word\($0)" }
+        let chunks = try ChunkingStrategy.chunk(
+            text: words.joined(separator: " "), maxTokens: 20, overlapTokens: 0, tokenCount: tokens)
+        #expect(chunks.allSatisfy { tokens($0) <= 20 })
+        #expect(chunks.flatMap { $0.split(separator: " ").map(String.init) } == words)
     }
 
-    @Test func exactTargetWordsReturnsSingleChunk() {
-        let words = (1...300).map { "word\($0)" }
-        let text = words.joined(separator: " ")
-
-        let chunks = ChunkingStrategy.chunk(text: text, targetWords: 300, overlapWords: 50)
-
-        #expect(chunks.count == 1)
+    @Test func overlapIsBoundedAndLastChunkIsNotDuplicated() throws {
+        let chunks = try ChunkingStrategy.chunk(
+            text: "one two three four five six seven eight nine ten", maxTokens: 20,
+            overlapTokens: 8, tokenCount: tokens)
+        #expect(chunks == ["one two three four five six", "five six seven eight nine ten"])
     }
 
-    @Test func sixHundredWordsNoOverlapReturnsTwoChunks() {
-        let words = (1...600).map { "word\($0)" }
-        let text = words.joined(separator: " ")
+    @Test func excessiveOverlapStillMakesProgress() throws {
+        let chunks = try ChunkingStrategy.chunk(
+            text: "uno dos tres cuatro", maxTokens: 8, overlapTokens: 100, tokenCount: tokens)
+        #expect(chunks == ["uno dos", "dos tres", "tres cuatro"])
+    }
 
-        let chunks = ChunkingStrategy.chunk(text: text, targetWords: 300, overlapWords: 0)
-
-        #expect(chunks.count == 2)
-
-        // Each chunk should be approximately 300 words
-        for chunk in chunks {
-            let count = chunk.split(separator: " ").count
-            #expect(count >= 250 && count <= 350)
+    @Test func impossibleWordDoesNotSilentlyTruncate() {
+        #expect(throws: ChunkingError.self) {
+            try ChunkingStrategy.chunk(text: "unbroken", maxTokens: 3, tokenCount: tokens)
         }
-    }
-
-    @Test func sixHundredWordsWithOverlapHasOverlap() {
-        let words = (1...600).map { "word\($0)" }
-        let text = words.joined(separator: " ")
-
-        let chunks = ChunkingStrategy.chunk(text: text, targetWords: 300, overlapWords: 50)
-
-        #expect(chunks.count >= 2)
-
-        // Verify overlap: last words of chunk 0 should appear at start of chunk 1
-        let chunk0Words = chunks[0].split(separator: " ")
-        let chunk1Words = chunks[1].split(separator: " ")
-        let lastWordsOfChunk0 = chunk0Words.suffix(50)
-        let firstWordsOfChunk1 = chunk1Words.prefix(50)
-
-        #expect(Array(lastWordsOfChunk0) == Array(firstWordsOfChunk1))
-    }
-
-    @Test func veryLongTextReturnsCorrectNumberOfChunks() {
-        let words = (1...2000).map { "word\($0)" }
-        let text = words.joined(separator: " ")
-
-        let chunks = ChunkingStrategy.chunk(text: text, targetWords: 300, overlapWords: 50)
-
-        // 2000 words / (300 - 50) = 8 chunks, so expect at least 7
-        #expect(chunks.count >= 7)
-
-        // Every chunk should have content
-        for chunk in chunks {
-            #expect(!chunk.isEmpty)
-        }
-    }
-
-    @Test func chunkSizesAreWithinReasonableRange() {
-        let words = (1...2000).map { "word\($0)" }
-        let text = words.joined(separator: " ")
-
-        let chunks = ChunkingStrategy.chunk(text: text, targetWords: 300, overlapWords: 50)
-
-        // All chunks except possibly the last should be within 250-350 words
-        for (i, chunk) in chunks.enumerated() {
-            let count = chunk.split(separator: " ").count
-            if i < chunks.count - 1 {
-                #expect(count >= 250 && count <= 350, "Chunk \(i) has \(count) words, expected 250-350")
-            } else {
-                // Last chunk can be smaller
-                #expect(count > 0, "Last chunk should not be empty")
-            }
-        }
-    }
-
-    @Test func sentenceBoundaryAdjustment() {
-        // Build text where a sentence ends near the target boundary
-        var words: [String] = []
-        for i in 1...295 {
-            words.append("word\(i)")
-        }
-        words.append("end.")  // Word 296 ends a sentence
-        for i in 297...600 {
-            words.append("word\(i)")
-        }
-        let text = words.joined(separator: " ")
-
-        let chunks = ChunkingStrategy.chunk(text: text, targetWords: 300, overlapWords: 50)
-
-        // First chunk should end at the sentence boundary (word 296 = "end.")
-        #expect(chunks[0].hasSuffix("end."))
     }
 }

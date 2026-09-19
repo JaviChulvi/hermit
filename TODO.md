@@ -1209,3 +1209,14 @@
 | **Phase 3** | 7 stories | 31 tasks | DocumentProcessor (4), Chunking (7), CosineSimilarity (7), VectorStore (6), RAGEngine (3+), EmbeddingService (4) | Task 3.7.4: document flow |
 | **Phase 4** | 7 stories | 36 tasks | LLMService (4), RAGQuery (4+), ChatViewModel (6), E2E | Task 4.6.5: full app review |
 | **Total** | **29 stories** | **139 tasks** | **~55 tests** | **4 quality gates** |
+
+## 5.1 — Upstream MLX and app performance
+
+- [x] Pin official MLX packages and compatible adapters; check in the dependency lockfile.
+- [x] Replace custom Gemma text/vision/loading code with upstream MLXVLM.
+- [x] Keep structured ChatSession history/KV state with a total token budget and safe reset on prefix/model changes.
+- [x] Make document retrieval explicit; use the deployed tokenizer to budget chunks.
+- [x] Hold exclusive model ownership through loading, streaming, cancellation, and unloading.
+- [x] Move document extraction/JSON I/O off MainActor, throttle streaming updates, and use normalized bounded top-K search.
+- [x] Update regression tests, explicitly skip unavailable GPU integration tests, and compile simulator/device targets.
+- [ ] Run the README's compatibility, EN/ES retrieval, cache/batch, text/photo, and thermal comparisons on the target iPhone before tuning defaults or claiming device performance gains.

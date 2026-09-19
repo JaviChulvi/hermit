@@ -2,79 +2,29 @@ import Testing
 import Foundation
 @testable import Hermit
 
-/// Integration tests for LLMService.
-/// These tests require the LLM (Gemma 4 E2B) to be downloaded on disk.
-/// They pass as no-ops when the model is not available.
+// Explicitly opt in on a physical device with both models downloaded.
+@Suite(.enabled(if: ProcessInfo.processInfo.environment["HERMIT_MODEL_TESTS"] == "1"), .serialized)
 @MainActor
 struct LLMServiceIntegrationTests {
-
-    private func makeServiceIfModelAvailable() -> (LLMService, ModelManager)? {
+    @Test func structuredConversationAndModelSwap() async throws {
         let manager = ModelManager()
-        guard manager.llmModelDownloaded else { return nil }
-        return (LLMService(modelManager: manager), manager)
-    }
-
-    @Test func loadModel_setsStateLLMLoaded() async throws {
-        guard let (service, manager) = makeServiceIfModelAvailable() else { return }
-
-        try await service.loadModel()
+        try #require(manager.llmModelDownloaded && manager.embeddingModelDownloaded)
+        defer { manager.unloadAll() }
+        let service = LLMService(modelManager: manager)
+        let question = ChatMessage(role: .user, content: "My name is Elena. Say hello briefly.")
+        var updates: [String] = []
+        let answer = try await service.respond(to: question, history: []) { updates.append($0) }
+        #expect(!answer.content.isEmpty)
+        #expect(updates.last == answer.content)
         #expect(manager.modelState == .llmLoaded)
 
-        service.unloadModel()
+        let followup = ChatMessage(role: .user, content: "What is my name?")
+        let response = try await service.respond(to: followup, history: [question, answer]) { _ in }
+        #expect(response.content.localizedCaseInsensitiveContains("Elena"))
+
+        _ = try await EmbeddingService(modelManager: manager).embed(text: "A short document.")
         #expect(manager.modelState == .idle)
-    }
-
-    @Test func chat_yieldsAtLeastOneToken() async throws {
-        guard let (service, manager) = makeServiceIfModelAvailable() else { return }
-
-        try await service.loadModel()
-
-        let stream = try await service.chat(
-            message: "Say hello in one word.",
-            history: []
-        )
-
-        var tokens: [String] = []
-        for try await token in stream {
-            tokens.append(token)
-            if tokens.count >= 3 { break }
-        }
-
-        #expect(!tokens.isEmpty, "Stream should yield at least one token")
-
-        service.unloadModel()
-        #expect(manager.modelState == .idle)
-    }
-
-    @Test func chat_completesWithNonEmptyResult() async throws {
-        guard let (service, manager) = makeServiceIfModelAvailable() else { return }
-
-        try await service.loadModel()
-
-        let stream = try await service.chat(
-            message: "What is 2+2?",
-            history: []
-        )
-
-        var fullResponse = ""
-        for try await token in stream {
-            fullResponse += token
-        }
-
-        #expect(!fullResponse.isEmpty, "Response should not be empty")
-
-        service.unloadModel()
-        #expect(manager.modelState == .idle)
-    }
-
-    @Test func unloadModel_setsStateToIdle() async throws {
-        guard let (service, manager) = makeServiceIfModelAvailable() else { return }
-
-        try await service.loadModel()
-        #expect(manager.modelState == .llmLoaded)
-
-        service.unloadModel()
-        #expect(manager.modelState == .idle)
-        #expect(manager.llmContainer == nil)
+        let rebuilt = try await service.respond(to: followup, history: [question, answer]) { _ in }
+        #expect(rebuilt.content.localizedCaseInsensitiveContains("Elena"))
     }
 }

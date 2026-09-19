@@ -3,7 +3,7 @@ options:
   bundleIdPrefix: com.hermit
   deploymentTarget:
     iOS: "18.0"
-  xcodeVersion: "16.0"
+  xcodeVersion: "26.4"
   generateEmptyDirectories: true
 
 settings:
@@ -13,16 +13,23 @@ settings:
 packages:
   mlx-swift:
     url: https://github.com/ml-explore/mlx-swift
-    from: "0.10.0"
+    exactVersion: "0.31.4"
   mlx-swift-lm:
-    url: https://github.com/DePasqualeOrg/mlx-swift-lm.git
-    branch: swift-tokenizers
+    url: https://github.com/ml-explore/mlx-swift-lm.git
+    exactVersion: "3.31.4"
   swift-tokenizers-mlx:
     url: https://github.com/DePasqualeOrg/swift-tokenizers-mlx
-    branch: main
+    exactVersion: "0.3.0"
   swift-hf-api-mlx:
     url: https://github.com/DePasqualeOrg/swift-hf-api-mlx
-    branch: main
+    exactVersion: "0.2.0"
+  # Keep the adapters on their supported HubClient/tokenizer API versions.
+  swift-tokenizers:
+    url: https://github.com/DePasqualeOrg/swift-tokenizers.git
+    exactVersion: "0.5.0"
+  swift-hf-api:
+    url: https://github.com/DePasqualeOrg/swift-hf-api.git
+    exactVersion: "0.3.2"
 
 targets:
   Hermit:
@@ -38,6 +45,8 @@ targets:
     settings:
       base:
         GENERATE_INFOPLIST_FILE: true
+        INFOPLIST_KEY_NSCameraUsageDescription: "Hermit uses the camera to take photos for AI visual analysis"
+        INFOPLIST_KEY_NSPhotoLibraryUsageDescription: "Hermit uses your photos to provide visual context for AI conversations"
         INFOPLIST_KEY_UILaunchScreen_Generation: true
         INFOPLIST_KEY_UISupportedInterfaceOrientations: "UIInterfaceOrientationPortrait"
         INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad: "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight"
@@ -49,10 +58,8 @@ targets:
     dependencies:
       - package: mlx-swift
         product: MLX
-      - package: mlx-swift
-        product: MLXNN
       - package: mlx-swift-lm
-        product: MLXLLM
+        product: MLXVLM
       - package: mlx-swift-lm
         product: MLXEmbedders
       - package: mlx-swift-lm
@@ -61,8 +68,6 @@ targets:
         product: MLXLMTokenizers
       - package: swift-hf-api-mlx
         product: MLXLMHFAPI
-      - package: swift-hf-api-mlx
-        product: MLXEmbeddersHFAPI
 
   HermitTests:
     type: bundle.unit-test

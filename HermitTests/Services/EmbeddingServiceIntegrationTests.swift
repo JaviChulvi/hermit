@@ -4,18 +4,19 @@ import Foundation
 
 /// Integration tests for EmbeddingService.
 /// These tests require the embedding model (all-MiniLM-L6-v2) to be downloaded on disk.
-/// They pass as no-ops when the model is not available.
+/// Opt in explicitly on a physical device; missing models fail the opted-in run.
+@Suite(.enabled(if: ProcessInfo.processInfo.environment["HERMIT_MODEL_TESTS"] == "1"), .serialized)
 @MainActor
 struct EmbeddingServiceIntegrationTests {
 
-    private func makeServiceIfModelAvailable() -> EmbeddingService? {
+    private func makeService() throws -> EmbeddingService {
         let manager = ModelManager()
-        guard manager.embeddingModelDownloaded else { return nil }
+        try #require(manager.embeddingModelDownloaded)
         return EmbeddingService(modelManager: manager)
     }
 
     @Test func embedSingleText_returns384Floats() async throws {
-        guard let service = makeServiceIfModelAvailable() else { return }
+        let service = try makeService()
 
         let embedding = try await service.embed(text: "Hello, world!")
 
@@ -24,7 +25,7 @@ struct EmbeddingServiceIntegrationTests {
     }
 
     @Test func embedSimilarSentences_highCosineSimilarity() async throws {
-        guard let service = makeServiceIfModelAvailable() else { return }
+        let service = try makeService()
 
         let embedding1 = try await service.embed(text: "The cat sat on the mat")
         let embedding2 = try await service.embed(text: "A cat was sitting on a mat")
@@ -34,7 +35,7 @@ struct EmbeddingServiceIntegrationTests {
     }
 
     @Test func embedUnrelatedSentences_lowCosineSimilarity() async throws {
-        guard let service = makeServiceIfModelAvailable() else { return }
+        let service = try makeService()
 
         let embedding1 = try await service.embed(text: "The weather is sunny today")
         let embedding2 = try await service.embed(text: "Quantum mechanics describes subatomic particles")
@@ -44,7 +45,7 @@ struct EmbeddingServiceIntegrationTests {
     }
 
     @Test func embedBatchChunks_returnsCorrectCount() async throws {
-        guard let service = makeServiceIfModelAvailable() else { return }
+        let service = try makeService()
 
         let chunks = [
             "First chunk of text about animals",

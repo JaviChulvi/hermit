@@ -54,7 +54,7 @@ struct DocumentListView: View {
             }
             Button("Delete", role: .destructive) {
                 if let doc = documentToDelete {
-                    viewModel.deleteDocument(id: doc.id)
+                    Task { await viewModel.deleteDocument(id: doc.id) }
                     documentToDelete = nil
                 }
             }
@@ -280,8 +280,7 @@ private func makePreviewEnvironment() -> (ModelManager, VectorStore, RAGEngine, 
     let mm = ModelManager()
     let vs = VectorStore()
     let es = EmbeddingService(modelManager: mm)
-    let ls = LLMService(modelManager: mm)
-    let re = RAGEngine(embeddingService: es, vectorStore: vs, modelManager: mm)
+    let re = RAGEngine(embeddingService: es, vectorStore: vs)
     let dvm = DocumentViewModel(ragEngine: re, vectorStore: vs)
     return (mm, vs, re, dvm)
 }
