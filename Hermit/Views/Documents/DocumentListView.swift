@@ -247,34 +247,6 @@ struct DocumentRow: View {
 
 // MARK: - Previews
 
-#if DEBUG
-extension Document {
-    static let previewSamples: [Document] = [
-        Document(
-            name: "Climate Change Report",
-            fileExtension: "pdf",
-            dateAdded: Date().addingTimeInterval(-86400 * 3),
-            chunkCount: 12,
-            isProcessed: true
-        ),
-        Document(
-            name: "Meeting Notes Q1",
-            fileExtension: "txt",
-            dateAdded: Date().addingTimeInterval(-86400),
-            chunkCount: 5,
-            isProcessed: true
-        ),
-        Document(
-            name: "Research Paper Draft",
-            fileExtension: "pdf",
-            dateAdded: Date(),
-            chunkCount: 0,
-            isProcessed: false
-        ),
-    ]
-}
-#endif
-
 @MainActor
 private func makePreviewEnvironment() -> (ModelManager, VectorStore, RAGEngine, DocumentViewModel) {
     let mm = ModelManager()
